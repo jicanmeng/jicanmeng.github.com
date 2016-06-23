@@ -1,0 +1,258 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<title>array and function in bash</title>
+		<meta http-equiv="content-type" content="text/html; charset=UTF-8">
+		<link rel="stylesheet" type="text/css" href="../../../style.css" />
+	</head>
+	<body>
+
+		<script type="text/javascript" src="../../../style.js"></script>
+
+		<div id="header">
+			<h1>每天进步一点点</h1>
+		</div>
+
+		<div id="navigation">
+			<ul id="navigation">
+				<li><a class="navigation" href="../../../index.html">Home Page</a></li>
+				<li><a class="navigation" href="../../../life/index.html">Life</a></li>
+				<li><a class="navigation" href="../../index.html">Programmig</a></li>
+				<li><a class="navigation" href="../../../projects/index.html">Projects</a></li>
+				<li><a class="navigation" href="../../../aboutme/index.html">About me</a></li>
+			</ul>
+		</div>
+
+		<div id="Article">
+			<h1>数组和函数</h1>
+			<p>作者：jicanmeng</p>
+			<p>时间：2016年05月19日</p>
+			<hr />
+
+
+            <ol>
+                <li><a href="#function_definition">函数定义的两种格式</a></li>
+                <li><a href="#function_return_value">函数的返回值</a></li>
+                <li><a href="#function_parameters">函数的参数</a></li>
+                <li><a href="#function_variables">在函数中定义变量</a></li>
+                <li><a href="#function_array">向函数传递数组和从函数返回数组</a></li>
+            </ol>
+
+            <h3 id="function_definition">1. 函数定义的两种格式</h3>
+            <p>有两种格式可以用来在bash shell脚本中创建函数。</p>
+            <ol>
+                <li>第一种格式使用关键字function，后跟函数名，格式如下：<br />
+<pre><b>function name {
+    commands;
+}</b></pre>
+                </li>
+                <li>第二种格式类似于c语言中的不带参数也没有返回值的函数，格式如下：<br />
+<pre><b>name() {
+    commands;
+}</b></pre>
+                </li>
+            </ol>
+            <p>要在脚本中使用函数，直接使用函数名就行了。</p>
+            <p>函数必须先定义，后使用。如果在函数定义前就调用函数，那么就会收到一个"command not found"的错误消息。</p>
+            <p>函数名必须是唯一的，否则会有问题。如果你重定义了函数，新定义会覆盖原来函数的定义，而不会产生任何错误消息。</p>
+
+            <h3 id="function_return_value">2. 函数的返回值</h3>
+            <p>bash shell会把函数当作小型脚本，运行结束时会返回一个退出状态吗。有3中不同的方法来为函数生成退出状态码。</p>
+            <ol>
+                <li>默认情况下，函数的退出状态码是函数中最后一条命令的退出状态码。但是最后一条命令执行成功并不代表其它命令也执行成功。</li>
+                <li>使用return命令来退出函数并返回特定的退出状态码。使用这种方法的限制是：退出状态码必须在0～255之间。任何大于256的值都会返回一个错误值。举例如下：</li>
+                <pre class="terminal"><code>[jicanmeng@andy tmp]$ <span class="cmd">cat 1-return-value-using-return.sh</span>
+                    #!/bin/bash
+
+                    func1() {
+	                    &nbsp;&nbsp;&nbsp;&nbsp;read -p "Enter a value: " value
+	                    &nbsp;&nbsp;&nbsp;&nbsp;echo "doubling the value"
+	                    &nbsp;&nbsp;&nbsp;&nbsp;return $[$value*2]
+                    }
+
+                    func1
+                    echo "The new value is: $?"
+                [jicanmeng@andy tmp]$ <span class="cmd">./1-return-value-using-return.sh</span>
+                    Enter a value: 20
+                    The new value is: 40
+                [jicanmeng@andy tmp]$ </code></pre>
+                <li>正如可以将命令的输出保存到shell变量一样，也可以将函数的输出保存到shell变量中。可以用这种技术来获得任何类型的函数输出，并将其保存到变量中。函数返回值通过echo命令返回。例如下面的例子：</li>
+            </ol>
+                <pre class="terminal"><code>[jicanmeng@andy tmp]$ <span class="cmd">cat 2-return-value-using-echo.sh</span>
+                    #!/bin/bash
+
+                    func1() {
+	                    &nbsp;&nbsp;&nbsp;&nbsp;read -p "Enter a value: " value
+	                    &nbsp;&nbsp;&nbsp;&nbsp;echo $[$value*2]
+                    }
+
+                    result=`func1`
+                    echo "The new value is: $result"
+                [jicanmeng@andy tmp]$ <span class="cmd">./2-return-value-using-echo.sh</span>
+                    Enter a value: 200
+                    The new value is: 400
+                [jicanmeng@andy tmp]$ </code></pre>
+
+
+            <h3 id="function_parameters">3. 函数的参数</h3>
+            <p>在函数中，<code>$0</code>表示函数名。<code>$1</code>,<code>$2</code>等变量分别表示传递给函数的第一个参数，第二个参数等。<code>$#</code>表示参数个数。<font color="red"><b>特别要注意，在bash shell脚本中的函数内部的$1,$2等变量表示传递给函数的参数，bash shell脚本中的函数外部的$1,$2等变量表示传递给shell脚本的参数，不要混淆</b></font>。举例如下：
+                <pre class="terminal"><code>[jicanmeng@andy tmp]$ <span class="cmd">cat 3-function-parameter.sh</span>
+                    #!/bin/bash
+
+                    func1() {
+	                    &nbsp;&nbsp;&nbsp;&nbsp;if [ $# -ne 2 ]
+	                    &nbsp;&nbsp;&nbsp;&nbsp;then
+		                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;echo -1
+	                    &nbsp;&nbsp;&nbsp;&nbsp;else
+		                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;echo $[ $1 + $2 ]
+	                    &nbsp;&nbsp;&nbsp;&nbsp;fi
+                    }
+
+                    echo -n "Adding 10 and 15: "
+                    value=`func1 10 15`
+                    echo $value
+                [jicanmeng@andy tmp]$ <span class="cmd">./3-function-parameter.sh</span>
+                    Adding 10 and 15: 25
+                [jicanmeng@andy tmp]$ </code></pre>
+            </p>
+
+
+
+
+
+            <h3 id="function_variables">4. 在函数中定义变量</h3>
+            <p>函数会用到两种类型的变量：全局变量和局部变量。
+            <ul>
+                <li>第一种：默认情况下，在脚本中定义的任何变量都是全局变量。在函数外定义的变量可以在函数内访问，在函数内定义的变量可以在函数外访问。</li>
+                <li>第二种：在函数内部使用local关键字定义的变量是局部变量，只能在函数内部访问。</li>
+            </ul>举例如下：
+            <pre class="terminal"><code>[jicanmeng@andy tmp]$ <span class="cmd">cat 4-function-variable.sh</span>
+                #!/bin/bash
+
+                function db1 {
+                    &nbsp;&nbsp;&nbsp;&nbsp;local temp=$[ $value + 5 ]
+                    &nbsp;&nbsp;&nbsp;&nbsp;result=$[ $temp * 2 ]
+                }
+
+                temp=4
+                value=6
+
+                db1
+                echo "The result is $result"
+                if [ $temp -gt $value ]
+                then
+                    &nbsp;&nbsp;&nbsp;&nbsp;echo "temp is larger"
+                else
+                    &nbsp;&nbsp;&nbsp;&nbsp;echo "temp is smaller"
+                fi
+            [jicanmeng@andy tmp]$ <span class="cmd">./4-function-variable.sh</span>
+                The result is 22
+                temp is smaller
+            [jicanmeng@andy tmp]$ </code></pre>
+            </p>
+
+            <h3 id="function_array">5. 向函数传递数组和从函数返回数组</h3>
+            <p>首先看一看bash shell中的数组的用法。数组是能够存储多个值的变量。值可按单个值或整个数组来引用。</p>
+            <p>定义一个数组变量非常简单，如下：<br />
+                <code>mytest=(one two three four five)</code>
+            </p>
+            <p>要引用一个单独的数组元素，你必须要使用索引值，并且索引值用方括号括起来。要显示整个数组变量，可用星号作为通配符放在索引值的位置。举例如下：
+            <pre class="terminal"><code>[jicanmeng@andy tmp]$ <span class="cmd">mytest=(one two three four five)</span>
+            [jicanmeng@andy tmp]$ <span class="cmd">echo $mytest[2]}</span>
+                three
+            [jicanmeng@andy tmp]$ <span class="cmd">echo $mytest[*]}</span>
+                one two three four five
+            [jicanmeng@andy tmp]$ <span class="cmd">echo $mytest</span>
+                one
+            [jicanmeng@andy tmp]$ </code></pre>
+            </p>
+            <p>两点需要注意：1.数组的索引值从零开始，这点和c语言是一样的；2.<font color="red"><b>使用<code>$array</code>的方式，只能得到数组中第一个元素的值</b></font>。</p>
+
+            <p>向函数传递数组参数，不能传递数组变量的值。因为上面提到，数组变量的值仅仅表示数组中第一个元素的值。举例如下：
+            <pre class="terminal"><code>[jicanmeng@andy tmp]$ <span class="cmd">cat 5-function-array.sh</span>
+                #!/bin/bash
+
+                function testit {
+	                &nbsp;&nbsp;&nbsp;&nbsp;echo "The parameters are: $@"
+	                &nbsp;&nbsp;&nbsp;&nbsp;thisarray=$1
+	                &nbsp;&nbsp;&nbsp;&nbsp;echo "The received array is: ${thisarray[*]}"
+                }
+
+                myarray=(1 2 3 4 5)
+                echo "The original array is ${myarray[*]}"
+                testit $myarray
+            [jicanmeng@andy tmp]$ <span class="cmd">./5-function-array.sh</span>
+                The original array is 1 2 3 4 5
+                The parameters are: 1
+                The received array is: 1
+            [jicanmeng@andy tmp]$ </code></pre>
+            </p>
+
+            <p>要解决这个问题，你必须将该数组变量的值分解成单个值然后将这些值作为函数参数使用。在函数内部，你可以将所有的参数重组到新的数组变量中。举例如下：
+            <pre class="terminal"><code>[jicanmeng@andy tmp]$ <span class="cmd">cat 6-function-array.sh</span>
+                #!/bin/bash
+
+                function testit {
+	                &nbsp;&nbsp;&nbsp;&nbsp;local newarray
+	                &nbsp;&nbsp;&nbsp;&nbsp;newarray=(`echo "$@"`)
+	                &nbsp;&nbsp;&nbsp;&nbsp;echo "The received array is: ${newarray[*]}"
+                }
+
+                myarray=(1 2 3 4 5)
+                echo "The original array is ${myarray[*]}"
+                testit ${myarray[*]}
+            [jicanmeng@andy tmp]$ <span class="cmd">./6-function-array.sh</span>
+                The original array is 1 2 3 4 5
+                The new array value is: 1 2 3 4 5
+            [jicanmeng@andy tmp]$ </code></pre>
+            </p>
+
+            <p>下面看一看函数返回数组的情况。举例如下：
+            <pre class="terminal"><code>[jicanmeng@andy tmp]$ <span class="cmd">cat 7-function-array.sh</span>
+                #!/bin/bash
+
+                function arraydblr {
+	                &nbsp;&nbsp;&nbsp;&nbsp;local origarray
+	                &nbsp;&nbsp;&nbsp;&nbsp;local newarray
+	                &nbsp;&nbsp;&nbsp;&nbsp;local elements
+	                &nbsp;&nbsp;&nbsp;&nbsp;local i
+	                &nbsp;&nbsp;&nbsp;&nbsp;origarray=(`echo "$@"`)
+	                &nbsp;&nbsp;&nbsp;&nbsp;newarray=(`echo "$@"`)
+	                &nbsp;&nbsp;&nbsp;&nbsp;elements=$#
+	                &nbsp;&nbsp;&nbsp;&nbsp;for (( i = 0; i &lt; elements; i++  ))
+	                &nbsp;&nbsp;&nbsp;&nbsp;do
+		            &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;newarray[$i]=$[ ${origarray[$i]} * 2 ]
+	                &nbsp;&nbsp;&nbsp;&nbsp;done
+	                &nbsp;&nbsp;&nbsp;&nbsp;echo ${newarray[*]}
+                }
+
+                myarray=(1 2 3 4 5)
+                echo "The original array is ${myarray[*]}"
+                arg1=`echo ${myarray[*]}`
+                result=(`arraydblr $arg1`)
+                echo "The new array is: ${result[*]}"
+            [jicanmeng@andy tmp]$ <span class="cmd">./7-function-array.sh</span>
+                The original array is 1 2 3 4 5
+                The new array is: 2 4 6 8 10
+            [jicanmeng@andy tmp]$ </code></pre>
+            </p>
+
+
+
+
+			<h2>参考资料</h2>
+				<ol>
+					<li>Lnux命令行与shell脚本编程大全
+					</li>
+					<li>鸟哥的linux私房菜
+					</li>
+                </ol>
+
+		</div>
+
+		<div id="footer">
+			<p>jicanmeng@126.com 2013</p>
+			<p>本站文章可随意转载，但请注明转载的本站文章地址，谢谢！</p>
+		</div>
+	</body>
+</html>

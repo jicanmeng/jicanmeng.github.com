@@ -1,0 +1,500 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<title>bash parse input: getopt, getopts, read</title>
+		<meta http-equiv="content-type" content="text/html; charset=UTF-8">
+		<link rel="stylesheet" type="text/css" href="../../../style.css" />
+	</head>
+	<body>
+
+		<script type="text/javascript" src="../../../style.js"></script>
+
+		<div id="header">
+			<h1>每天进步一点点</h1>
+		</div>
+
+		<div id="navigation">
+			<ul id="navigation">
+				<li><a class="navigation" href="../../../index.html">Home Page</a></li>
+				<li><a class="navigation" href="../../../life/index.html">Life</a></li>
+				<li><a class="navigation" href="../../index.html">Programmig</a></li>
+				<li><a class="navigation" href="../../../projects/index.html">Projects</a></li>
+				<li><a class="navigation" href="../../../aboutme/index.html">About me</a></li>
+			</ul>
+		</div>
+
+		<div id="Article">
+			<h1>处理用户输入: getopt, getopts, read</h1>
+			<p>作者：jicanmeng</p>
+			<p>时间：2016年05月14日</p>
+			<hr />
+
+
+            <ol class="content">
+                <li><a href="#command_params_one">bash shell的命令行参数变量: $0,$1,$2...</a></li>
+                <li><a href="#command_params_two">三个特殊的命令行参数相关的变量: $#,$*,$@</a></li>
+                <li><a href="#command_params_shift">命令行参数的移动: shift</a></li>
+                <li>
+                    <a href="#command_params_options">命令行参数选项</a>
+                    <ol class="content">
+						<li><a href="#command_params_simple_options">简单的命令行参数选项</a></li>
+						<li><a href="#command_params_separate_options_and_parameters">分离命令行参数中的选项和实际参数</a></li>
+						<li><a href="#command_params_options_with_parameters">选项的参数</a></li>
+						<li><a href="#command_params_getopt"><font color="red"><b>getopt的引入</b></font></a></li>
+						<li><a href="#command_params_getopts"><font color="red"><b>getopts的引入</b></font></a></li>
+				    </ol>
+                </li>
+                <li><a href="#command_params_read_command">获取用户输入：read命令</a></li>
+            </ol>
+
+            <h3 id="command_params_one">1. bash shell的命令行参数变量: $0,$1,$2...</h3>
+                <p>shell scipt的每个参数都是用空格分开的。要在参数中包含空格，必须要用引号（单引号和双引号均可）。
+                </p>
+                <p>$1表示shell scipt的第一个参数，$2表示第二个参数，依次类推，直到第九个参数$9。从第十个参数开始，必须要加上{}。例如${10}，${11}等。
+                </p>
+                <p>$0表示shell script程序的名字。其中还包含了脚本的路径。举例如下：
+                </p>
+                    <pre class="terminal"><code>[jicanmeng@andy tmp]$ <span class="cmd">cat 1-command-parameter.sh</span>
+                        #!/bin/bash
+
+                        echo "\$0 is $0"
+                    [jicanmeng@andy tmp]$ <span class="cmd">bash 1-command-parameter.sh</span>
+                        $0 is 1-command-parameter.sh
+                    [jicanmeng@andy tmp]$ <span class="cmd">./1-command-parameter.sh</span>
+                        $0 is 1-command-parameter.sh
+                    [jicanmeng@andy tmp]$ <span class="cmd">bash /home/jicanmeng/Desktop/tmp/1-command-parameter.sh</span>
+                        $0 is /home/jicanmeng/Desktop/tmp/1-command-parameter.sh
+                    [jicanmeng@andy tmp]$ </code></pre>
+                <p>可以看到，<code>bash 1-command-parameter.sh</code>和<code>1-command-parameter.sh</code>在执行时是完全等价的，无论哪种形式，执行的都是1-command-paramter.sh，所以$0都是1-command-parameter.sh。
+                <p>在很多时候，我们只需要知道脚本的名称，而不需要知道脚本所在的路径。我们可以通过<code>basename</code>命令来解决这个问题，它只返回程序名。举例如下：
+                </p>
+                    <pre class="terminal"><code>[jicanmeng@andy tmp]$ <span class="cmd">cat 2-command-parameter.sh</span>
+                        #!/bin/bash
+
+                        echo "\$0 is $0"
+                        name=`basename $0`
+                        echo "program name is $name"
+                    [jicanmeng@andy tmp]$ <span class="cmd">./2-command-parameter.sh</span>
+                        $0 is ./2-command-parameter.sh
+                        program name is 2-command-parameter.sh
+                    [jicanmeng@andy tmp]$ <span class="cmd">./home/jicanmeng/Desktop/tmp/2-command-parameter.sh</span>
+                        $0 is /home/jicanmeng/Desktop/tmp/2-command-parameter.sh
+                        program name is 2-command-parameter.sh
+                    [jicanmeng@andy tmp]$ </code></pre>
+
+
+            <h3 id="command_params_two">2. 三个特殊的命令行参数相关的变量: $#,$*,$@</h3>
+                <p>有三个特殊的变量：<code>$#</code>表示脚本运行时命令行参数的个数; <code>$*</code>和<code>$@</code>都表示从$1开始的所有参数。<code>$*</code>和<code>$@</code>的区别如下：
+                <ul>
+                    <li><code>$*</code>将这些所有参数作为一个单词来保存</li>
+                    <li><code>$@</code>将这些所有参数作为同一个字符串中的多个独立的单词，并允许你遍历所有的值，将提供的每个参数分割开来。这通常通过for命令完成</li>
+                </ul>
+                举例如下：</p>
+                    <pre class="terminal"><code>[jicanmeng@andy tmp]$ <span class="cmd">cat 3-command-parameter.sh</span>
+                        #!/bin/bash
+
+                        echo "There are $# pamameters supplied"
+
+                        count=1
+                        for param in "$*"
+                        do
+	                        &nbsp;&nbsp;&nbsp;&nbsp;echo "\$* parameter #$count = $param"
+	                        &nbsp;&nbsp;&nbsp;&nbsp;count=$[ $count + 1 ]
+                        done
+
+                        count=1
+                        for param in "$@"
+                        do
+	                        &nbsp;&nbsp;&nbsp;&nbsp;echo "\$@ parameter #$count = $param"
+	                        &nbsp;&nbsp;&nbsp;&nbsp;count=$[ $count + 1 ]
+                        done
+                    [jicanmeng@andy tmp]$ <span class="cmd">./3-command-parameter.sh aa bb cc</span>
+                        There are 3 pamameters supplied
+                        $* parameter #1 = aa bb cc
+                        $@ parameter #1 = aa
+                        $@ parameter #2 = bb
+                        $@ parameter #3 = cc
+                    [jicanmeng@andy tmp]$ </code></pre>
+                <p><font color="red">虽然<code>$#</code>表示所有参数的个数，但是<code>${$#}</code>并不表示最后一个参数。最后一个参数用<code>${!#}</code>来表示</font>。而且重要的是，当命令行没有参数时，$#的值为零，但${!#}变量会返回命令行用到的脚本名，即等于$0的值。举例如下：</p>
+                    <pre class="terminal"><code>[jicanmeng@andy tmp]$ <span class="cmd">cat 4-command-parameter.sh</span>
+                        #!/bin/bash
+
+                        echo The last parameter is ${!#}
+                    [jicanmeng@andy tmp]$ <span class="cmd">./4-command-parameter.sh aa bb cc dd</span>
+                        The last parameter is dd
+                    [jicanmeng@andy tmp]$ <span class="cmd">./4-command-parameter.sh</span>
+                        The last parameter is 4-command-parameter.sh
+                    [jicanmeng@andy tmp]$ </code></pre>
+
+            <h3 id="command_params_shift">3. 命令行参数的移动: shift</h3>
+                <p>bash shell使用shift命令移动命令行参数。
+                </p>
+                <p>默认情况下，shift命令会将每个命令行参数变量向前移动一位。所以，$3的值会移动到$2, $2的值会移动到$1, 而$1的值则会被删除（注意，变量$0的值不会改变）。同时参数个数也会发生变化，我们可以通过$#的值看出来。
+                </p>
+                <p>另外，你也可以给shift命令一个参数，表示移动几位。
+                </p>
+                <p>举例如下：</p>
+                    <pre class="terminal"><code>[jicanmeng@andy tmp]$ <span class="cmd">cat 5-shift.sh</span>
+                        #!/bin/bash
+
+                        count=1
+                        while [ -n "$1" ]
+                        do
+	                        &nbsp;&nbsp;&nbsp;&nbsp;echo "Parameter #$count = $1"
+	                        &nbsp;&nbsp;&nbsp;&nbsp;count=$[$count+1]
+	                        &nbsp;&nbsp;&nbsp;&nbsp;shift
+                        done
+                    [jicanmeng@andy tmp]$ <span class="cmd">./5-shift.sh aa bb cc dd</span>
+                        Parameter #1 = aa
+                        Parameter #2 = bb
+                        Parameter #3 = cc
+                        Parameter #4 = dd
+                    [jicanmeng@andy tmp]$ </code></pre>
+
+
+            <h3 id="command_params_options">4. 命令行参数选项</h3>
+                <p>在实际应用中，我们常常遇到同时提供了参数和和选项的bash命令，例如<code>ls -l</code>, <code>cat -A test.txt</code>。选项(option)是跟在单破折线后面的单个字母，能改变命令的行为。</p>
+
+                <p>其实选项也没有什么特殊的，就和前面遇到的普通的命令行参数一样。下面讨论三种处理选项的方法，最后引出getopt命令和getopts命令。</p>
+
+                <h4 id="command_params_simple_options">4.1 简单的命令行参数选项</h4>
+                    <p>我们只看命令行参数中有什么选项，有符合条件的就打印出来。程序如下：</p>
+                    <pre class="terminal"><code>[jicanmeng@andy tmp]$ <span class="cmd">cat 6-options-1-simple.sh</span>
+                        #!/bin/bash
+
+                        while [ -n "$1" ]
+                        do
+	                        &nbsp;&nbsp;&nbsp;&nbsp;case "$1" in
+	                        &nbsp;&nbsp;&nbsp;&nbsp;-a) echo "found the -a option" ;;
+	                        &nbsp;&nbsp;&nbsp;&nbsp;-b) echo "found the -b option" ;;
+	                        &nbsp;&nbsp;&nbsp;&nbsp;-c) echo "found the -c option" ;;
+	                        &nbsp;&nbsp;&nbsp;&nbsp;*)  echo "$1 is not an option" ;;
+	                        &nbsp;&nbsp;&nbsp;&nbsp;esac
+	                        &nbsp;&nbsp;&nbsp;&nbsp;shift
+                        done
+                    [jicanmeng@andy tmp]$ <span class="cmd">./6-options-1-simple.sh -a -b -c -d</span>
+                        found the -a option
+                        found the -b option
+                        found the -c option
+                        -d is not an option
+                    [jicanmeng@andy tmp]$ </code></pre>
+
+
+                <h4 id="command_params_separate_options_and_parameters">4.2 分离命令行参数中的选项和实际参数</h4>
+                <p>shell脚本运行时常常会遇到同时使用选项和参数的情况（注意，这里的参数不是选项的参数）。在这个脚本中，我们看命令行参数中有什么选项，有符合条件的就打印出来，同时也将脚本的实际参数打印出来。</p>
+                <p>但是如何判断已经到了选项末尾，下一个就是实际参数呢? linux中处理这个问题的标准方法是用特殊字符<code>--</code>将二者分开，该字符告诉脚本选项到此结束，下一个就是实际参数了。</p>
+                <p>本脚本程序中存在的问题是假设实际参数都放在了命令行参数的最后，选项都放在了前面。程序如下：</p>
+                    <pre class="terminal"><code>[jicanmeng@andy tmp]$ <span class="cmd">cat 7-options-2-separate-option-and-param.sh</span>
+                        #!/bin/bash
+
+                        while [ -n "$1" ]
+                        do
+	                        &nbsp;&nbsp;&nbsp;&nbsp;case "$1" in
+	                        &nbsp;&nbsp;&nbsp;&nbsp;-a) echo "found the -a option" ;;
+	                        &nbsp;&nbsp;&nbsp;&nbsp;-b) echo "found the -b option" ;;
+	                        &nbsp;&nbsp;&nbsp;&nbsp;-c) echo "found the -c option" ;;
+	                        &nbsp;&nbsp;&nbsp;&nbsp;--) shift
+	                        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;break ;;
+	                        &nbsp;&nbsp;&nbsp;&nbsp;*)  echo "$1 is not an option" ;;
+	                        &nbsp;&nbsp;&nbsp;&nbsp;esac
+	                        &nbsp;&nbsp;&nbsp;&nbsp;shift
+                        done
+
+                        count=1
+                        for param in "$@"
+                        do
+	                        &nbsp;&nbsp;&nbsp;&nbsp;echo "parameter #$count: $param"
+	                        &nbsp;&nbsp;&nbsp;&nbsp;count=$[ $count + 1 ]
+                        done
+                    [jicanmeng@andy tmp]$ <span class="cmd">./7-options-2-separate-option-and-param.sh -c -b -a -- test1 test2 test3</span>
+                        found the -c option
+                        found the -b option
+                        found the -a option
+                        parameter #1: test1
+                        parameter #2: test2
+                        parameter #3: test3
+                    [jicanmeng@andy tmp]$ </code></pre>
+
+
+                <h4 id="command_params_options_with_parameters">4.3 选项的参数</h4>
+                    <p>有时选项会带上一个额外的参数值。那我们还要继续修改我们的脚本程序：</p>
+                    <pre class="terminal"><code>[jicanmeng@andy tmp]$ <span class="cmd">cat 8-options-3-option-with-value.sh</span>
+                        #!/bin/bash
+
+                        while [ -n "$1" ]
+                        do
+	                        &nbsp;&nbsp;&nbsp;&nbsp;case "$1" in
+	                        &nbsp;&nbsp;&nbsp;&nbsp;-a) echo "found the -a option" ;;
+	                        &nbsp;&nbsp;&nbsp;&nbsp;-b) param="$2"
+	                        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;echo "found the -b option, with parameter value: $param"
+	                        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;shift ;;
+	                        &nbsp;&nbsp;&nbsp;&nbsp;-c) echo "found the -c option" ;;
+	                        &nbsp;&nbsp;&nbsp;&nbsp;--) shift
+	                        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;break ;;
+	                        &nbsp;&nbsp;&nbsp;&nbsp;*)  echo "$1 is not an option" ;;
+	                        &nbsp;&nbsp;&nbsp;&nbsp;esac
+	                        &nbsp;&nbsp;&nbsp;&nbsp;shift
+                        done
+
+                        count=1
+                        for param in "$@"
+                        do
+	                        &nbsp;&nbsp;&nbsp;&nbsp;echo "parameter #$count: $param"
+	                        &nbsp;&nbsp;&nbsp;&nbsp;count=$[ $count + 1 ]
+                        done
+                    [jicanmeng@andy tmp]$ <span class="cmd">./8-options-3-option-with-value.sh -c -b test1 -a -- test2 test3</span>
+                        found the -c option
+                        found the -b option, with parameter value: test1
+                        found the -a option
+                        parameter #1: test2
+                        parameter #2: test3
+                    [jicanmeng@andy tmp]$ </code></pre>
+                    <p>现在的问题是：如果将两个选项合并，例如<code>./8-options-3-option-with-value.sh -ac</code>，shell script就不能正常运行了。我们可以用getopt命令来解决这个问题。</p>
+
+
+
+                <h4 id="command_params_getopt">4.4 getopt的引入</h4>
+                    <p>getopt命令是一个在处理命令行选项和参数时非常方便的工具。它可以接受一系列任意形式的命令行选项和参数，将它们转换成适当的格式并返回。命令格式如下：<br />
+                    <code>getopt optstring options parameters</code>
+                    </p>
+                    <p>首先，在optstring中列出你要在脚本中用到的每个命令行选项字母。然后，在每个需要参数值的选项字母后面加一个冒号<code>:</code>。getopt命令会基于你定义的optstring去解析提供的参数。举个简单例子：</p>
+                    <pre class="terminal"><code>[jicanmeng@andy tmp]$ <span class="cmd">getopt ab:cd -a -b test1 -cd test2 test3</span>
+                        &nbsp;-a -b test1 -c -d -- test2 test3
+                    [jicanmeng@andy tmp]$ </code></pre>
+                    <p>在这个例子中，optstring中定义了4个有效的选项字母：a、b、c和d。它还定义了选项字母b后面需要一个参数值。这里需要注意，getopt会自动将-cd选项分成两个单独的选项，并插入双破折线<code>--</code>来分开行中的额外参数。我们在<a href="#command_params_separate_options_and_parameters">4.2 分离命令行参数中的选项和实际参数</a>中提到使用双破折线<code>--</code>来分隔选项和实际参数是linux的标准方法。</p>
+
+                    <p>看一个在脚本中使用getopt命令的实例：</p>
+                    <pre class="terminal"><code>[jicanmeng@andy tmp]$ <span class="cmd">cat 9-option-getopt.sh</span>
+                        #!/bin/bash
+
+                        set -- `getopt ab:c "$@"`
+
+                        while [ -n "$1" ]
+                        do
+	                        &nbsp;&nbsp;&nbsp;&nbsp;case "$1" in
+	                        &nbsp;&nbsp;&nbsp;&nbsp;-a) echo "found the -a option" ;;
+	                        &nbsp;&nbsp;&nbsp;&nbsp;-b) param="$2"
+		                    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;echo "found the -b option, with parameter value: $param"
+		                    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;shift ;;
+	                        &nbsp;&nbsp;&nbsp;&nbsp;-c) echo "found the -c option" ;;
+	                        &nbsp;&nbsp;&nbsp;&nbsp;--) shift
+		                    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;break ;;
+	                        &nbsp;&nbsp;&nbsp;&nbsp;*)  echo "$1 is not an option" ;;
+	                        &nbsp;&nbsp;&nbsp;&nbsp;esac
+	                        &nbsp;&nbsp;&nbsp;&nbsp;shift
+                        done
+
+                        count=1
+                        for param in "$@"
+                        do
+	                        &nbsp;&nbsp;&nbsp;&nbsp;echo "parameter #$count: $param"
+	                        &nbsp;&nbsp;&nbsp;&nbsp;count=$[ $count + 1 ]
+                        done
+                    [jicanmeng@andy tmp]$ <span class="cmd">./9-option-getopt.sh -b test1 -ac test2 test3 test4</span>
+                        found the -b option, with parameter value: test1
+                        found the -a option
+                        found the -c option
+                        parameter #1: test2
+                        parameter #2: test3
+                        parameter #3: test4
+                    [jicanmeng@andy tmp]$ <span class="cmd">./9-option-getopt.sh test2 -b test1 -ac test3 test4</span>
+                        found the -b option, with parameter value: test1
+                        found the -a option
+                        found the -c option
+                        parameter #1: test2
+                        parameter #2: test3
+                        parameter #3: test4
+                    [jicanmeng@andy tmp]$ </code></pre>
+                    <p>首先说明一下set命令。set命令的选项之一是双破折线，它会将命令行参数替换成set命令的命令行的值。对于本例，getopt命令首先得到的原始的脚本的命令行参数并解析，将解析的结果返回给set命令，set命令则用getopt返回的格式化的参数替换原始的命令行参数。</p>
+                    <p>可以看出，getopt解决了4.3中提到的问题。两个选项合并在一起，getopt也能正确解析。<font color="red">而且getopt还有一个优点：在命令行参数中，可以先写实际参数，再写选项和参数。即实际参数可以和选项以及选项参数混合写，最终也会解析成为<code>--</code>前面是选项和选项参数，后面是实际参数的标准形式</font>。</p>
+                    <p>但是shell还有一个问题：不能处理包含空格的命令行参数。不但命令行实际参数中不能包含空格，选项参数中也不能包含空格。例如下面的例子：</p>
+                    <pre class="terminal"><code>[jicanmeng@andy tmp]$ <span class="cmd">./9-option-getopt.sh -a -b hello -c test1 "test2 test3"</span>
+                        found the -a option
+                        found the -b option, with parameter value: hello
+                        found the -c option
+                        parameter #1: test1
+                        parameter #2: test2
+                        parameter #3: test3
+                    [jicanmeng@andy tmp]$ <span class="cmd">./9-option-getopt.sh -a -b "hello world" -c test1 test2 test3</span>
+                        found the -a option
+                        found the -b option, with parameter value: hello
+                        world is not an option
+                        found the -c option
+                        parameter #1: test1
+                        parameter #2: test2
+                        parameter #3: test3
+                    [jicanmeng@andy tmp]$ </code></pre>
+                    <p>可以看到，getopt命令会将空格当作参数分隔符，而不是根据双引号将二者当作一个参数。我们可以通过getopts命令来解决这个问题。</p>
+
+                <h4 id="command_params_getopts">4.5 getopts的引入</h4>
+                    <p>getopts命令的语法是：<br />
+                        <code>getopts optstring variable</code><br />
+                        每次调用getopts命令时，它只处理一个命令行上检测到的选项。处理完所有的选项后，它会退出并返回一个大于零的退出状态码。这让它非常适合用在解析命令行所有选项参数的循环中。</p>
+                    <ol>相对于getopt，getopts的优点是：
+                        <li>可以在选项参数中包含空格；</li>
+                        <li>可以将选项字母和选项的参数值放在一起使用，而不用加空格；（其实getopt也有这个特点。）</li>
+                        <li>它能够将命令行上找到的所有未定义的选项统一输出为问号。</li>
+                    </ol>
+                    <p>但是getopts的缺点也有，它不能把命令行实际参数放到前面。例如：对于命令行参数<code>-a -b hello -c -d para1 para2 para3</code>就不能写成<code>para3 -a -b hello -c -d para1 para2</code>。而getopt就可以正常解析-上面刚刚提到了getopt的这个优点。<font color="red">不过在实际的应用中，我们一般都会先写命令行选项和选项参数，再写实际参数</font>。</p>
+                    <p>getopts每次执行循环，getopts 就检查下一个命令行参数，并判断它是否合法。即检查参数是否以 - 开头，后面跟一个包含在 options 中的字母。如果是，就把匹配的选项字母存在指定的变量 variable 中，并返回退出状态0；如果 - 后面的字母没有包含在 options 中，就在 variable 中存入一个 ?，并返回退出状态0；如果命令行中已经没有参数，或者下一个参数不以 - 开头，就返回不为0的退出状态。</p>
+                    <p>我们也可以用info getopts来查看。要重点注意OPTIND和OPTARG的意义。</p>
+                    <blockquote>
+格式：getopts optstring name<br />
+OPTIND is initialized to 1 each time the shell or a shell script is invoked.
+When an option requires an argument, getopts places that argument into the variable OPTARG.
+When the end of options is encountered, getopts exits with a return value greater than zero. OPTIND is set to the index of the first non-option argument, and name is set to ?.
+                    </blockquote>
+                    <p>getopts命令会用到两个环境变量。如果选项需要跟一个参数值，OPTARG环境变量就会保存这个值。OPTIND环境变量保存了参数列表中getopts命令正在处理的参数位置。</p>
+
+                    <p>看一个简单的使用getopts的例子：</p>
+                    <pre class="terminal"><code>[jicanmeng@andy tmp]$ <span class="cmd">cat 10-option-getopts-1.sh</span>
+                        #!/bin/bash
+
+                        while getopts ab:c opt
+                        do
+	                        &nbsp;&nbsp;&nbsp;&nbsp;case "$opt" in
+	                        &nbsp;&nbsp;&nbsp;&nbsp;a) echo "found the -a option" ;;
+	                        &nbsp;&nbsp;&nbsp;&nbsp;b) echo "found the -b option. with value $OPTARG" ;;
+	                        &nbsp;&nbsp;&nbsp;&nbsp;c) echo "found the -c option" ;;
+	                        &nbsp;&nbsp;&nbsp;&nbsp;*) echo "unknown option: $opt" ;;
+	                        &nbsp;&nbsp;&nbsp;&nbsp;esac
+                        done
+                    [jicanmeng@andy tmp]$ <span class="cmd">./10-option-getopts-1.sh -ab "test1 test2" -c
+</span>
+                        found the -a option
+                        found the -b option. with value test1 test2
+                        found the -c option
+                    [jicanmeng@andy tmp]$ </code></pre>
+                    <p>可以看到，getopts可以正常解析包含空格的选项参数了，当然了，也可以正常解析包含空格的实际参数了。另外，你可能会注意到本例中case语句的用法有些不同。原因是getopts命令解析命令行选项时，它会移除开头的单破折线，所以在case语句中不用但破折线。</p>
+                    <p>
+                    在看一个使用getopts命令的例子。在这个例子中，将OPTIND值和shift命令一起使用来移动参数：
+                    </p>
+                    <pre class="terminal"><code>[jicanmeng@andy tmp]$ <span class="cmd">cat 11-option-getopts-2.sh</span>
+                        #!/bin/bash
+
+                        while getopts ab:cd opt
+                        do
+	                        &nbsp;&nbsp;&nbsp;&nbsp;case "$opt" in
+	                        &nbsp;&nbsp;&nbsp;&nbsp;a) echo "found the -a option" ;;
+	                        &nbsp;&nbsp;&nbsp;&nbsp;b) echo "found the -b option. with value $OPTARG" ;;
+	                        &nbsp;&nbsp;&nbsp;&nbsp;c) echo "found the -c option" ;;
+	                        &nbsp;&nbsp;&nbsp;&nbsp;d) echo "found the -d option" ;;
+	                        &nbsp;&nbsp;&nbsp;&nbsp;*) echo "unknown option: $opt" ;;
+	                        &nbsp;&nbsp;&nbsp;&nbsp;esac
+                        done
+                        shift $[ $OPTIND - 1 ]
+
+                        count=1
+                        for param in "$@"
+                        do
+	                        &nbsp;&nbsp;&nbsp;&nbsp;echo "parameter $count: $param"
+	                        &nbsp;&nbsp;&nbsp;&nbsp;count=$[ $count + 1 ]
+                        done
+                    [jicanmeng@andy tmp]$ <span class="cmd">./11-option-getopts-2.sh -ab test1 -d test2 test3</span>
+                        found the -a option
+                        found the -b option. with value test1
+                        found the -d option
+                        parameter 1: test2
+                        parameter 2: test3
+                    [jicanmeng@andy tmp]$ </code></pre>
+
+
+
+
+            <h3 id="command_params_read_command">5. 获取用户输入：read命令</h3>
+                <p>read命令接受从标准输入（键盘）或另一个文件描述符的输入。在收到输入后，read命令会将数据放进一个变量中。常用的命令行选项有-p，-n，-s，-t。</p>
+                <ul>
+                    <li>-p后面接提示信息。<br />
+<pre>echo -n "Enter your name: "
+read name</pre>
+等价于
+<pre>read -p "Enter your name: "</pre>
+                    </li>
+                    <li>
+                        -n选项指定了read命令读取几个字节就会退出。
+                    </li>
+                    <li>-s选项会阻止将传给read命令的参数显示在显示器上（实际上，数据会被显示，只是read命令会将文本颜色设置成和背景色一样）。虽然数据不会显示在屏幕上，但是会赋给变量，以便在脚本中使用。
+                    </li>
+                    <li>-t选项指定了read命令等待的秒数。举个例子来看一看：
+                    <pre class="terminal"><code>[jicanmeng@andy tmp]$ <span class="cmd">cat 12-read-options.sh</span>
+                        #!/bin/bash
+
+                        if read -t 5 -p "please enter your name in 5 seconds: " name
+                        then
+	                        &nbsp;&nbsp;&nbsp;&nbsp;echo "hello, $name. welcome to my script"
+                        else
+	                        &nbsp;&nbsp;&nbsp;&nbsp;echo
+	                        &nbsp;&nbsp;&nbsp;&nbsp;echo "sorry. too slow"
+                        fi
+
+                        read -n1 -p "Do you want to continue [y/n]? " answer
+                        case $answer in
+                        Y | y) echo
+	                           &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;echo "fine, continue on..." ;;
+                        N | n) echo
+	                           &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;echo "OK. goodbye" ;;
+                        *)&nbsp;&nbsp;&nbsp;&nbsp;  echo
+	                           &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;echo "an invalid option. exit"
+	                           &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;exit ;;
+                        esac
+
+                        read -s -p "Enter your password: " pass
+                        echo
+                        echo "Is your password really $pass?"
+                    [jicanmeng@andy tmp]$ <span class="cmd">./12-read-options.sh</span>
+                        please enter your name in 5 seconds: jicanmeng
+                        hello, jicanmeng. welcome to my script
+                        Do you want to continue [y/n]? y
+                        fine, continue on...
+                        Enter your password:
+                        Is your password really aaaaa?
+                    [jicanmeng@andy tmp]$ </code></pre>
+                    </li>
+                </ul>
+
+                <p>从文件中读取数据时，每次read命令都会从文件中读取一行文本，就像c语言中的read()一样，然后移动读指针。例如下面的例子：
+                </p>
+
+                    <pre class="terminal"><code>[jicanmeng@andy tmp]$ <span class="cmd">cat test.txt</span>
+                        hello
+                        world
+                        this is a test
+                    [jicanmeng@andy tmp]$ <span class="cmd">cat 13-read-file.sh</span>
+                        #!/bin/bash
+
+                        count=1
+                        cat test.txt | while read line
+                        do
+	                        &nbsp;&nbsp;&nbsp;&nbsp;echo "Line $count: $line"
+	                        &nbsp;&nbsp;&nbsp;&nbsp;count=$[ $count + 1 ]
+                        done
+                    [jicanmeng@andy tmp]$ <span class="cmd">./13-read-file.sh</span>
+                        line 1: hello
+                        line 2: world
+                        line 3: this is a test
+                    [jicanmeng@andy tmp]$ </code></pre>
+
+
+
+
+
+
+
+
+			<h2>参考资料</h2>
+				<ol>
+					<li>Lnux命令行与shell脚本编程大全
+					</li>
+					<li>鸟哥的linux私房菜
+					</li>
+					<li><a href="http://www.cnblogs.com/xiangzi888/archive/2012/04/03/2430736.html" target="_blank">http://www.cnblogs.com/xiangzi888/archive/2012/04/03/2430736.html</a></li>
+                </ol>
+
+		</div>
+
+		<div id="footer">
+			<p>jicanmeng@126.com 2013</p>
+			<p>本站文章可随意转载，但请注明转载的本站文章地址，谢谢！</p>
+		</div>
+	</body>
+</html>

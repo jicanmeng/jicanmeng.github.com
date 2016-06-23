@@ -1,0 +1,279 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<title>bash signal and control</title>
+		<meta http-equiv="content-type" content="text/html; charset=UTF-8">
+		<link rel="stylesheet" type="text/css" href="../../../style.css" />
+	</head>
+	<body>
+
+		<script type="text/javascript" src="../../../style.js"></script>
+
+		<div id="header">
+			<h1>每天进步一点点</h1>
+		</div>
+
+		<div id="navigation">
+			<ul id="navigation">
+				<li><a class="navigation" href="../../../index.html">Home Page</a></li>
+				<li><a class="navigation" href="../../../life/index.html">Life</a></li>
+				<li><a class="navigation" href="../../index.html">Programmig</a></li>
+				<li><a class="navigation" href="../../../projects/index.html">Projects</a></li>
+				<li><a class="navigation" href="../../../aboutme/index.html">About me</a></li>
+			</ul>
+		</div>
+
+		<div id="Article">
+			<h1>信号和作业控制</h1>
+			<p>作者：jicanmeng</p>
+			<p>时间：2016年05月18日</p>
+			<hr />
+
+
+            <ol>
+                <li><a href="#signal">信号</a></li>
+                <li><a href="#background_script">以后台模式运行脚本</a></li>
+                <li><a href="#control">作业控制</a></li>
+                <li><a href="#at_cron_command">定时运行作业</a></li>
+            </ol>
+
+            <h3 id="signal">1. 信号</h3>
+            <p>linux通过信号来在运行在系统上的进程之间通信。
+            </p>
+            <p>Ctrl+C组合键会生成SIGINT信号。Ctrl+Z组合键会生成一个SIGTSTP信号，暂停shell中正在运行的进程。当你用Ctrl+Z组合键时，shell会通知你进程被暂停了。
+            </p>
+                <pre class="terminal"><code>[jicanmeng@andy tmp]$ <span class="cmd">./a.sh</span>
+                    ^Z
+                    [1]+  Stopped  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;    ./a.sh
+                [jicanmeng@andy tmp]$ </code></pre>
+            <p>方括号中的数字是shell分配的作业号。shell将shell中运行的每个进程称为作业，并为每个作业分配一个唯一的作业号。它会给第一个作业分配作业号1，第二个作业号2，依次类推。</p>
+
+
+            <h3 id="background_script">2. 以后台模式运行脚本</h3>
+            <p>要在命令行界面以后台模式运行shell脚本，只要在命令后加个<code>&</code>符号就行了。例如：
+            </p>
+                <pre class="terminal"><code>[jicanmeng@andy tmp]$ <span class="cmd">cat a.sh</span>
+                    #!/bin/bash
+
+                    var=1
+                    while [ $var -le 5 ]
+                    do
+	                &nbsp; &nbsp; sleep 1
+	                &nbsp; &nbsp; echo "after $var seconds"
+	                &nbsp; &nbsp; var=$[ $var + 1 ]
+                    done
+                [jicanmeng@andy tmp]$ <span class="cmd">./a.sh &</span>
+                    [1] 4457
+                [jicanmeng@andy tmp]$ after 1 seconds
+                after 2 seconds
+                after 3 seconds
+                after 4 seconds
+                after 5 seconds
+
+                [1]+  Done  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;  ./a.sh
+                [jicanmeng@andy tmp]$ </code></pre>
+            <p>需要注意的是，虽然使用<code>&</code>使得进程在后台运行，但是这个进程仍然使用终端显示器来显示STDOUT和STDERR消息。另外，当后台进程结束时，它会在终端上显示一条信息，如上面最后的一句。
+            </p>
+            <p>在终端会话中使用后台进程时，需要特别小心。<font color="red"><b>如果我们使用ps命令，就会看到每个后台进程都绑定到了该终端会话的终端上面了(例如pts/0)。如果进程会话退出了，那么后台进程也会退出</b></font>。为了解决这个问题，我们可以使用<code>nohup</code>命令。例如：
+            </p>
+                <pre class="terminal"><code>[jicanmeng@andy tmp]$ <span class="cmd">cat a.sh</span>
+                    #!/bin/bash
+
+                    var=1
+                    while [ $var -le 5 ]
+                    do
+	                &nbsp; &nbsp; sleep 1
+	                &nbsp; &nbsp; echo "after $var seconds"
+	                &nbsp; &nbsp; var=$[ $var + 1 ]
+                    done
+                [jicanmeng@andy tmp]$ <span class="cmd">nohup ./a.sh &</span>
+                    [1] 4568
+                [jicanmeng@andy tmp]$ nohup: ignoring input and appending output to `nohup.out'
+                    [1]+  Done  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; nohup ./a.sh
+                [jicanmeng@andy tmp]$ </code></pre>
+            <p>由于nohup命令会从终端解除进程的关联，进程会丢掉到STDOUT和STDERR的连接。为了保存该命令的输出，nohup命令会自动将STDOUT和STDERR的消息重定向到当前目录下的一个名为nohup.out的文件中。
+            </p>
+
+
+
+            <h3 id="control">3. 作业控制</h3>
+            <ul>
+                <li>使用<code>jobs</code>命令来查看系统中当前正在运行的作业。</li>
+                <li>使用<code>Ctrl+Z</code>来暂停一个作业。</li>
+                <li>使用<code>fg</code>或<code>bg</code>命令来恢复一个作业。</li>
+            </ul>
+                <pre class="terminal"><code>[jicanmeng@andy tmp]$ <span class="cmd">cat a.sh</span>
+                    #!/bin/bash
+
+                    var=1
+                    while [ $var -le 5 ]
+                    do
+	                &nbsp; &nbsp; sleep 1
+	                &nbsp; &nbsp; echo "after $var seconds"
+	                &nbsp; &nbsp; var=$[ $var + 1 ]
+                    done
+                [jicanmeng@andy tmp]$ <span class="cmd">./a.sh</span>
+                    ^Z
+                    [1]+  Stopped &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;./a.sh
+                [jicanmeng@andy tmp]$ <span class="cmd">./a.sh > a.out &</span>
+                    [2] 4655
+                [jicanmeng@andy tmp]$ <span class="cmd">jobs</span>
+                    [1]+  Stopped  &nbsp;&nbsp;&nbsp;&nbsp;./a.sh
+                    [2]-  Running  &nbsp;&nbsp;&nbsp;&nbsp;./a.sh > a.out &
+                [jicanmeng@andy tmp]$ </code></pre>
+            <p>你可能注意到了jobs命令输出中的加号和减号。带加号的作业会被当做是默认的作业。在使用作业控制命令(如bg或fg)时，如果未在命令行指定任何作业号，该作业会被当作操作对象。带减号的作业则会在当前默认作业完成处理时称为下一个默认作业。任何时候都只有一个带加号的作业和一个带减号的作业，不管shell中有多少个正在运行的作业。
+            </p>
+
+            <h3 id="at_cron_command">4. 定时运行作业</h3>
+            <p>linux系统提供了两种在预选时间运行脚本的方法：at命令和cron表。
+            </p>
+            <p>对于at命令，有3个命令需要记住：
+                <ul>
+                    <li><code>at</code>命令用于在某个时间运行某个脚本，而且执行一次就结束。当作业在linux系统上运行时，没有屏幕关联到作业。取而代之的是，linux系统会将提交该作业的用户的E-mail地址作为STDOUT和STDERR。任何发送到STDOUT和STDERR的输出都会通过邮件系统发给该用户。</p></li>
+                    <li><code>atq</code>命令用于查看系统中有哪些作业在等待被运行。普通用户只能查看自己的作业，root可以查看所有用户的作业。</p></li>
+                    <li><code>atrm number</code>命令用于删除等待队列中的作业号为number的作业。作业号可以通过atq命令来查看。</p></li>
+                </ul>
+            </p>
+            <p>要执行 at 时， 必须要有 atd 这个服务的支援才行。在某些新版的 distributions 中，atd 可能预设并没有启动，那么 at 这个指令就会失效呢！不过我们的 CentOS 预设是启动的！使用如下命令重启 atd 服务和配置 atd 服务开机启动：</p>
+            <pre class="terminal"><code>[root@andy tmp]# <span class="cmd">/etc/init.d/atd restart</span>
+            Stopping atd: &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; [  OK  ]
+            Starting atd: &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; [  OK  ]
+            [root@andy tmp]# <span class="cmd">chkconfig atd on</span>
+            [root@andy tmp]# </code></pre>
+            <p>在执行<code>at</code>时，系统是如何工作的呢？事实上，我们使用 at 这个指令来产生所要运作的工作，并将这个工作以文字档的方式写入 /var/spool/at/ 目录内，该工作便能等待 atd 这个服务的取用与执行了。就这么简单。
+            </p>
+            <p>一般用户也可以通过at命令安排自己的工作。系统对at的调用有如下限制：
+                <ul>
+                    <li>先找寻 /etc/at.allow 这个档案，写在这个档案中的使用者才能使用 at ，没有在这个档案中的使用者则不能使用 at (即使没有写在 at.deny 当中)；</li>
+                    <li>如果 /etc/at.allow 不存在，就寻找 /etc/at.deny 这个档案，写在这个 at.deny 中的使用者则不能使用 at ，而没有在这个 at.deny 档案中的使用者，就可以使用 at 咯；</li>
+                    <li>如果两个档案都不存在，那么只有 root 可以使用 at 这个指令。</li>
+                </ul>
+            </p>
+            <p>
+                at的命令格式如下：<br />
+                <code>at [-mld] time</code><br />
+                <code>at -c 工作号码</code><br />
+                各个选项参数如下：
+                <ul>
+                <li><code>-m</code>  ：默认情况下，如果在 at shell 内的指令并没有任何的讯息输出，那么 at 预设不会发 email 给执行者的。 如果你想要让 at 无论如何都发一封 email 告知你是否执行了指令，那么可以使用‘ at -m 时间格式 ’来下达指令喔！ at 就会传送一个讯息给执行者，而不论该指令执行有无讯息输出了！</li>
+                <li><code>-l</code>  ：at -l 相当於 atq，列出目前系统上面的所有该使用者的 at 排程；</li>
+                <li><code>-d</code>  ：at -d 相当於 atrm ，可以取消一个在 at 排程中的工作；</li>
+                <li><code>-c</code>  ：可以列出后面接的该项工作的实际命令内容。</li>
+                </ul>
+                time表示在某个时间执行命令，例如<code>at 15:30</code>或者<code>at 15:30 2016-06-14</code>或者<code>at now + 5 minutes</code>。
+            </p>
+
+            <p>
+            <pre class="terminal"><code>[jicanmeng@andy tmp]$ <span class="cmd">at 23:58</span>
+            at> <span class="cmd">/sbin/shutdown -h now</span>
+            at> <span class="cmd"><EOT></span>
+            job 21 at 2016-06-15 23:58
+            [jicanmeng@andy tmp]$ <span class="cmd">atq</span>
+            21	2016-06-15 23:58 a jicanmeng
+            [jicanmeng@andy tmp]$ <span class="cmd">at -l</span>
+            21	2016-06-15 23:58 a jicanmeng
+            [jicanmeng@andy tmp]$ <span class="cmd">at -c 21</span>
+                #!/bin/sh
+                # atrun uid=500 gid=500
+                # mail jicanmeng 0
+                umask 2
+                ...
+                ${SHELL:-/bin/sh} << 'marcinDELIMITER406a0f99'
+                /sbin/shutdown -h now
+
+                marcinDELIMITER406a0f99
+            [jicanmeng@andy tmp]$ <span class="cmd">atq</span>
+                21	2016-06-15 23:58 a jicanmeng
+            [jicanmeng@andy tmp]$ <span class="cmd">at -d 21</span>
+            [jicanmeng@andy tmp]$ <span class="cmd">atq</span>
+            [jicanmeng@andy tmp]$
+            [jicanmeng@andy tmp]$ <span class="cmd">cat a.sh</span>
+                #!/bin/bash
+
+                var=1
+                while [ $var -le 5 ]
+                do
+                &nbsp; &nbsp; sleep 1
+                &nbsp; &nbsp; echo "after $var seconds"
+                &nbsp; &nbsp; var=$[ $var + 1 ]
+                done
+            [jicanmeng@andy tmp]$ <span class="cmd">date</span>
+                Thu May 19 23:08:35 CST 2016
+            [jicanmeng@andy tmp]$ <span class="cmd">at -f a.sh 23:09</span>
+                job 5 at 2016-05-19 23:09
+            [jicanmeng@andy tmp]$
+                You have new mail in /var/spool/mail/jicanmeng
+            [jicanmeng@andy tmp]$
+            [jicanmeng@andy tmp]$
+            [jicanmeng@andy tmp]$ <span class="cmd">mail</span>
+                Heirloom Mail version 12.4 7/29/08.  Type ? for help.
+                "/var/spool/mail/jicanmeng": 2 messages 2 new
+                >N  1 jicanmeng             Thu May 19 23:00  18/556   "Output from your job        1"
+                 N  2 jicanmeng             Thu May 19 23:09  18/556   "Output from your job        5"
+                & <span class="cmd">2</span>
+                Message  2:
+                From jicanmeng@andy.computer  Thu May 19 23:09:06 2016
+                Return-Path: <jicanmeng@andy.computer>
+                X-Original-To: jicanmeng
+                Delivered-To: jicanmeng@andy.computer
+                Subject: Output from your job        5
+                To: jicanmeng@andy.computer
+                Date: Thu, 19 May 2016 23:09:06 +0800 (CST)
+                From: jicanmeng@andy.computer (jicanmeng)
+                Status: R
+
+                after 1 seconds
+                after 2 seconds
+                after 3 seconds
+                after 4 seconds
+                after 5 seconds
+
+                & <span class="cmd">exit</span>
+            [jicanmeng@andy tmp]$ </code></pre>
+
+        <p>at命令只在某个时间执行一次就结束了，对于那些需要在特定时间反复执行的(例如每天或每周或每个月的某个时间点都需要执行)，就需要使用cron表了。at命令依赖于系统服务atd，cron则依赖于cron (crond) 这个系统服务。</p>
+        <p>对于cron的使用者的设定，和at一样，也是两个文件：/etc/cron.allow和/etc/cron.deny。</p>
+        <p><font color="red">当使用者使用 crontab 这个指令来建立工作排程之后，该项工作就会被纪录到 /var/spool/cron/ 里面去了，而且是以帐号来作为判别的喔！</font>另外， cron 执行的每一项工作都会被纪录到 /var/log/cron 这个登录档中，所以啰，如果你的 Linux 不知道有否被植入木马时，也可以搜寻一下 /var/log/cron 这个登录档呢！</p>
+        <p>cron的命令格式如下：<br />
+            <code>crontab [-u username] [-l|-e|-r]</code>
+            各个选项参数如下：
+            <ul>
+            <li><code>-l</code>  ：查阅 crontab 的工作内容</li>
+            <li><code>-e</code>  ：编辑 crontab 的工作内容</li>
+            <li><code>-r</code>  ：移除所有的 crontab 的工作内容，若仅要移除一项，请用 -e 去编辑</li>
+            <li><code>-u</code>  ：只有 root 才能进行这个任务，亦即帮其他使用者创建/移除 crontab 工作排程；</li>
+            </ul>
+        </p>
+
+            <pre class="terminal"><code>[jicanmeng@andy tmp]$ <span class="cmd">crontab -l</span>
+            [jicanmeng@andy tmp]$ <span class="cmd">crontab -e</span>
+                crontab: installing new crontab
+            [jicanmeng@andy tmp]$ <span class="cmd">crontab -l</span>
+                00 23 * * * mail -s "hello" jicanmeng < ~/hello.txt
+            [jicanmeng@andy tmp]$ </code></pre>
+            <p>上面的格式表示：每天的23：00，都执行一条命令：<code>mail -s "hello" jicanmeng < ~/hello.txt</code>。
+            </p>
+
+            <p>前面说的是每个使用者自己的crontab设定文件和命令，下面说一说系统设定的crontab：/etc/crontab。
+基本上， cron 这个服务的最低侦测限制是‘分钟’，所以‘ cron 会每分钟去读取一次 /etc/crontab 与 /var/spool/cron 里面的资料内容 ’，因此，只要你编辑完 /etc/crontab 这个档案，并且将他储存之后，那么 cron 的设定就自动的会来执行了！</p>
+
+
+
+
+			<h2>参考资料</h2>
+				<ol>
+					<li>Lnux命令行与shell脚本编程大全
+					</li>
+                    <li>鸟哥的linux私房菜<br />
+                        <a href="http://vbird.dic.ksu.edu.tw/linux_basic/0430cron.php" target="_blank">http://vbird.dic.ksu.edu.tw/linux_basic/0430cron.php</a>
+                    </li>
+                </ol>
+
+		</div>
+
+		<div id="footer">
+			<p>jicanmeng@126.com 2013</p>
+			<p>本站文章可随意转载，但请注明转载的本站文章地址，谢谢！</p>
+		</div>
+	</body>
+</html>

@@ -1,0 +1,328 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<title>bash input output redirection</title>
+		<meta http-equiv="content-type" content="text/html; charset=UTF-8">
+		<link rel="stylesheet" type="text/css" href="../../../style.css" />
+	</head>
+	<body>
+
+		<script type="text/javascript" src="../../../style.js"></script>
+
+		<div id="header">
+			<h1>每天进步一点点</h1>
+		</div>
+
+		<div id="navigation">
+			<ul id="navigation">
+				<li><a class="navigation" href="../../../index.html">Home Page</a></li>
+				<li><a class="navigation" href="../../../life/index.html">Life</a></li>
+				<li><a class="navigation" href="../../index.html">Programmig</a></li>
+				<li><a class="navigation" href="../../../projects/index.html">Projects</a></li>
+				<li><a class="navigation" href="../../../aboutme/index.html">About me</a></li>
+			</ul>
+		</div>
+
+		<div id="Article">
+			<h1>输入输出重定向</h1>
+			<p>作者：jicanmeng</p>
+			<p>时间：2016年05月17日</p>
+			<hr />
+
+
+            <ol class="content">
+                <li><a href="#redirection_symbol">输入输出重定向符号</a></li>
+                <li>
+                    <a href="#redirection_to_fd"><font color="red"><b>重定向到文件描述符</b></font></a>
+                    <ol class="content">
+						<li><a href="#redirection_exec">用exec命令永久重定</a></li>
+						<li><a href="#redirection_restore">从已重定向的文件描述符中恢复</a></li>
+						<li><a href="#read_write_fd">创建读写文件描述符</a></li>
+						<li><a href="#close_fd">关闭文件描述符</a></li>
+				    </ol>
+                </li>
+                <li><a href="#list_opened_fd">列出打开的文件描述符</a></li>
+                <li><a href="#dev_null">/dev/null的使用</a></li>
+                <li><a href="#create_tmp_files">mktmp命令：创建临时文件</a></li>
+                <li><a href="#tee">命令tee：记录消息</a></li>
+
+            </ol>
+
+            <p>Linux系统将每个对象当作文件来处理。Linux用文件描述符来标识每个文件对象。文件描述符是一个非负整数，可以唯一标识会话中打开的文件。每个过程一次最多可以有9个文件描述符(这里的"过程"是什么意思?)。出于特殊目的，bash shell保留了最早的3个文件描述符（0，1，2）。
+            </p>
+            <p>
+                <ul>
+                    <li>文件描述符0表示shell的标准输入，即键盘，常用STDIN表示。
+                    </li>
+                    <li>文件描述符1表示shell的标准输出，即显示器，常用STDOUT表示。
+                    </li>
+                    <li>文件描述符2表示shell的标准错误，即显示器，常用STDERR表示。
+                    </li>
+                </ul>
+            </p>
+
+            <h3 id="redirection_symbol">1. 输入输出重定向符号</h3>
+            <p>
+                <ul>
+                    <li><code>&lt;</code>或者<code>0&lt;</code>表示输入重定向</li>
+                    <li><code>&gt;</code>或者<code>1&gt;</code>表示输出重定向</li>
+                    <li><code>2&gt;</code>表示将错误输出重定向</li>
+                    <li><code>&gt;&gt;</code>表示追加，可以对STDOUT进行追加，也可以对STDERR进行追加</li>
+                    <li><code>&&gt;</code>表示将标准输出和错误输出重定向到同一个文件中</li>
+                </ul>
+            </p>
+            <p>例如：<br />
+            <code>ls -al test1 test2 test3 badtest 2> 2.txt 1> 1.txt</code><br />
+            表示将错误输出重定向到2.txt文件中，将标准输出重定向到1.txt文件中。
+            </p>
+            <p>
+            <code>ls -al test1 test2 test3 badtest &> 1.txt</code><br />
+            表示将标准输出和错误输出都重定向到1.txt文件中。
+            </p>
+
+            <p>
+                <pre class="terminal"><code>[jicanmeng@andy tmp]$ <span class="cmd">cat 1-temp.sh</span>
+                    #!/bin/bash
+
+                    echo "This is indirection" > a.txt
+                    echo "This is normal output"
+                [jicanmeng@andy tmp]$ <span class="cmd">bash 1-temp.sh > b.txt</span>
+                [jicanmeng@andy tmp]$ <span class="cmd">cat b.txt</span>
+                    This is normal output
+                [jicanmeng@andy tmp]$ <span class="cmd">cat a.txt</span>
+                    This is indirection
+                [jicanmeng@andy tmp]$ </code></pre>
+                这个例子非常重要。在执行脚本时，在命令行上指定了将标准错误重定向到文件 b.txt 中。而在脚本中，指定了将第一行的标准输出重定向到文件 a.txt 中。对于这一行，最终重定向到了 a.txt 中。<font color="red"><b>也就是说，脚本中的命令设定的重定向相对于执行shell脚本命令行时设定的重定向具有更高的优先级</b></font>。
+            </p>
+
+            <h3 id="redirection_to_fd">2. 重定向到文件描述符</h3>
+            <p>可以重定向到一个文件中，也可以重定向到另一个文件描述符对应的对象上，这就需要用到<code>&gt;&</code>符号了。
+            </p>
+            <p>举个例子：
+                <pre class="terminal"><code>[jicanmeng@andy tmp]$ <span class="cmd">cat 2-temp-redirection.sh</span>
+                    #!/bin/bash
+
+                    echo "This is an error" >& 2
+                    echo "This is normal output"
+                [jicanmeng@andy tmp]$ <span class="cmd">./2-temp-redirection.sh > a.txt</span>
+                    This is an error
+                [jicanmeng@andy tmp]$ <span class="cmd">cat a.txt</span>
+                    This is normal output
+                [jicanmeng@andy tmp]$ </code></pre>
+                这个例子中，对于第一行命令，将标准输出重定向到了错误输出的对象上。
+            </p>
+
+            <h4 id="redirection_exec">2.1 用exec命令永久重定</h4>
+            <p>如果脚本中有大量数据需要重定向，那么对每行语句都执行重定向命令就比较麻烦。我们可以在执行脚本程序时设定重定向参数，也可以在脚本中用<code>exec</code>命令进行永久重定向。举例如下：
+                <pre class="terminal"><code>[jicanmeng@andy tmp]$ <span class="cmd">cat 3-forever-redirection.sh</span>
+                    #!/bin/bash
+
+                    exec 2> testerror
+
+                    echo "This is the start of the script"
+                    echo "now redirecting all output to another location"
+
+                    exec 1> testout
+
+                    echo "This output should go to the testout file"
+                    echo "but this should go to the testerror file" >& 2
+                [jicanmeng@andy tmp]$ <span class="cmd">./3-forever-redirection.sh</span>
+                    This is the start of the script
+                    now redirecting all output to another location
+                [jicanmeng@andy tmp]$ <span class="cmd">cat testout</span>
+                    This output should go to the testout file
+                [jicanmeng@andy tmp]$ <span class="cmd">cat testerror</span>
+                    but this should go to the testerror file
+                [jicanmeng@andy tmp]$ </code></pre>
+                由这个例子可以看出，<font color="red"><b>调用exec命令时，新进程会继承原来进程的文件描述符</b></font>。
+            </p>
+
+            <h4 id="redirection_restore">2.2 从已重定向的文件描述符中恢复</h4>
+            <p>先看一个例子：
+                <pre class="terminal"><code>[jicanmeng@andy tmp]$ <span class="cmd">cat 4-restore-stdout.sh</span>
+                    #!/bin/bash
+
+                    exec 3>& 1
+                    exec 1> test14out
+
+                    echo "This should store in the output file"
+                    echo "along with this line."
+
+                    exec 1>& 3
+
+                    echo "Now things should be back to normal"
+                [jicanmeng@andy tmp]$ <span class="cmd">./4-restore-stdout.sh</span>
+                    Now things should be back to normal
+                [jicanmeng@andy tmp]$ <span class="cmd">cat test14out</span>
+                    This should store in the output file
+                    along with this line.
+                [jicanmeng@andy tmp]$ </code></pre>
+            </p>
+            <p>实际上，画图来理解这个程序是最直观的。程序刚开始运行的时候，如图1所示。
+                <img src="11.PNG" />
+            </p>
+            <p>在执行了<code>exec 3>& 1</code>和<code>exec 1> test14out</code>两条指令后，如图2所示：
+                <img src="12.PNG" />
+            </p>
+            <p>在执行了<code>exec 1>& 3</code>指令后，如图3所示：
+                <img src="13.PNG" />
+            </p>
+            <p>可以看出，文件描述符3重定向到某个文件描述符1，就是将输出到文件描述符3的数据输出到文件描述符1表示的对象即显示器上面。</p>
+
+            <p>下面这个输入文件描述符的恢复和上面的例子思路是相同的：
+                <pre class="terminal"><code>[jicanmeng@andy tmp]$ <span class="cmd">cat 2-temp-redirection.sh</span>
+                    #!/bin/bash
+
+                    echo "This is an error" >& 2
+                    echo "This is normal output"
+                [jicanmeng@andy tmp]$ <span class="cmd">cat 5-restore-stdin.sh</span>
+                    #!/bin/bash
+
+                    exec 3<& 0
+                    exec 0&lt; 2-temp-redirection.sh
+
+                    count=1
+                    while read line
+                    do
+	                    &nbsp;&nbsp;&nbsp;&nbsp;echo "Line #$count: $line"
+	                    &nbsp;&nbsp;&nbsp;&nbsp;count=$[$count+1]
+                    done
+
+                    exec 0<& 3
+
+                    read -p "Are you done now? " answer
+                    case $answer in
+	                    &nbsp;&nbsp;&nbsp;&nbsp;Y|y) echo "Goodbye";;
+	                    &nbsp;&nbsp;&nbsp;&nbsp;N|n) echo "Sorry, this is the end";;
+                    esac
+                [jicanmeng@andy tmp]$ <span class="cmd">./5-restore-stdin.sh</span>
+                    Line #1: #!/bin/bash
+                    Line #2:
+                    Line #3: echo "This is an error" >& 2
+                    Line #4: echo "This is normal output"
+                    Are you done now? <span class="cmd">y</span>
+                    Goodbye
+                [jicanmeng@andy tmp]$ </code></pre>
+            </p>
+
+
+
+
+
+            <h4 id="read_write_fd">2.3 创建读写文件描述符</h4>
+            <p>尽管看起来有些奇怪，但你可以打开单个文件描述符来作为输入和输出。你可以用同一个文件描述符来从文件中读取数据，并将数据写到同一个文件中。</p>
+            <p>创建读写文件描述符时，<font color="red"><b>需要注意的是，shell会维护一个内部指针，指明现在在文件中什么位置。由于你在向同一个文件进行读取数据、写入数据操作，任何读或写都会从文件指针上次保存的位置开始</b></font>。下面的例子可以说明这个问题：
+                <pre class="terminal"><code>[jicanmeng@andy tmp]$ <span class="cmd">cat testfile</span>
+                    This is the first line.
+                    This is the second line
+                    This is the third line.
+                [jicanmeng@andy tmp]$ <span class="cmd">cat 6-read-write-file-descriptor.sh</span>
+                    #!/bin/bash
+
+                    exec 3<> testfile
+                    read line <& 3
+                    echo "Read: $line"
+                    echo "This is a test line" >& 3
+                [jicanmeng@andy tmp]$ <span class="cmd">./6-read-write-file-descriptor.sh</span>
+                    Read: This is the first line.
+                [jicanmeng@andy tmp]$ <span class="cmd">cat testfile</span>
+                    This is the first line.
+                    This is a test line
+                    ine
+                    This is the third line.
+                [jicanmeng@andy tmp]$ </code></pre>
+            </p>
+
+            <h4 id="close_fd">2.4 关闭文件描述符</h4>
+            <p>要关闭文件描述符，就将它重定向到特殊符号<code>-</code>，我们可以认为<code>-</code>是一个特殊的文件描述符。举例如下：
+                <pre class="terminal"><code>[jicanmeng@andy tmp]$ <span class="cmd">cat 7-close-file-descriptor.sh</span>
+                    #!/bin/bash
+
+                    exec 3> test17file
+
+                    echo "This is a test line of data" >& 3
+
+                    exec 3>& -
+
+                    echo "This won't work" >& 3
+                [jicanmeng@andy tmp]$ <span class="cmd">./7-close-file-descriptor.sh</span>
+                    ./7-close-file-descriptor.sh: line 9: 3: Bad file descriptor
+                [jicanmeng@andy tmp]$ <span class="cmd">cat test17file</span>
+                    This is a test line of data
+                [jicanmeng@andy tmp]$ </code></pre>
+                一旦关闭了文件描述符，你就不能在脚本中向它写入任何数据了，否则shell会报错。可以看到，在7行已经关闭了文件描述符3，在9行又将输出重定向到文件描述符3，会提示错误信息。
+            </p>
+
+            <h3 id="list_opened_fd">3. 列出打开的文件描述符</h3>
+            <p>lsof命令会列出整个linux系统打开的所有文件描述符，显示每个文件的有关信息。这包括后台运行的所有进程以及登录到系统的任何用户。</p>
+            <p>有足够的命令行选项和参数帮助过滤lsof的输出。最重用的有<code>-p</code>和<code>-d</code>，前者允许指定进行ID，后者允许指定要显示的文件描述符的名称。另外，<code>-a</code>选项用来对其它两个选项的结果执行布尔AND运算。举个例子：</p>
+
+            <p>显示当前进程的文件描述符0，1，2的有关信息：
+                <pre class="terminal"><code>[jicanmeng@andy tmp]$ <span class="cmd">lsof -a -p $$ -d 0,1,2</span>
+                    COMMAND  PID      USER   FD   TYPE DEVICE SIZE/OFF NODE NAME
+                    bash    4836 jicanmeng    0r   CHR  136,5      0t0    8 /dev/pts/5
+                    bash    4836 jicanmeng    1u   CHR  136,5      0t0    8 /dev/pts/5
+                    bash    4836 jicanmeng    2u   CHR  136,5      0t0    8 /dev/pts/5
+                [jicanmeng@andy tmp]$ </code></pre>
+            </p>
+
+            <p><code>lsof</code>命令还有一个重要的用途：如果在卸载设备时，系统提示设备繁忙，无法卸载设备，通常是有进程还在访问该设备或使用该设备上的文件。这时可用<code>lsof</code>命令获得使用它的进程信息，然后在应用中停止使用该设备或停止该进程。
+            </p>
+
+
+
+            <h3 id="dev_null">4. /dev/null的使用</h3>
+            <p>要阻止错误输出，可以将STDERR重定向到/dev/null文件中。你定向到该文件的任何数据都会被丢弃。这是阻止任何错误信息而不保存它们的一种通用方法。
+            </p>
+            <p>你也可以在输入重定向中将/dev/null作为输入文件。由于/dev/null不包含任何内容，程序员通常用它来快速删除现有文件中的数据而不用先删除文件再创建。举个例子：
+                <pre class="terminal"><code>[jicanmeng@andy tmp]$ <span class="cmd">cat testfile</span>
+                    This is the first line.
+                    This is the second line.
+                    This is the third line.
+                [jicanmeng@andy tmp]$ <span class="cmd">cat /dev/null > testfile</span>
+                [jicanmeng@andy tmp]$ <span class="cmd">cat testfile</span>
+                [jicanmeng@andy tmp]$ </code></pre>
+            </p>
+
+            <h3 id="create_tmp_files">5. mktmp命令：创建临时文件</h3>
+            <p><code>mktemp</code>命令用于创建临时文件。</p>
+            <p>默认情况下，mktemp命令会在当前目录下创建一个文件，并返回文件名。要用mktemp命令在当前目录下创建一个临时文件，你只要指定一个文件名模板就行了。模板可以包含任意文本文件名，在文件名末尾加上6个X就行了。例如：</p>
+                <pre class="terminal"><code>[jicanmeng@andy tmp]$ <span class="cmd">mktemp testing.XXXXXX</span>
+                    testing.aToZtb
+                [jicanmeng@andy tmp]$ <span class="cmd">ls -l testing*</span>
+                -rw-------. 1 jicanmeng jicanmeng 0 May 18 22:28 testing.aToZtb
+                [jicanmeng@andy tmp]$ </code></pre>
+                <p>mktemp命令会用随机的6个字符码替换这6个X，从而保证文件名在目录中是唯一的。</p>
+            <ul>
+                <li><code>-t</code>选项会强制mktemp命令在系统的临时目录即/tmp目录下创建该文件，并返回文件的全路径和文件名。
+                </li>
+                <li><code>-d</code>选项告诉mktemp命令在当前目录下创建一个临时目录。例如：<code>mktemp -d dir.XXXXXX</code>
+                </li>
+            </ul>
+
+            <h3 id="tee">6. 命令tee：记录消息</h3>
+            <p>有时我们会有这样的需求：将输出一边发送到显示器一边发送到日志文件。通过<code>tee</code>命令可以达到这个目的。
+            </p>
+            <p><code>tee</code>命令相当欲管道的一个T型接头。它将从STDIN过来的数据同时发给两个目的地。一个目的地是STDOUT，另一个目的地是tee命令行指定的文件名。
+            </p>
+
+            <p>如果你想将数据追加到文件中，必须用<code>-a</code>选项。
+            </p>
+
+
+			<h2>参考资料</h2>
+				<ol>
+					<li>Lnux命令行与shell脚本编程大全
+					</li>
+					<li>鸟哥的linux私房菜
+					</li>
+                </ol>
+
+		</div>
+
+		<div id="footer">
+			<p>jicanmeng@126.com 2013</p>
+			<p>本站文章可随意转载，但请注明转载的本站文章地址，谢谢！</p>
+		</div>
+	</body>
+</html>

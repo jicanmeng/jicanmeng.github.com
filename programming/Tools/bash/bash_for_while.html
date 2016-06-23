@@ -1,0 +1,358 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<title>bash for while commands</title>
+		<meta http-equiv="content-type" content="text/html; charset=UTF-8">
+		<link rel="stylesheet" type="text/css" href="../../../style.css" />
+	</head>
+	<body>
+
+		<script type="text/javascript" src="../../../style.js"></script>
+
+		<div id="header">
+			<h1>每天进步一点点</h1>
+		</div>
+
+		<div id="navigation">
+			<ul id="navigation">
+				<li><a class="navigation" href="../../../index.html">Home Page</a></li>
+				<li><a class="navigation" href="../../../life/index.html">Life</a></li>
+				<li><a class="navigation" href="../../index.html">Programmig</a></li>
+				<li><a class="navigation" href="../../../projects/index.html">Projects</a></li>
+				<li><a class="navigation" href="../../../aboutme/index.html">About me</a></li>
+			</ul>
+		</div>
+
+		<div id="Article">
+			<h1>循环命令: for, while, until</h1>
+			<p>作者：jicanmeng</p>
+			<p>时间：2016年05月13日</p>
+			<hr />
+
+
+            <ol>
+                <li><a href="#for_command">for命令</a></li>
+                <li><a href="#for_command_c_style"><font color="red"><b>c语言风格的for命令</b></font></a></li>
+                <li><a href="#while_command">while命令</a></li>
+                <li><a href="#until_command">until命令</a></li>
+                <li><a href="#break_continue_command">break和continue命令</a></li>
+                <li><a href="#for_command_redirection">循环输出的重定向</a></li>
+                <li><a href="#examples">实用例子</a></li>
+            </ol>
+
+            <h3 id="for_command">1. for命令</h3>
+                <p>for命令的格式如下：</p>
+<pre><code>for var in list
+do
+    commands
+done</code></pre>
+                <p>一般情况下，list中的各项使用空格分开。每项都赋值给var变量。如果list中的项包含空格，我们可以用转义字符对空格进行转义，或用双引号或单引号。举例如下：</p>
+                    <pre class="terminal"><code>[jicanmeng@andy tmp]$ <span class="cmd">cat 1-for.sh</span>
+                        #!/bin/bash
+
+                        for city in beijing shanghai shenzhen
+                        do
+	                        &nbsp;&nbsp;&nbsp;&nbsp;echo "visit beautiful $city"
+                        done
+
+                        for city in bei\ jing "shang hai" 'shen zhen'
+                        do
+	                        &nbsp;&nbsp;&nbsp;&nbsp;echo "Visit beautiful $city"
+                        done
+                    [jicanmeng@andy tmp]$ <span class="cmd">bash 1-for.sh</span>
+                        visit beautiful beijing
+                        visit beautiful shanghai
+                        visit beautiful shenzhen
+                        Visit beautiful bei jing
+                        Visit beautiful shang hai
+                        Visit beautiful shen zhen
+                    [jicanmeng@andy tmp]$ </code></pre>
+                <p>list的内容也可以通过读取文件来获得。例如下面的例子：</p>
+                    <pre class="terminal"><code>[jicanmeng@andy tmp]$ <span class="cmd">cat city.txt</span>
+                        bei jing
+                        shang hai
+                        shen zhen
+                    [jicanmeng@andy tmp]$ <span class="cmd">cat 2-for.sh</span>
+                        #!/bin/bash
+
+                        for city in `cat city.txt`
+                        do
+	                        &nbsp;&nbsp;&nbsp;&nbsp;echo "visit beautiful $city"
+                        done
+                    [jicanmeng@andy tmp]$ <span class="cmd">bash 2-for.sh</span>
+                        visit beautiful bei
+                        visit beautiful jing
+                        visit beautiful shang
+                        visit beautiful hai
+                        visit beautiful shen
+                        visit beautiful zhen
+                    [jicanmeng@andy tmp]$ </code></pre>
+                <p>这和我们期望的不一样。我们期望一行一行打印，而实际结果是一行中的空格也作为了分隔符，分隔符前后的内容分别赋值给了city。这个问题的原因是一个特殊的环境变量IFS，称为内部字段分隔符(internal filed separator)。IFS环境变量保存了bash shell用作字段分隔符的一系列字符。默认情况下，bash shell会将下列字符当作字段分隔符：
+                <ul>
+                    <li>空格</li>
+                    <li>制表符</li>
+                    <li>换行符</li>
+                </ul>
+                </p>
+
+                <p>如果bash shell在数据列表中看到了这些字符中的任意一个，它会假定你在数据列表中开始了一个新的数据段。在读取文件时，如果文件中包含空格，可能就会比较麻烦，例如上面的例子。
+                </p>
+
+                <p>要解决这个问题，我们可以在shell脚本中临时更改一些IFS环境变量的值，处理完数据后再把IFS的原值更改回来。例如下面的例子：
+                </p>
+                    <pre class="terminal"><code>[jicanmeng@andy tmp]$ <span class="cmd">cat city.txt</span>
+                        bei jing
+                        shang hai
+                        shen zhen
+                    [jicanmeng@andy tmp]$ <span class="cmd">cat 3-for.sh</span>
+                        #!/bin/bash
+
+                        IFSOLD=$IFS
+                        IFS=$'\n'
+                        for city in `cat city.txt`
+                        do
+	                        &nbsp;&nbsp;&nbsp;&nbsp;echo "visit beautiful $city"
+                        done
+                        IFS=$IFSOLD
+                    [jicanmeng@andy tmp]$ <span class="cmd">bash 3-for.sh</span>
+                        visit beautiful bei jing
+                        visit beautiful shang hai
+                        visit beautiful shen zhen
+                    [jicanmeng@andy tmp]$ </code></pre>
+                <p><code>IFS=$'\n'</code>表示IFS环境变量中只包含换行符。</p>
+                <p>如果你要指定多个IFS字符，只要将它们在赋值行串起来就行。例如<code>IFS=$'\n:;"'</code>这个赋值语句会将换行符、冒号、分号和双引号作为字段分隔符。
+                </p>
+
+                <p>for命令在一种情况下也非常常见。那就是遍历一个目录下面的所有文件的目录和文件名称。例如：</p>
+                    <pre class="terminal"><code>[jicanmeng@andy tmp]$ <span class="cmd">cat 4-for.sh</span>
+                        #!/bin/bash
+
+                        for file in /home/jicanmeng/*
+                        do
+	                        &nbsp;&nbsp;&nbsp;&nbsp;if [ -d "$file" ]
+	                        &nbsp;&nbsp;&nbsp;&nbsp;then
+		                        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;echo "$file is a directory"
+	                        &nbsp;&nbsp;&nbsp;&nbsp;elif [ -f "$file" ]
+	                        &nbsp;&nbsp;&nbsp;&nbsp;then
+		                        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;echo "$file is a file"
+	                        &nbsp;&nbsp;&nbsp;&nbsp;fi
+                        done
+                    [jicanmeng@andy tmp]$ <span class="cmd">bash 4-for.sh</span>
+                        /home/jicanmeng/2015年年终总结.txt is a file
+                        /home/jicanmeng/Downloads is a directory
+                        /home/jicanmeng/lib is a directory
+                        /home/jicanmeng/pictures is a directory
+                        /home/jicanmeng/Public is a directory
+                        /home/jicanmeng/softwares is a directory
+                        /home/jicanmeng/VirtualBox VMs is a directory
+                        /home/jicanmeng/work is a directory
+                    [jicanmeng@andy tmp]$ </code></pre>
+                <p><font color="red">这里要提醒一下，测试文件是文件还是目录的时候，注意添加双引号。如果不这么做，那么遇到包含有空格的目录或文件名时会提示参数过多的错误。</font></p>
+
+
+            <h3 id="for_command_c_style">2. c语言风格的for命令</h3>
+            <p>bash shell也支持另一种形式的for循环，看起来和c语言风格的for循环非常类似。格式如下：</p>
+            <pre><code>for (( variable assignment; condition; iteration process ))</code></pre>
+            <p>注意，有一些事情没有遵循标准的bash shell的for命令：1. 给变量赋值等号前后可以有空格； 2. 条件中的变量不以$开头； 3. 迭代过程的算式未用expr命令格式。举例如下：</p>
+                <pre class="terminal"><code>[jicanmeng@andy tmp]$ <span class="cmd">cat 5-for.sh</span>
+                    #!/bin/bash
+
+                    for (( i = 1; i &lt; 5; i++ ))
+                    do
+                        &nbsp;&nbsp;&nbsp;&nbsp;echo "The next number is $i"
+                    done
+
+                    for (( a=1,b=5; a&lt;5; a++,b-- ))
+                    do
+                        &nbsp;&nbsp;&nbsp;&nbsp;echo "$a - $b"
+                    done
+                [jicanmeng@andy tmp]$ <span class="cmd">bash 5-for.sh</span>
+                    The next number is 1
+                    The next number is 2
+                    The next number is 3
+                    The next number is 4
+                    1 - 5
+                    2 - 4
+                    3 - 3
+                    4 - 2
+                [jicanmeng@andy tmp]$ </code></pre>
+
+
+            <h3 id="while_command">3. while命令</h3>
+                <p>while命令的基本格式：</p>
+<pre><code>while command
+do
+    commands
+done</code></pre>
+                <p>两点需要注意：
+                    <ol>
+                        <li>while后面的command和if-then语句中if后面的command相同，也可以用test和[];</li>
+                        <li>while后面的command可以是多个命令。一般情况下，每个命令都在单独的一行上。如果两个命令不在同一行上，应该使用<code>;</code>或<code>&&</code>连接起来。特别注意的是，while的条件是否满足，取决于while命令中的最后一条命令的退出状态码。
+                    </ol>
+                </p>
+                <pre class="terminal"><code>[jicanmeng@andy tmp]$ <span class="cmd">cat 6-while.sh</span>
+                    #!/bin/bash
+
+                    var1=3
+                    while [ $var1 -gt 0 ]
+                    do
+                        &nbsp;&nbsp;&nbsp;&nbsp;echo $var1
+                        &nbsp;&nbsp;&nbsp;&nbsp;var1=$[ var1 -1 ]
+                    done
+                    echo "first while end"
+
+                    var1=3
+                    while echo $var1
+                        &nbsp;&nbsp;&nbsp;&nbsp;test $var1 -ge 0
+                    do
+                        &nbsp;&nbsp;&nbsp;&nbsp;echo "This is inside the loop"
+                        &nbsp;&nbsp;&nbsp;&nbsp;var1=$[$var1-1]
+                    done
+                    echo "second while end"
+
+                    var1=3
+                    while test $var1 -ge 0 && echo $var1
+                    do
+                        &nbsp;&nbsp;&nbsp;&nbsp;echo "This is inside the loop"
+                        &nbsp;&nbsp;&nbsp;&nbsp;var1=$[$var1-1]
+                    done
+                [jicanmeng@andy tmp]$ <span class="cmd">bash 6-while.sh</span>
+                    3
+                    2
+                    1
+                    first while end
+                    3
+                    This is inside the loop
+                    2
+                    This is inside the loop
+                    1
+                    This is inside the loop
+                    0
+                    This is inside the loop
+                    -1
+                    second while end
+                    3
+                    This is inside the loop
+                    2
+                    This is inside the loop
+                    1
+                    This is inside the loop
+                    0
+                    This is inside the loop
+                [jicanmeng@andy tmp]$ </code></pre>
+
+
+            <h3 id="until_command">4. until命令</h3>
+                <p>until命令的基本格式：</p>
+<pre><code>until command
+do
+    commands
+done</code></pre>
+                <p>until命令和while命令的格式和参数完全相同，只有一点需要注意：while后面的命令退出状态码为0时，才会执行do后面的命令；而until后面的命令退出码不为0时，才会执行do后面的命令。</p>
+
+
+
+            <h3 id="break_continue_command">5. break和continue命令</h3>
+                <p>和c语言一样，bash shell也支持在循环中使用break命令和continue命令。它们都可以加一个参数：<code>break n</code>。默认情况下，n为1；如果你将n设为2，break就会停止上一级的外部循环。这在嵌套循环中非常有用。举例如下：
+                </p>
+                <pre class="terminal"><code>[jicanmeng@andy tmp]$ <span class="cmd">cat 7-break.sh</span>
+                    #!/bin/bash
+
+for a in 1 2 3 4
+do
+	&nbsp;&nbsp;&nbsp;&nbsp;echo "outer loop: $a"
+	&nbsp;&nbsp;&nbsp;&nbsp;for (( b = 1; b &lt; 100; b++ ))
+	&nbsp;&nbsp;&nbsp;&nbsp;do
+		&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;if [ $b -gt 4 ]
+		&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;then
+			&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;break 2
+		&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;fi
+		&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;echo "&nbsp;&nbsp;&nbsp;&nbsp;inner loop: $b"
+	&nbsp;&nbsp;&nbsp;&nbsp;done
+done
+                [jicanmeng@andy tmp]$ <span class="cmd">bash 7-break.sh</span>
+                    outer loop: 1
+                    &nbsp;&nbsp;&nbsp;&nbsp;inner loop: 1
+                    &nbsp;&nbsp;&nbsp;&nbsp;inner loop: 2
+                    &nbsp;&nbsp;&nbsp;&nbsp;inner loop: 3
+                    &nbsp;&nbsp;&nbsp;&nbsp;inner loop: 4
+                [jicanmeng@andy tmp]$ </code></pre>
+
+            <h3 id="for_command_redirection">6. 循环输出的重定向</h3>
+            <p>无论是使用for，还是使用while，还是使用until，都可以在done后面加上重定向符号，将循环的输出重定向到文件中。或在done后面添加管道符号|，将循环的输出传递给另外一个程序。举例如下：
+            </p>
+                <pre class="terminal"><code>[jicanmeng@andy tmp]$ <span class="cmd">cat 8-redirection.sh</span>
+                    #!/bin/bash
+
+                    for file in /home/jicanmeng/*
+                    do
+                        &nbsp;&nbsp;&nbsp;&nbsp;if [ -d "$file" ]
+                        &nbsp;&nbsp;&nbsp;&nbsp;then
+	                        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;echo "$file is a directory"
+                        &nbsp;&nbsp;&nbsp;&nbsp;elif [ -f "$file" ]
+                        &nbsp;&nbsp;&nbsp;&nbsp;then
+	                        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;echo "$file is a file"
+                        &nbsp;&nbsp;&nbsp;&nbsp;fi
+                    done > output.txt
+                [jicanmeng@andy tmp]$ <span class="cmd">bash 8-redirection.sh</span>
+                [jicanmeng@andy tmp]$ <span class="cmd">cat output.txt</span>
+                    /home/jicanmeng/2015年年终总结.txt is a file
+                    /home/jicanmeng/Downloads is a directory
+                    /home/jicanmeng/lib is a directory
+                    /home/jicanmeng/pictures is a directory
+                    /home/jicanmeng/Public is a directory
+                    /home/jicanmeng/softwares is a directory
+                    /home/jicanmeng/VirtualBox VMs is a directory
+                    /home/jicanmeng/work is a directory
+                [jicanmeng@andy tmp]$ </code></pre>
+
+            <h3 id="examples">7. 实用例子</h3>
+            <ol>
+                <li>取出/etc/passwd文件中的每行数据，将这一行的每列都打印出来。</li>
+                <pre class="terminal"><code>[jicanmeng@andy tmp]$ <span class="cmd">cat 9-example.sh</span>
+                    #!/bin/bash
+
+                    IFSOLD=$IFS
+                    IFS=$'\n'
+                    for line in `cat /etc/passwd`
+                    do
+	                    &nbsp;&nbsp;&nbsp;&nbsp;echo "values in $line -"
+	                    &nbsp;&nbsp;&nbsp;&nbsp;IFS=:
+	                    &nbsp;&nbsp;&nbsp;&nbsp;for column in $line
+	                    &nbsp;&nbsp;&nbsp;&nbsp;do
+		                    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;echo "&nbsp;&nbsp;&nbsp;&nbsp;$column"
+	                    &nbsp;&nbsp;&nbsp;&nbsp;done
+                    done
+                [jicanmeng@andy tmp]$ <span class="cmd">bash 9-example</span>
+                [jicanmeng@andy tmp]$ <span class="cmd">cat output.txt</span>
+                    values in root:x:0:0:root:/root:/bin/bash -
+                    &nbsp;&nbsp;&nbsp;&nbsp;root
+                    &nbsp;&nbsp;&nbsp;&nbsp;x
+                    &nbsp;&nbsp;&nbsp;&nbsp;0
+                    &nbsp;&nbsp;&nbsp;&nbsp;0
+                    &nbsp;&nbsp;&nbsp;&nbsp;root
+                    &nbsp;&nbsp;&nbsp;&nbsp;/root
+                    &nbsp;&nbsp;&nbsp;&nbsp;/bin/bash
+                    ...
+                [jicanmeng@andy tmp]$ </code></pre>
+            </ol>
+
+
+
+
+			<h2>参考资料</h2>
+				<ol>
+					<li>Lnux命令行与shell脚本编程大全
+					</li>
+					<li>鸟哥的linux私房菜
+					</li>
+                </ol>
+
+		</div>
+
+		<div id="footer">
+			<p>jicanmeng@126.com 2013</p>
+			<p>本站文章可随意转载，但请注明转载的本站文章地址，谢谢！</p>
+		</div>
+	</body>
+</html>
