@@ -1,0 +1,74 @@
+﻿<!DOCTYPE html>
+<html>
+	<head>
+		<title>git reset</title>
+		<meta http-equiv="content-type" content="text/html; charset=UTF-8">
+		<link rel="stylesheet" type="text/css" href="../../../style.css" />
+	</head>
+	<body>
+
+		<script type="text/javascript" src="../../../style.js"></script>
+
+		<div id="header">
+			<h1>每天进步一点点</h1>
+		</div>
+
+		<div id="navigation">
+			<ul id="navigation">
+				<li><a class="navigation" href="../../../index.html">Home Page</a></li>
+				<li><a class="navigation" href="../../../life/index.html">Life</a></li>
+				<li><a class="navigation" href="../../index.html">Programmig</a></li>
+				<li><a class="navigation" href="../../../projects/index.html">Projects</a></li>
+				<li><a class="navigation" href="../../../aboutme/index.html">About me</a></li>
+			</ul>
+		</div>
+
+		<div id="Article">
+			<h1>7. 如何对版本库进行回退？--"git reset"</h1>
+			<p>作者：jicanmeng</p>
+			<p>时间：2014年08月26日</p>
+			<hr />
+
+			<p>git reset命令有两种用法：
+			</p>
+
+			<ol>
+				<li>git reset [&lt;commit&gt;] [--] &lt;path&gt;</li>
+				<li>git reset [--soft | --mixed | --hard] [&lt;commit&gt;]</li>
+			</ol>
+			<p>
+				[]表示可选项，如果省略了[<commit>]，那么就使用HEAD指向的commit作为默认的commit。
+			</p>
+
+			<p>
+				第一种用法用于使用某次提交重置暂存区的对应文件，工作区不变。也不会重置引用。
+			</p>
+
+			<p>
+				第二种用法用于重置引用。<br />
+				--hard表示重置引用，从而使得引用指向新的commit。并使用新的commit替换暂存区和工作区的所有文件。<br />
+				--mixed表示重置引用，从而使得引用指向新的commit。并使用新的commit替换暂存区的所有文件，不改变工作区。<br />
+				--soft表示重置引用，从而使得引用指向新的commit。不改变暂存区和工作区。<br />
+				默认情况下，使用--mixed参数。
+			</p>
+
+			<h2>参考资料</h2>
+				<ol>
+					<li>
+                        <a href="http://git-scm.com/book/zh/">Pro Git</a>
+					</li>
+					<li>
+						<a href="http://www.worldhello.net/gotgit/">git权威指南</a>
+					</li>
+					<li>
+                        <a href="http://pcottle.github.io/learnGitBranching/">Learn Git Branching</a>
+					</li>
+				</ol>
+		</div>
+
+		<div id="footer">
+			<p>jicanmeng@126.com 2013</p>
+			<p>本站文章可随意转载，但请注明转载的本站文章地址，谢谢！</p>
+		</div>
+	</body>
+</html>

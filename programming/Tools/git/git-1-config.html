@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<title>git configuration</title>
+		<meta http-equiv="content-type" content="text/html; charset=UTF-8">
+		<link rel="stylesheet" type="text/css" href="../../../style.css" />
+	</head>
+	<body>
+
+		<script type="text/javascript" src="../../../style.js"></script>
+
+		<div id="header">
+			<h1>每天进步一点点</h1>
+		</div>
+
+		<div id="navigation">
+			<ul id="navigation">
+				<li><a class="navigation" href="../../../index.html">Home Page</a></li>
+				<li><a class="navigation" href="../../../life/index.html">Life</a></li>
+				<li><a class="navigation" href="../../index.html">Programmig</a></li>
+				<li><a class="navigation" href="../../../projects/index.html">Projects</a></li>
+				<li><a class="navigation" href="../../../aboutme/index.html">About me</a></li>
+			</ul>
+		</div>
+
+		<div id="Article">
+			<h1>1. 如何对git进行配置--"git config"</h1>
+			<p>作者：jicanmeng</p>
+			<p>时间：2014年08月25日</p>
+			<hr />
+
+			<p>我们通过"git config"命令对git的配置文件进行操作来实现对git进行配置的目的。
+			</p>
+
+            <p>
+                git有三个配置文件：
+                <ol>
+                    <li>
+                        /etc/gitconfig 文件：系统中对所有用户都普遍适用的配置。若使用 git config 时用--system 选项，读写的就是这个文件。修改这个文件需要具有系统管理员权限。
+                    </li>
+                    <li>
+                        ~/.gitconfig 文件：用户目录下的配置文件只适用于该用户。若使用 git config 时用--global 选项，读写的就是这个文件。
+                    </li>
+                    <li>
+                        当前项目的 git 目录中的配置文件（也就是工作目录中的 .git/config 文件）：这里的配置仅仅针对当前项目有效。若使用 git config 时不加选项，读写的就是这个文件。
+                    </li>
+                </ol>
+            </p>
+
+            <p>
+                每一个级别的配置都会覆盖上层的相同配置，所以.git/config 里的配置会覆盖~/.gitconfig和/etc/gitconfig 中的同名变量，~/.gitconfig 里的配置会覆盖/etc/gitconfig中的同名变量。
+            </p>
+
+            <p>
+                <code>git config --system --list</code>只显示/etc/gitconfig文件的内容。<br />
+                <code>git config --global --list</code>只显示~/.gitconfig文件的内容。<br />
+                <code>git config --list</code>命令会显示三个文件中的所有配置，会先显示/etc/gitconfig中的配置，再显示~/.gitconfig中的配置，最后显示工作目录中的.git/config文件中的配置。<br />
+                <code>git config user.name</code>只显示出有效的user.name。
+			</p>
+
+			<pre class="terminal"><code>[jicanmeng@andy tmp]$ <span class="cmd">sudo git config --system user.name jicanmeng-system</span>
+				[jicanmeng@andy tmp]$ <span class="cmd">sudo git config --system user.email jicanmeng-system@126.com</span>
+				[jicanmeng@andy tmp]$ <span class="cmd">git config --global user.name jicanmeng-global</span>
+				[jicanmeng@andy tmp]$ <span class="cmd">git config --global user.email jicanmeng-global@126.com</span>
+				[jicanmeng@andy tmp]$ <span class="cmd">git config user.name jicanmeng</span>
+                [jicanmeng@andy tmp]$ <span class="cmd">git config user.email jicanmeng@126.com</span>
+                [jicanmeng@andy tmp]$ <span class="cmd">git config --list</span>
+				user.name=jicanmeng-system
+                user.email=jicanmeng-system@126.com
+                user.name=jicanmeng-global
+                user.email=jicanmeng-global@126.com
+                user.name=jicanmeng
+                user.email=jicanmeng@126.com
+                [jicanmeng@andy tmp]$ <span class="cmd">git config user.name</span>
+				user.name=jicanmeng</code></pre>
+
+            <p>
+                可以通过git config命令简化一些git命令，例如：
+            </p>
+
+            <pre class="terminal"><code>[jicanmeng@andy tmp]$ <span class="cmd">sudo git config --system alias.st status</span>
+                [jicanmeng@andy tmp]$ <span class="cmd">sudo git config --system alias.co checkout</span></code></pre>
+
+            <p>
+                这样，执行"git st"命令就相当于执行"git status"命令，执行"git co"命令就相当于"git checkout"命令。
+            </p>
+			<h2>参考资料</h2>
+				<ol>
+					<li>
+                        <a href="http://git-scm.com/book/zh/">Pro Git</a>
+					</li>
+					<li>
+						<a href="http://www.worldhello.net/gotgit/">git权威指南</a>
+					</li>
+				</ol>
+
+		</div>
+
+		<div id="footer">
+			<p>jicanmeng@126.com 2013</p>
+			<p>本站文章可随意转载，但请注明转载的本站文章地址，谢谢！</p>
+		</div>
+	</body>
+</html>

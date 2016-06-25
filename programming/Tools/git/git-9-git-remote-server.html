@@ -1,0 +1,135 @@
+﻿<!DOCTYPE html>
+<html>
+	<head>
+		<title>construct remote git server</title>
+		<meta http-equiv="content-type" content="text/html; charset=UTF-8">
+		<link rel="stylesheet" type="text/css" href="../../../style.css" />
+	</head>
+	<body>
+
+		<script type="text/javascript" src="../../../style.js"></script>
+
+		<div id="header">
+			<h1>每天进步一点点</h1>
+		</div>
+
+		<div id="navigation">
+			<ul id="navigation">
+				<li><a class="navigation" href="../../../index.html">Home Page</a></li>
+				<li><a class="navigation" href="../../../life/index.html">Life</a></li>
+				<li><a class="navigation" href="../../index.html">Programmig</a></li>
+				<li><a class="navigation" href="../../../projects/index.html">Projects</a></li>
+				<li><a class="navigation" href="../../../aboutme/index.html">About me</a></li>
+			</ul>
+		</div>
+
+		<div id="Article">
+			<h1>9.  如何建立远端git服务器? </h1>
+			<p>作者：jicanmeng</p>
+			<p>时间：2014年08月30日</p>
+			<hr />
+
+			<p>
+				在实际工作中，通常会建立一个大家都可以访问的共享仓库，从那里推送和拉取数据。我们将把这个仓库称为 "Git 服务器"，也叫远程仓库(remote repository)。
+			</p>
+
+			<p>
+				远程仓库通常只是一个裸仓库（bare repository） — 即一个没有当前工作目录的仓库。因为该仓库只是一个合作媒介，所以不需要从硬盘上取出最新版本的快照；仓库里存放的仅仅是 Git 的数据。简单地说，裸仓库就是你工作目录中 .git 子目录内的内容。
+			</p>
+
+			<p>
+				架设Git服务器时，需要选择客户端与Git服务器通讯的协议。Git 可以使用四种主要的协议来传输数据：本地传输，SSH 协议，Git 协议和 HTTP 协议。本文只涉及到ssh协议。
+			</p>
+
+			<p>
+				假设git服务器的ip地址是192.168.2.13，我通过jicanmeng这个账户来访问git服务器。Remote repository所在的目录为/opt/git/，remoterepository的名称为project.git。那么，我在客户端可以通过下面的方式来获取服务器端的git仓库：
+			</p>
+
+            <pre class="terminal"><code>$ <span class="cmd">git clone ssh://jicanmeng@192.168.2.13/opt/git/project.git</span>
+            $ </code></pre>
+
+			<p>
+				或者：
+			</p>
+            <pre class="terminal"><code>$ <span class="cmd">git clone jicanmeng@192.168.2.13:/opt/git/project.git</span>
+            $ </code></pre>
+
+			<p>
+				如果不指明用户，Git默认情况下会使用当前的用户名连接服务器。
+			</p>
+
+			<p>
+				在服务器端假设一个Git仓库非常简单。在服务器端我们需要先建立一个仓库，然后将这个仓库导出为裸仓库 — 即一个不包含当前工作目录的仓库。做法直截了当，克隆时用 --bare 选项即可。裸仓库的目录名一般以 .git 结尾。例如如下命令：
+			</p>
+            <pre class="terminal"><code>[jicanmeng@andy git]$ <span class="cmd">pwd</span>
+				/tmp/git
+			[jicanmeng@andy git]$ <span class="cmd">git init myproject</span>
+				Initialized empty Git repository in /tmp/git/myproject/.git/
+			[jicanmeng@andy git]$ <span class="cmd">cd myproject/</span>
+			[jicanmeng@andy myproject]$ <span class="cmd">vim a.c</span>
+			[jicanmeng@andy myproject]$ <span class="cmd">git add a.c</span>
+			[jicanmeng@andy myproject]$ <span class="cmd">git commit -m 'initial commit'</span>
+				[master (root-commit) 1bcc2c9] initial commit
+				 &nbsp;1 files changed, 7 insertions(+), 0 deletions(-)
+				 &nbsp;create mode 100644 a.c
+			[jicanmeng@andy myproject]$ <span class="cmd">git log --oneline</span>
+				1bcc2c9 initial commit
+			[jicanmeng@andy git]$ <span class="cmd">cd ..</span>
+			[jicanmeng@andy git]$ <span class="cmd">git clone --bare myproject/ myproject.git</span>
+				Initialized empty Git repository in /tmp/git/myproject.git/
+			[jicanmeng@andy git]$ </code></pre>
+
+			<p>
+				最关键的就是最后一条命令。这时客户端就可以访问服务器的这个remote repository了。假设服务端有个账号名称为jicanmeng，服务器端ip地址为192.168.2.13。那么客户端就可以访问Git服务器了：
+			</p>
+            <pre class="terminal"><code>$ <span class="cmd">git clone jicanmeng@192.168.2.13:/opt/git/project.git</span>
+            $ </code></pre>
+
+			<p>
+				如果jicanmeng这个用户对 /opt/git/my_project.git 目录有写权限，那客户端就有推送权限。
+			</p>
+
+
+			<hr />
+			<p>
+				在实际的工作中，常常会很多人都需要访问一个Git服务器。如果在服务器端为每个用户都建立一个账号，那么这是一个很麻烦的事情。&lt;&lt;Pro Git&gt;&gt;中提到第二种方法如下：
+				<blockquote>
+					第二个办法是在Git服务器上建立一个 git 账户，让每个需要写权限的人发送一个 SSH 公钥，然后将其加入 git 账户的 ~/.ssh/authorized_keys 文件。这样一来，所有人都将通过 git 账户访问主机。这丝毫不会影响提交的数据 — 访问主机用的身份不会影响提交对象的提交者信息。
+				</blockquote>
+			</p>
+
+			<p>
+				使用第二种方法，具体步骤如下：
+				<ol>
+					<li>
+						服务器端建立一个名称为"git"的账户。
+					</li>
+					<li>
+						客户端使用<code>ssh-keygen</code>命令在~/.ssh/目录下生成公钥和私钥文件，并将公钥文件id_dsa.pub发给Git服务器端管理员。
+					</li>
+					<li>
+						Git服务器端管理员将客户端发过来的id_dsa.pub文件内容追加到~/.ssh/authorized_keys文件中。
+					</li>
+					<li>
+						客户端就可以使用git账户访问git服务器端的remote repository了。
+					</li>
+				</ol>
+			</p>
+
+			<h2>参考资料</h2>
+				<ol>
+					<li>
+                        <a href="http://git-scm.com/book/zh/v1/%E6%9C%8D%E5%8A%A1%E5%99%A8%E4%B8%8A%E7%9A%84-Git" target="_blank">Pro Git</a> 4. 服务器上的 Git
+					</li>
+					<li>
+						<a href="http://www.worldhello.net/gotgit/" target="_blank">git权威指南</a>
+					</li>
+				</ol>
+		</div>
+
+		<div id="footer">
+			<p>jicanmeng@126.com 2013</p>
+			<p>本站文章可随意转载，但请注明转载的本站文章地址，谢谢！</p>
+		</div>
+	</body>
+</html>

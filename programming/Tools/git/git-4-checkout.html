@@ -1,0 +1,89 @@
+﻿<!DOCTYPE html>
+<html>
+	<head>
+		<title>git branch; git checkout</title>
+		<meta http-equiv="content-type" content="text/html; charset=UTF-8">
+		<link rel="stylesheet" type="text/css" href="../../../style.css" />
+	</head>
+	<body>
+
+		<script type="text/javascript" src="../../../style.js"></script>
+
+		<div id="header">
+			<h1>每天进步一点点</h1>
+		</div>
+
+		<div id="navigation">
+			<ul id="navigation">
+				<li><a class="navigation" href="../../../index.html">Home Page</a></li>
+				<li><a class="navigation" href="../../../life/index.html">Life</a></li>
+				<li><a class="navigation" href="../../index.html">Programmig</a></li>
+				<li><a class="navigation" href="../../../projects/index.html">Projects</a></li>
+				<li><a class="navigation" href="../../../aboutme/index.html">About me</a></li>
+			</ul>
+		</div>
+
+		<div id="Article">
+			<h1>4.  如何创建分支？如何切换分支？--"git branch;git checkout" </h1>
+			<p>作者：jicanmeng</p>
+			<p>时间：2015年03月10日</p>
+			<hr />
+
+			<p>
+				简单来说，<code>git branch</code>命令用于创建一个分支。<code>git checkout</code>命令用于切换分支。
+			</p>
+
+			<p>
+				看下面的例子：
+			</p>
+            <pre class="terminal"><code>$ <span class="cmd">git branch</span>
+			&nbsp;&nbsp;bugFix
+			* master
+			$ <span class="cmd">git branch newBranch bugFix</span>
+			$ <span class="cmd">git checkout newBranch</span>
+			Switched to branch 'newBranch'
+            $ </code></pre>
+
+			<p>
+				<code>git branch newBranch bugFix</code>命令创建了一个名称为newBranch的分支，指向bugFix分支指向的那个commit对象。<code>git checkout newBranch</code>命令则切换到这个分支。这两条命令可以用一条命令来代替：<code>git checkout -b newBranch bugFix</code>. 如果我们执行<code>git branch newBranch</code>命令，那么创建的newBranch分支指向的commit对象是HEAD指向的分支所指向的那个commit对象。
+			</p>
+
+			<hr />
+
+			<p>
+				git checkout命令有两种用法：
+			</p>
+
+			<ol>
+				<li>git checkout [&lt;commit&gt;] [--] &lt;path&gt;</li>
+				<li>git checkout [&lt;branch&gt;]</li>
+			</ol>
+			<p>
+				[]表示可选项，如果省略了[<commit>]，那么就使用暂存区(index)中的内容。
+			</p>
+
+			<p>
+				第一种用法不会改变HEAD头指针，而是会用某个commit中的文件覆盖暂存区和工作区中的文件。如果省略了commit，那么就用暂存区中的文件覆盖工作区中的文件。<br />
+				第二种用法则会改变HEAD头指针，使其指向某个分支，并且使用此分支指向的commit覆盖掉暂存区和工作区。
+			</p>
+
+			<h2>参考资料</h2>
+				<ol>
+					<li>
+                        <a href="http://git-scm.com/book/zh/">Pro Git</a>
+					</li>
+					<li>
+						<a href="http://www.worldhello.net/gotgit/">git权威指南</a>
+					</li>
+					<li>
+                        <a href="http://pcottle.github.io/learnGitBranching/">Learn Git Branching</a>
+					</li>
+				</ol>
+		</div>
+
+		<div id="footer">
+			<p>jicanmeng@126.com 2013</p>
+			<p>本站文章可随意转载，但请注明转载的本站文章地址，谢谢！</p>
+		</div>
+	</body>
+</html>

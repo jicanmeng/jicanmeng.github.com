@@ -1,0 +1,462 @@
+﻿<!DOCTYPE html>
+<html>
+    <head>
+        <title>git merge and git rebase</title>
+        <meta http-equiv="content-type" content="text/html; charset=UTF-8">
+        <link rel="stylesheet" type="text/css" href="../../../style.css" />
+    </head>
+    <body>
+
+        <script type="text/javascript" src="../../../style.js"></script>
+
+        <div id="header">
+            <h1>每天进步一点点</h1>
+        </div>
+
+        <div id="navigation">
+            <ul id="navigation">
+                <li><a class="navigation" href="../../../index.html">Home Page</a></li>
+                <li><a class="navigation" href="../../../life/index.html">Life</a></li>
+                <li><a class="navigation" href="../../index.html">Programmig</a></li>
+                <li><a class="navigation" href="../../../projects/index.html">Projects</a></li>
+                <li><a class="navigation" href="../../../aboutme/index.html">About me</a></li>
+            </ul>
+        </div>
+
+        <div id="Article">
+            <h1>8. 如何进行提交之间的合并? --"git merge"和"git rebase"</h1>
+            <p>作者：jicanmeng</p>
+            <p>时间：2014年08月30日</p>
+            <hr />
+
+            <p>
+                下图是从&lt;&lt;Pro Git&gt;&gt;中截取的图，进行了一些修改。有两个分支：master和bugFix。分别使用<code>git merge</code>和<code>git rebase</code>命令后，看看是什么样子。
+            </p>
+            <figure>
+                <img class="imgCenter" src="images/git-merge-before-1.PNG" alt="git-merge-before-1" />
+                <br />
+                <figcaption>图6-1 Two branches</figcaption>
+            </figure>
+
+
+            <h2>1. git merge</h2>
+            <p>
+                <code>git merge</code>表示合并，格式如下：
+            </p>
+
+            <pre class="terminal"><code>$ <span class="cmd">git merge [选项……] &lt;commit&gt;</span></code></pre>
+
+
+            <p>
+                合并操作的大多数情况，只需要提供一个&lt;commit&gt;(提交ID或对应的引用：分支、里程碑等)作为参数。合并操作将&lt;commit&gt;对应的目录树和当前工作分支(HEAD指向的分支)的目录树的内容进行合并。合并后的操作以当前分支的提交作为第一个父提交，以&lt;commit&gt;作为第二个父提交。
+            </p>
+
+            <p>
+                执行<code>git merge</code>命令：
+            </p>
+
+            <pre class="terminal"><code>$ <span class="cmd">git checkout master</span>
+            Already on 'master'
+            $ <span class="cmd">git merge bugFix</span>
+            $ </code></pre>
+
+            <figure>
+                <img class="imgCenter" src="images/git-merge-after-1.PNG" alt="git-merge-after-1" />
+                <br />
+                <figcaption>图6-2 After git merge</figcaption>
+            </figure>
+
+            <p>&lt;&lt;Pro Git&gt;&gt;上是这么描述<code>git merge</code>的过程的：
+                <blockquote>
+                    Git 会用两个分支的末端（C4 和 C6）以及它们的共同祖先（C2）进行一次简单的三方合并计算，生成一个新的提交。
+                </blockquote>
+            </p>
+
+            <p>
+                现在执行<code>git log master</code>命令，
+            </p>
+            <pre class="terminal"><code>$ <span class="cmd">git log master --graph --oneline</span>
+                *   C7 Merge branch 'bugFix'
+                |\
+                | * C6
+                | * C5
+                * | C4
+                * | C3
+                |/
+                * C2
+                * C1
+                * C0
+            $ </code></pre>
+
+            <p>
+                可以看到，现在C5和C6已经成为master分支的一部分。而且，如前面所说，C4是C7的第一个父提交。
+            </p>
+
+
+            <p>
+                &lt;&lt;Pro Git&gt;&gt;上面提到一种特殊情况：
+                <blockquote>
+                    如果顺着一个分支走下去可以到达另一个分支的话，那么 Git 在合并两者时，只会简单地把指针右移，因为这种单线的历史分支不存在任何需要解决的分歧，所以这种合并过程可以称为快进（Fast forward）。
+                </blockquote>
+            </p>
+
+            <p>
+                还是以图6-1为例，我们执行命令验证一下上面的说法：
+            </p>
+            <pre class="terminal"><code>$ <span class="cmd">git checkout -b hotfix C1</span>
+            Switched to a new branch 'hotfix'
+            $ <span class="cmd">git merge master</span>
+            $ </code></pre>
+
+            <p>
+                执行第一条命令后，创建了hotfix分支，如下图：
+            </p>
+            <figure>
+                <img class="imgCenter" src="images/git-merge-before-2.PNG" alt="git-merge-before-2" />
+                <br />
+                <figcaption>图6-3 create hotfix branch</figcaption>
+            </figure>
+
+
+            <p>
+                执行了第二条命令后，git就会执行所谓的“fast-forwarding”，如下图：
+            </p>
+            <figure>
+                <img class="imgCenter" src="images/git-merge-after-2.PNG" alt="git-merge-after-2" />
+                <br />
+                <figcaption>图6-4 hotfix merge master</figcaption>
+            </figure>
+
+
+            <p>
+                我们考虑另外一种情况：当HEAD直接指向一个commit对象时，执行<code>git merge</code>命令又会怎么样？还是以图6-1为例，我们来验证一下：
+            </p>
+            <pre class="terminal"><code>$ <span class="cmd">git checkout C1</span>
+                Note: checking out '2ce2bd3'.
+
+                You are in 'detached HEAD' state. You can look around, make experimental
+                changes and commit them, and you can discard any commits you make in this
+                state without impacting any branches by performing another checkout.
+
+                If you want to create a new branch to retain commits you create, you may
+                do so (now or later) by using -b with the checkout command again. Example:
+
+                  git checkout -b new_branch_name
+
+                HEAD is now at 2ce2bd3... after initial
+                $ <span class="cmd">git merge master</span>
+                $ </code></pre>
+
+            <p>
+                执行第一条命令后，HEAD直接指向了C1这个commit对象，如下图：
+            </p>
+            <figure>
+                <img class="imgCenter" src="images/git-merge-before-3.PNG" alt="git-merge-before-3" />
+                <br />
+                <figcaption>图6-5 HEAD points to commit</figcaption>
+            </figure>
+
+
+
+            <p>
+                执行第二条命令后，根据“fast-forward”原则，HEAD直接指向了C4这个commit对象，如下图：
+            </p>
+            <figure>
+                <img class="imgCenter" src="images/git-merge-after-3.PNG" alt="git-merge-after-3" />
+                <br />
+                <figcaption>图6-6 HEAD points to another commit</figcaption>
+            </figure>
+
+            <p>
+                根据前面的操作，我们能够得出，<code>git merge</code>其实合并的是commit对象，即使命令后的参数是一个分支名称，那么合并的也是这个分支指向的commit对象。
+            </p>
+
+
+            <p>
+                合并操作并非总会成功，因为合并的不同提交可能同时修改了同一个文件相同区域的内容，导致冲突。冲突会造成合并操作的中断，冲突的文件被标识，用户可以对标识为冲突的文件进行冲突解决操作，然后更新暂存区，再提交，最终完成合并操作。
+            </p>
+
+            <p>
+                下面看一个例子：
+            </p>
+
+
+            <pre class="terminal"><code>$ <span class="cmd">git merge bugFix</span>
+                Auto-merging a.c
+                CONFLICT (content): Merge conflict in a.c
+                Auto-merging temp/b.c
+                CONFLICT (content): Merge conflict in temp/b.c
+                Automatic merge failed; fix conflicts and then commit the result.
+            $ <span class="cmd">cat .git/MERGE_MSG</span>
+                Merge branch 'bugFix'
+
+                Conflicts:
+                    a.c
+                    temp/b.c
+            $ <span class="cmd">cat .git/MERGE_HEAD</span>
+                7070f506fe45df4e0ebef333a1b20b5f9ec05d23
+            $ </code></pre>
+
+            <p>
+                当合并失败后，我们可以直接从失败的信息后看到是哪个文件冲突导致了失败，或者从.git/MERGE_MSG文件中查看详细的失败信息。从上面的命令输出可以看到，是a.c文件和temp/b.c文件发生了冲突。
+            </p>
+
+            <p>
+                工作区的版本会同时包含成功的合并和冲突的合并，其中冲突的合并会用特殊的标记(&lt;&lt;&lt;&lt;&lt;&lt;&lt;=======&gt;&gt;&gt;&gt;&gt;&gt;&gt;)进行标识。查看当前工作区中冲突的文件：
+            </p>
+
+            <pre class="terminal"><code>$ <span class="cmd">cat a.c</span>
+            #include <stdio.h>
+
+            int main()
+            {
+            &lt;&lt;&lt;&lt;&lt;&lt;&lt; HEAD
+                &nbsp;&nbsp;&nbsp;&nbsp;printf("hello,master\n");
+            =======
+                &nbsp;&nbsp;&nbsp;&nbsp;printf("hello,bugFix\n");
+            &gt;&gt;&gt;&gt;&gt;&gt;&gt; bugFix
+            }
+            $ </code></pre>
+
+            <p>
+                特殊标识&lt;&lt;&lt;&lt;&lt;&lt;&lt;(七个小于号)和=======(七个等于号)之间的内容是当前分支所更改的内容。特殊标识=======(七个等于号)和&gt;&gt;&gt;&gt;&gt;&gt;&gt;(七个大于号)之间的内容是所合并的版本更改的内容。
+            </p>
+
+            <p>
+                解决合并冲突的方法：<br />
+                1. 编辑工作区的冲突文件，确定修改成为什么样子。<br />
+                2. 提交到暂存区。<br />
+                3. 提交到本地版本库。<br />
+            </p>
+
+            <p>放弃合并操作非常简单，只需要执行<code>git reset</code>命令将暂存区和工作区重置即可。
+
+
+
+            <h2>2. git rebase</h2>
+            <code>git rebase</code>表示变基操作，命令行格式如下：
+            <pre class="terminal"><code>$ <span class="cmd">git rebase [--onto &lt;newbase&gt;] &lt;since&gt; [&lt;till&gt;]</span>
+            $ <span class="cmd">git rebase --continue</span>
+            $ <span class="cmd">git rebase --abort</span></code></pre>
+
+            <p>
+                第一条命令是最重要的，也最复杂。[]中的内容表示可以省略。有两条原则：
+                <ol>
+                    <li>当省略<code>--onto &lt;newbase&gt;</code>时，默认&lt;newbase&gt;为&lt;since&gt;这个commit对象。</li>
+                    <li>当省略<code>&lt;till&gt;</code>这个commit对象时，默认&lt;till&gt;这个commit对象为HEAD指向的分支所指向的commit对象.</li>
+                </ol>
+            </p>
+
+            <p>
+                对图6-1执行<code>git rebase</code>命令：
+            </p>
+
+            <pre class="terminal"><code>$ <span class="cmd">git branch</span>
+            &nbsp;&nbsp;bugFix
+            * master
+            $ <span class="cmd">git checkout master</span>
+            Already on 'master'
+            $ <span class="cmd">git rebase master bugFix</span>
+            $ </code></pre>
+
+            <figure>
+                <img class="imgCenter" src="images/git-rebase-after-1.PNG" alt="git-rebase-after-1" />
+                <br />
+                <figcaption>图6-7 After git rebase</figcaption>
+            </figure>
+
+            <p>
+                上面的命令中，<code>git reabse master bugFix</code>就等价于<code>git checkout bugFix; git rebase master</code>两条命令。因为执行了<code>git checkout bugFix</code>，HEAD就指向了bugFix分支。
+            </p>
+
+            <p>
+                下面说一说变基操作的过程：
+                <ol>
+                    <li>
+                        首先会指向<code>git checkout</code>切换到&lt;till&gt;.
+                        <ul>
+                            <li>因为会切换到&lt;till&gt;，因此如果&lt;till&gt;指向的不是一个分支(如master)，则变基操作是在 detached HEAD (分离头指针)的状态下进行的.</li>
+                        </ul>
+                    </li>
+
+                    <li>
+                        将&lt;since&gt;..&lt;till&gt;所标识的提交范围写到一个临时文件中.
+                        <ul>
+                            <li>对于图6-1来说，"C0..C6"所标识的提交范围是C1、C2、C5、C6。那么，"C4..C6"所标识的提交范围又是多少呢？因为C4不是C6的直接上游，需要找到C4和C6的共同祖先C2，"C2..C6"所标识的提交范围即"C4..C6"所标识的提交范围,即C5、C6.这一点需要注意。</li>
+                            <li>
+                                写到一个临时文件中，其实就是生成一个个的patch。对于图6-1来说，就会生成两个patch，从C2到C5有一个patch，从C5到C6有一个patch.
+                            </li>
+                        </ul>
+                    </li>
+
+                    <li>将当前分支强制重置(git reset --hard)到&lt;newrebase&gt;.</li>
+
+                    <li>
+                        从保存在临时文件的提交列表中，将提交逐一按顺序重新提交到重置之后的分支上.
+                        <ul>
+                            <li>其实就是把前面生成的patch一个个地打到重置后的分支上面.</li>
+                        </ul>
+                    </li>
+
+                    <li>如果遇到提交已经在分支中包含，则跳过该提交.</li>
+                    <li>如果在提交过程中遇到冲突，则变基过程暂停。用户解决冲突后，执行<code>git rebase --continue</code>继续变基操作。或者执行<code>git rebase --skip</code>跳过此提交。或者执行<code>git rebase --abort</code>就此终止变基操作，切换回变基前的分支上.</li>
+                </ol>
+            </p>
+
+            <p>
+                和前面的合并操作一样，变基操作也会产生冲突。假设在打第一个patch时产生了冲突，产生冲突，变基操作会停止。此时我们可以使用<code>git status</code>命令查看那些文件产生了冲突，手工编辑它们，修改为我们想要的最终结果，提交到暂存区。然后执行<code>git rebase --continue</code>继续打第二个patch。当所有的patch都打完之后，变基操作就成功了。
+            </p>
+
+			<p>
+				可以通过一个例子看一下：
+			</p>
+            <pre class="terminal"><code>[jicanmeng@andy git-rebase3]$ <span class="cmd">ls</span>
+                a.c
+            [jicanmeng@andy git-rebase3]$ <span class="cmd">git branch</span>
+                &nbsp;&nbsp;bugFix
+				* master
+            [jicanmeng@andy git-rebase3]$ <span class="cmd">git log master --oneline</span>
+				d543173 line-7-master2
+				4aee472 line-6-master
+				8ee450b add line number
+				97795cc initial commit
+			[jicanmeng@andy git-rebase3]$ <span class="cmd">git log bugFix --oneline</span>
+				e4330fc line-7-bugFix2
+				3e323f9 line-6-bugFix
+				8ee450b add line number
+				97795cc initial commit
+			[jicanmeng@andy git-rebase3]$ <span class="cmd">git rebase master bugFix</span>
+				First, rewinding head to replay your work on top of it...
+				Applying: line-6-bugFix
+				Using index info to reconstruct a base tree...
+				Falling back to patching base and 3-way merge...
+				Auto-merging a.c
+				CONFLICT (content): Merge conflict in a.c
+				Failed to merge in the changes.
+				Patch failed at 0001 line-6-bugFix
+
+				When you have resolved this problem run "git rebase --continue".
+				If you would prefer to skip this patch, instead run "git rebase --skip".
+				To restore the original branch and stop rebasing run "git rebase --abort".
+
+			[jicanmeng@andy git-rebase3]$ <span class="cmd">git status</span>
+				# Not currently on any branch.
+				# Unmerged paths:
+				# &nbsp;  (use "git reset HEAD <file>..." to unstage)
+				# &nbsp;  (use "git add/rm <file>..." as appropriate to mark resolution)
+				#
+				# &nbsp;  both modified: &nbsp; &nbsp; &nbsp;a.c
+				#
+				no changes added to commit (use "git add" and/or "git commit -a")
+			[jicanmeng@andy git-rebase3]$ <span class="cmd">cat .git/HEAD</span>
+				d5431739857c2d23d392ccbd22ea0f80a8b5bb5a
+			[jicanmeng@andy git-rebase3]$ <span class="cmd">cat .git/refs/heads/master</span>
+				d5431739857c2d23d392ccbd22ea0f80a8b5bb5a
+			[jicanmeng@andy git-rebase3]$ <span class="cmd">cat .git/refs/heads/bugFix</span>
+				e4330fcc7f68343b54081ec9572a48a0b5c1c867
+			[jicanmeng@andy git-rebase3]$ <span class="cmd">vim a.c</span>
+			[jicanmeng@andy git-rebase3]$ <span class="cmd">git rebase --continue</span>
+				You must edit all merge conflicts and then
+				mark them as resolved using git add
+			[jicanmeng@andy git-rebase3]$ <span class="cmd">git add a.c</span>
+			[jicanmeng@andy git-rebase3]$ <span class="cmd">git rebase --continue</span>
+				Applying: line-6-bugFix
+				Applying: line-7-bugFix2
+				Using index info to reconstruct a base tree...
+				Falling back to patching base and 3-way merge...
+				Auto-merging a.c
+				CONFLICT (content): Merge conflict in a.c
+				Failed to merge in the changes.
+				Patch failed at 0002 line-7-bugFix2
+
+				When you have resolved this problem run "git rebase --continue".
+				If you would prefer to skip this patch, instead run "git rebase --skip".
+				To restore the original branch and stop rebasing run "git rebase --abort".
+
+			[jicanmeng@andy git-rebase3]$ <span class="cmd">git status</span>
+				# Not currently on any branch.
+				# Unmerged paths:
+				# &nbsp;  (use "git reset HEAD <file>..." to unstage)
+				# &nbsp;  (use "git add/rm <file>..." as appropriate to mark resolution)
+				#
+				# &nbsp;  both modified: &nbsp; &nbsp; &nbsp;a.c
+				#
+				no changes added to commit (use "git add" and/or "git commit -a")
+			[jicanmeng@andy git-rebase3]$ <span class="cmd">cat .git/HEAD</span>
+				1b2d21ef016afb32fdbd949e53bec3927c5bd157
+			[jicanmeng@andy git-rebase3]$ <span class="cmd">cat .git/refs/heads/master</span>
+				d5431739857c2d23d392ccbd22ea0f80a8b5bb5a
+			[jicanmeng@andy git-rebase3]$ <span class="cmd">cat .git/refs/heads/bugFix</span>
+				e4330fcc7f68343b54081ec9572a48a0b5c1c867
+			[jicanmeng@andy git-rebase3]$ <span class="cmd">git log HEAD --oneline</span>
+				1b2d21e line-6-bugFix
+				d543173 line-7-master2
+				4aee472 line-6-master
+				8ee450b add line number
+				97795cc initial commit
+			[jicanmeng@andy git-rebase3]$ <span class="cmd">git log master --oneline</span>
+				d543173 line-7-master2
+				4aee472 line-6-master
+				8ee450b add line number
+				97795cc initial commit
+			[jicanmeng@andy git-rebase3]$ <span class="cmd">git log bugFix --oneline</span>
+				e4330fc line-7-bugFix2
+				3e323f9 line-6-bugFix
+				8ee450b add line number
+				97795cc initial commit
+			[jicanmeng@andy git-rebase3]$ <span class="cmd">vim a.c</span>
+			[jicanmeng@andy git-rebase3]$ <span class="cmd">git add a.c</span>
+			[jicanmeng@andy git-rebase3]$ <span class="cmd">git rebase --continue</span>
+				Applying: line-7-bugFix2
+			[jicanmeng@andy git-rebase3]$ <span class="cmd">cat .git/HEAD</span>
+				ref: refs/heads/bugFix
+			[jicanmeng@andy git-rebase3]$ <span class="cmd">cat .git/refs/heads/master</span>
+				d5431739857c2d23d392ccbd22ea0f80a8b5bb5a
+			[jicanmeng@andy git-rebase3]$ <span class="cmd">cat .git/refs/heads/bugFix</span>
+				5f96023e8ddacea3d41e49da8710a16190904bcf
+			[jicanmeng@andy git-rebase3]$ <span class="cmd">git branch</span>
+			* bugFix
+			&nbsp;  master
+			[jicanmeng@andy git-rebase3]$ <span class="cmd">git log master --oneline</span>
+				d543173 line-7-master2
+				4aee472 line-6-master
+				8ee450b add line number
+				97795cc initial commit
+			[jicanmeng@andy git-rebase3]$ <span class="cmd">git log bugFix --oneline</span>
+				5f96023 line-7-bugFix2
+				1b2d21e line-6-bugFix
+				d543173 line-7-master2
+				4aee472 line-6-master
+				8ee450b add line number
+				97795cc initial commit
+            [jicanmeng@andy git-rebase3]$ </code></pre>
+
+			<p>
+				需要注意的地方有：
+				<ol>
+					<li>rebase后，当前分支变为bugFix了；</li>
+					<li>rebase的过程中，HEAD指向具体的commit对象，rebase成功一个commit，HEAD移动到最新的commit对象上面，直到rebase结束，HEAD才指向了bugFix分支。这一点和上面提到的rebase的过程略有差异。</li>
+				</ol>
+			</p>
+
+
+            <h2>参考资料</h2>
+                <ol>
+                    <li>
+                        <a href="http://git-scm.com/book/zh/" target="_blank">Pro Git</a> 3.2 分支的新建与合并
+                    </li>
+                    <li>
+                        <a href="http://www.worldhello.net/gotgit/" target="_blank">git权威指南</a> 第十二章 改变历史
+                    </li>
+                    <li>
+                        <a href="http://pcottle.github.io/learnGitBranching/" target="_blank">Learn Git Branching</a>
+                    </li>
+				</ol>
+        </div>
+
+        <div id="footer">
+            <p>jicanmeng@126.com 2013</p>
+            <p>本站文章可随意转载，但请注明转载的本站文章地址，谢谢！</p>
+        </div>
+    </body>
+</html>

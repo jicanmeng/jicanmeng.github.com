@@ -1,0 +1,106 @@
+﻿<!DOCTYPE html>
+<html>
+	<head>
+		<title>git cherry-pick command</title>
+		<meta http-equiv="content-type" content="text/html; charset=UTF-8">
+		<link rel="stylesheet" type="text/css" href="../../../style.css" />
+	</head>
+	<body>
+
+		<script type="text/javascript" src="../../../style.js"></script>
+
+		<div id="header">
+			<h1>每天进步一点点</h1>
+		</div>
+
+		<div id="navigation">
+			<ul id="navigation">
+				<li><a class="navigation" href="../../../index.html">Home Page</a></li>
+				<li><a class="navigation" href="../../../life/index.html">Life</a></li>
+				<li><a class="navigation" href="../../index.html">Programmig</a></li>
+				<li><a class="navigation" href="../../../projects/index.html">Projects</a></li>
+				<li><a class="navigation" href="../../../aboutme/index.html">About me</a></li>
+			</ul>
+		</div>
+
+		<div id="Article">
+			<h1>6. 如何使用git挑选其它分支上面的commit？--"git cherry-pick"</h1>
+			<p>作者：jicanmeng</p>
+			<p>时间：2015年03月19日</p>
+			<hr />
+
+			<p>
+				&lt;&lt;git权威指南&gt;&gt;上面是这样描述"git cherry-pick"命令的：
+				<blockquote>
+					拣选指令----git cherry-pick，其含义是从众多的提交中挑选出一个提交应用在当前的工作分支中。该命令需要提供一个提交ID作为参数，操作过程相当于将该提交导出为补丁文件，然后在当前HEAD上重放，形成无论内容还是提交说明都一致的提交。
+				</blockquote>
+			</p>
+
+			<p>
+				看下面一个例子：将master分支上面的两次提交使用"cherry-pick"命令应用到bugFix分支上面。
+			</p>
+
+            <pre class="terminal"><code>[jicanmeng@andy git-patch]$ <span class="cmd">git branch</span>
+			* bugFix
+			&nbsp;&nbsp;master
+			[jicanmeng@andy git-patch]$ <span class="cmd">git log master --oneline</span>
+				ca1f1f3 3 master
+				b0d7869 2 master
+				0a2109f 1 master
+				5c47112 initial commit
+			[jicanmeng@andy git-patch]$ <span class="cmd">git log bugFix --oneline</span>
+				5c47112 initial commit
+			[jicanmeng@andy git-patch]$ <span class="cmd">git cherry-pick 0a2109f</span>
+				Finished one cherry-pick.
+				[bugFix bfba5f2] 1 master
+				 1 files changed, 1 insertions(+), 0 deletions(-)
+			[jicanmeng@andy git-patch]$ <span class="cmd">git log --oneline</span>
+				bfba5f2 1 master
+				5c47112 initial commit
+			[jicanmeng@andy git-patch]$ <span class="cmd">git cherry-pick ca1f1f3</span>
+				Automatic cherry-pick failed.  After resolving the conflicts,
+				mark the corrected paths with 'git add &lt;paths&gt;' or 'git rm &lt;paths&gt;'
+				and commit the result with:
+
+				&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;git commit -c ca1f1f3
+
+			[jicanmeng@andy git-patch]$ <span class="cmd">git status</span>
+				# On branch bugFix
+				# Unmerged paths:
+				# &nbsp;  (use "git reset HEAD <file>..." to unstage)
+				# &nbsp;  (use "git add/rm <file>..." as appropriate to mark resolution)
+				#
+				# &nbsp;  both modified:      a.c
+				#
+				no changes added to commit (use "git add" and/or "git commit -a")
+			[jicanmeng@andy git-patch]$ <span class="cmd">vim a.c</span>
+			[jicanmeng@andy git-patch]$ <span class="cmd">git add a.c</span>
+				bfba5f2 1 master
+				5c47112 initial commit
+			[jicanmeng@andy git-patch]$ <span class="cmd">git commit -c ca1f1f3</span>
+				[bugFix 804c79e] 3 master
+				 1 files changed, 2 insertions(+), 0 deletions(-)
+			[jicanmeng@andy git-patch]$ <span class="cmd">git log --oneline</span>
+				804c79e 3 master
+				bfba5f2 1 master
+				5c47112 initial commit
+			[jicanmeng@andy git-patch]$ </code></pre>
+
+			<p>
+				第一次执行"cherry-pick"命令后，命令执行成功，会在当前分支中生成一个新的提交。第二次执行"cherry-pick"命令后，命令执行失败，需要我们手动进行冲突文件的合并，然后再添加到暂存区，再提交到git库中。
+			</p>
+
+			<h2>参考资料</h2>
+				<ol>
+					<li>
+						<a href="http://www.worldhello.net/gotgit/" target="_blank">git权威指南</a>
+					</li>
+                </ol>
+		</div>
+
+		<div id="footer">
+			<p>jicanmeng@126.com 2013</p>
+			<p>本站文章可随意转载，但请注明转载的本站文章地址，谢谢！</p>
+		</div>
+	</body>
+</html>

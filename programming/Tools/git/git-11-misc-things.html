@@ -1,0 +1,109 @@
+﻿<!DOCTYPE html>
+<html>
+    <head>
+        <title>git rev-parse</title>
+        <meta http-equiv="content-type" content="text/html; charset=UTF-8">
+        <link rel="stylesheet" type="text/css" href="../../../style.css" />
+    </head>
+    <body>
+
+        <script type="text/javascript" src="../../../style.js"></script>
+
+        <div id="header">
+            <h1>每天进步一点点</h1>
+        </div>
+
+        <div id="navigation">
+            <ul id="navigation">
+                <li><a class="navigation" href="../../../index.html">Home Page</a></li>
+                <li><a class="navigation" href="../../../life/index.html">Life</a></li>
+                <li><a class="navigation" href="../../index.html">Programmig</a></li>
+                <li><a class="navigation" href="../../../projects/index.html">Projects</a></li>
+                <li><a class="navigation" href="../../../aboutme/index.html">About me</a></li>
+            </ul>
+        </div>
+
+        <div id="Article">
+            <h1>11.  git的一些命令 </h1>
+            <p>作者：jicanmeng</p>
+            <p>时间：2014年08月30日</p>
+            <hr />
+
+			<h2>获取git版本库的工作区的根目录</h2>
+
+			<p>
+				使用<code>git rev-parse --git-dir</code>命令来获取工作区的根目录(也就是.git目录所在的目录)：
+			</p>
+            <pre class="terminal"><code>[jicanmeng@andy programming]$ <span class="cmd">git rev-parse --git-dir</span>
+				/home/jicanmeng/Desktop/virtualbox/windowsXP-cygwin/myBlog2/.git
+            [jicanmeng@andy programming]$ <span class="cmd">pwd</span>
+				/home/jicanmeng/Desktop/virtualbox/windowsXP-cygwin/myBlog2/programming
+            [jicanmeng@andy programming]$ </code></pre>
+
+			<h2>去除多余的^M字符</h2>
+			<p>
+				如果我们在windows环境下编辑一个文件，在linux环境下将这个文件添加到git库中，有可能会出现下面这样的情况：
+			</p>
+            <figure>
+                <img class="imgCenter" src="images/windows_end_of_line.png" alt="windows_end_of_line" />
+                <br />
+                <figcaption>图11-1 windows环境下编辑，在linux环境下查看</figcaption>
+            </figure>
+
+			<p>
+				可以看到，在每一行的末尾都有一个^M字符。这是因为在windows环境下编辑文件时每一行的换行符都是0x0D，0x0A，在linux环境下编辑文件时每一行的换行符都是0x0A。将windows环境下的文件放到linux环境下打开，就会出现上面的字样。同样的，将linux环境下的文件放到windows环境下打开，可能会出现没有换行的情况。文件中有这个^M也没什么影响，只是看着有点儿不爽。
+			</p>
+
+			<p>
+				我们在使用git时遇到这种情况，可以有如下的方法来应对：
+				<ol>
+					<li>对git进行配置，忽略^M字符;</li>
+					<li>修改文件内容，删除^M字符;</li>
+				</ol>
+			</p>
+
+			<p>
+				对于第一种方法，使用下面的命令即可：
+			</p>
+            <pre class="terminal"><code>[jicanmeng@andy programming]$ <span class="cmd">git config --global core.whitespace cr-at-eol</span>
+            [jicanmeng@andy programming]$ </code></pre>
+
+
+			<p>
+				对于第二种方法，可以使用notepad++打开文件，选择"编辑"->"档案格式转换"->"转换为UNIX格式"即可。但对于多个文件的转换来说，就比较慢了，可以使用sed来更快地完成这项工作：
+			</p>
+            <figure>
+                <img class="imgCenter" src="images/linux_end_of_line.png" alt="linux_end_of_line" />
+                <br />
+                <figcaption>图11-2 使用sed来完成格式转换</figcaption>
+            </figure>
+
+			<p>
+				这里需要注意的一点是：在sed命令时输入^M字符时不是先输入^再输入M，而是先输入Ctrl+v，再输入Ctrl+M。
+			</p>
+
+            <h2>参考资料</h2>
+                <ol>
+					<li>git权威指南：
+						<a href="http://www.worldhello.net/gotgit/" target="_blank">http://www.worldhello.net/gotgit/</a>
+					</li>
+
+                    <li>Git diff ^M的消除：
+                        <a href="http://blog.csdn.net/csfreebird/article/details/10448493" target="_blank">http://blog.csdn.net/csfreebird/article/details/10448493</a>
+                    </li>
+                    <li>git-diff to ignore ^M：
+                        <a href="http://stackoverflow.com/questions/1889559/git-diff-to-ignore-m" target="_blank">http://stackoverflow.com/questions/1889559/git-diff-to-ignore-m</a>
+                    </li>
+
+                    <li>Windows &amp; Linux 文件格式之迷：
+                        <a href="http://blog.csdn.net/zhangguangyi888/article/details/8159601" target="_blank">http://blog.csdn.net/zhangguangyi888/article/details/8159601</a>
+                    </li>
+				</ol>
+        </div>
+
+        <div id="footer">
+            <p>jicanmeng@126.com 2013</p>
+            <p>本站文章可随意转载，但请注明转载的本站文章地址，谢谢！</p>
+        </div>
+    </body>
+</html>

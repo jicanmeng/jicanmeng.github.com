@@ -1,0 +1,292 @@
+﻿<!DOCTYPE html>
+<html>
+	<head>
+		<title>git remote operations</title>
+		<meta http-equiv="content-type" content="text/html; charset=UTF-8">
+		<link rel="stylesheet" type="text/css" href="../../../style.css" />
+	</head>
+	<body>
+
+		<script type="text/javascript" src="../../../style.js"></script>
+
+		<div id="header">
+			<h1>每天进步一点点</h1>
+		</div>
+
+		<div id="navigation">
+			<ul id="navigation">
+				<li><a class="navigation" href="../../../index.html">Home Page</a></li>
+				<li><a class="navigation" href="../../../life/index.html">Life</a></li>
+				<li><a class="navigation" href="../../index.html">Programmig</a></li>
+				<li><a class="navigation" href="../../../projects/index.html">Projects</a></li>
+				<li><a class="navigation" href="../../../aboutme/index.html">About me</a></li>
+			</ul>
+		</div>/ul>
+		</div>
+
+		<div id="Article">
+			<h1>10. git的远程仓库操作命令有哪些？</h1>
+			<p>作者：jicanmeng</p>
+			<p>时间：2014年08月29日</p>
+			<hr />
+			<p>Git的远程操作命令大概有这么几个：
+			</p>
+
+            <ol>
+                <li><a href="#git-clone">git clone</a></li>
+                <li><a href="#git-remote">git remote</a></li>
+                <li><a href="#git-push">git push</a></li>
+                <li><a href="#git-fetch">git fetch</a></li>
+                <li><a href="#git-pull">git pull</a></li>
+            </ol>
+
+            <h2 id="git-clone">1. git clone</h2>
+
+                <p>
+                    <code>git clone</code>命令用于把远程版本库(remote repository)克隆一份到本地，克隆的这一份版本库就称为本地版本库(local repository)。比如，要克隆Ruby语言的Git代码仓库Grit，可以用下面的命令：
+                </p>
+
+                <pre class="terminal"><code>[jicanmeng@andy tmp]$ <span class="cmd">git clone git://github.com/schacon/grit.git</span>
+                Cloning into 'grit'...
+                remote: Counting objects: 4051, done.
+                remote: Compressing objects: 100% (2824/2824), done.
+                remote: Total 4051 (delta 1170), reused 4051 (delta 1170)Receiving objects:  99%
+                (4029/4051), 2.10 MiB |
+                Receiving objects: 100% (4051/4051), 2.10 MiB | 17 KiB/s, done.
+                Resolving deltas: 100% (1170/1170), done.
+                Checking out files: 100% (1384/1384), done.</code></pre>
+
+                <p>这条命令会在当前目录下创建一个名为grit的目录，其中包含一个.git的目录，用于保存下载下来的所有版本记录，然后从中取出最新版本的文件拷贝，放到工作区。如果希望在克隆的时候，自己定义要新建的项目目录名称，可以在上面的命令末尾指定新的名字：
+                </p>
+
+                <pre class="terminal"><code>[jicanmeng@andy tmp]$ <span class="cmd">git clone git://github.com/schacon/grit.git mygrit</span></code></pre>
+
+                <p>
+                    唯一的差别就是，现在新建的目录成了 mygrit，其他的都和上边的一样。
+                </p>
+
+            <h2 id="git-remote">2. git remote</h2>
+
+                <p>
+                    为了便于管理，Git要求每个远程版本库都必须指定一个名称。<code>git remote</code>命令就用于查看和配置远程版本库的名称。
+                </p>
+
+                <p>
+                    <code>git remote</code>命令列出所有的远程版本库的名称；<br />
+                    <code>git remote  -v</code>命令会列出远程版本库的名称和对应的URL；<br />
+                    <code>git remote show</code>命令用于列出远程版本库的详细信息。
+                </p>
+
+                <pre class="terminal"><code>[jicanmeng@andy tmp]$ <span class="cmd">git remote</span>
+                origin
+                [jicanmeng@andy tmp]$ <span class="cmd">git remote -v</span>
+                origin  git://github.com/schacon/grit.git (fetch)
+                origin  git://github.com/schacon/grit.git (push)
+                [jicanmeng@andy tmp]$ <span class="cmd">git remote show origin</span>
+                * remote origin
+                  Fetch URL: git://github.com/schacon/grit.git
+                  Push  URL: git://github.com/schacon/grit.git
+                  HEAD branch: master
+                  Remote branches:
+                    gh-pages    tracked
+                    integration tracked
+                    master      tracked
+                  Local branch configured for 'git pull':
+                    master merges with remote master
+                  Local ref configured for 'git push':
+                    master pushes to master (up to date)</code></pre>
+
+                <p>
+                    我们在使用<code>git clone</code>命令克隆版本库的时候，所使用的远程版本库默认情况下会被Git命名为origin。如果想用其他的名称，需要用<code>git clone</code>命令的-o选项指定。
+                </p>
+
+                <pre class="terminal"><code>[jicanmeng@andy tmp]$ <span class="cmd">git clone -o gritProject git://github.com/schacon/grit.git</span>
+                [jicanmeng@andy tmp]$ <span class="cmd">git remote</span>
+                gritProject
+                [jicanmeng@andy tmp]$</code></pre>
+
+                <ol>
+                    <li>
+                    <code>git remote add NameOne git://github.com/schacon/grit.git</code>命令用于添加一个URL为git://github.com/schacon/grit.git的远程版本库，名称为NameOne。
+                    </li>
+
+                    <li>
+                        <code>git remote rm NameOne</code>命令用于删除名称为NameOne的远程版本库。
+                    </li>
+
+                    <li>
+                        <code>git remote rename NameOne NameTwo</code>用于将名称为NaneOne的远程版本库的名称修改为NameTwo。
+                    </li>
+                </ol>
+
+                <p>
+                    <code>git remote</code>命令所进行的操作实际上是对.git/config文件进行读和写。我们可以看一看.git/config文件的内容：
+                </p>
+
+                <pre class="terminal"><code>[jicanmeng@andy grit]$ <span class="cmd">cat .git/config</span>
+                [core]
+                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;repositoryformatversion = 0
+                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;filemode = false
+                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;bare = false
+                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;logallrefupdates = true
+                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;symlinks = false
+                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ignorecase = true
+                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;hideDotFiles = dotGitOnly
+                [remote "origin"]
+                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;url = git://github.com/schacon/grit.git
+                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;fetch = +refs/heads/*:refs/remotes/origin/*
+                [branch "master"]
+                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;remote = origin
+                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;merge = refs/heads/master
+                [jicanmeng@andy grit]$ <span class="cmd">git config remote.origin.url</span>
+                git://github.com/schacon/grit.git
+                [jicanmeng@andy grit]$ <span class="cmd">git config branch.master.remote</span>
+                origin
+                [jicanmeng@andy grit]$ </code></pre>
+
+                <p>
+                    可以看到，当前的配置文件中保存了一个远程版本库的名称：origin。我们使用</code>git config</code>命令可以查看名称为origin的远程版本库的URL。如果使用<code>git remote add</code>命令，就会增加一个remote小节。如果使用<code>git remote rm</code>命令，就会删除对应的remote小节。
+                </p>
+
+
+            <h2 id="git-push">3. git push</h2>
+                <p>
+                    <code>git push</code>命令用于将本地版本库的更新，推送到远程版本库。这条命令的格式如下：
+                </p>
+
+                <pre class="terminal"><code>[jicanmeng@andy grit]$ <span class="cmd">git push [<远程版本库名称> [<本地分支名称>:<远程分支名称>]]</span></code></pre>
+
+                <p>
+                    "[]"表示可选，即我们可以执行<code>git push</code>，可以执行<code>git push &lt;远程版本库&gt;</code>，可以执行<code>git push &lt;远程版本库名称&gt; &lt;本地分支名称&gt;:&lt;本地分支名称&gt;</code>，但不能执行<code>git push &lt;本地分支名称:远程分支名称&gt;</code>.
+                </p>
+
+                <p>
+                    如果省略了远程版本库名称，分两种情况：1. 如果为当前分支设置了&lt;remote&gt;，即在.git/config文件中由branch.&lt;branch&gt;.remote给出了远程版本库的名称，那么不带参数执行<code>git push</code>就相当于执行了<code>git push &lt;remote&gt;</code>; 2. 如果没有为当前分支设置&lt;remote&gt;，那么不带参数执行<code>git push</code>就相当于执行<code>git push origin</code>。要推送的远程版本库的URL地址由remote.&lt;remote&gt;.pushurl给出，如果没有这一项配置，那么就使用remote.&lt;remote&gt;.url给出的地址;
+                </p>
+                <p>
+                    如果命令中包含了远程版本库名称，分下面三种情况：
+                </p>
+                <p>
+                    1. 如果省略了本地分支名和远程分支名，分两种情况：1. 如果为注册的远程版本库设置了push参数，即通过remote.&lt;remote&gt;.push配置了一个引用表达式，那么使用该引用表达式进行推送。2. 如果没有设置push参数，那么就使用":"作为引用表达式。该表达式的含义是同名分支推送，即对所有在远程版本库中有同名分支的本地分支执行推送。
+                </p>
+
+                <p>
+                    2. 如果只省略远程分支名，则表示将本地分支推送到同名的远程分支，如果该远程分支不存在，则会被新建。例如：<code>git push origin master</code>命令表示，将本地的master分支推送到名称为origin远程版本库的master分支。如果后者不存在，则会被新建。
+                </p>
+
+                <p>
+                    3. 如果只省略本地分支名，则表示删除指定的远程分支，因为这等同于推送一个空的本地分支到远程分支。例如：<code>git push origin :master</code>命令等同于<code>git push origin --delete master</code>这条命令，表示删除名称为origin的远程版本库的master分支。
+                </p>
+
+
+            <h2 id="git-fetch">4. git fetch</h2>
+
+                <pre class="terminal"><code>[jicanmeng@andy grit]$ <span class="cmd">git fetch [<远程版本库名称> [<远程分支名称>:<本地跟踪分支>]]</span></code></pre>
+
+                <p>
+                    "[]"表示可选，即我们可以执行<code>git fetch</code>，也可以执行<code>git fetch &lt;远程版本库名称&gt;</code>，也可以执行<code>git fetch &lt;远程版本库名称&gt; &lt;远程分支名&gt;</code>，但不能执行<code>git fetch &lt;远程分支名称&gt;</code>.
+                </p>
+
+                <p>
+                    如果省略了远程版本库名称，分两种情况：1. 如果为当前分支设置了&lt;remote&gt;，即在.git/config文件中由branch.&lt;branch&gt;.remote给出了远程版本库的名称，那么不带参数执行<code>git fetch</code>就相当于执行了<code>git fetch &lt;remote&gt;</code>; 2. 如果没有为当前分支设置&lt;remote&gt;，那么不带参数执行<code>git fetch</code>就相当于执行<code>git fetch origin</code>。远程版本库的URL地址由remote.&lt;remote&gt;.url给出。
+                </p>
+
+                <p>
+                    如果命令中包含了远程版本库名称，分下面两种情况：
+                </p>
+                <p>
+                    1. 如果省略了远程分支名和本地跟踪分支名，分两种情况：1. 如果为注册的远程版本库设置了fetch参数，即通过remote.&lt;remote&gt;.fetch配置了一个引用表达式，则使用该引用表达式执行获取操作；2. 如果没有配置fetch参数，那么<code>git fetch</code>取回所有分支（branch）的更新。
+                </p>
+
+                <p>
+                    2. 如果指定远程分支名，那么应该同时指定本地跟踪分支名，此时只取回这个远程分支的更新。
+                </p>
+
+
+                <pre class="terminal"><code>$ <span class="cmd">git fetch origin master:refs/remote/origin/master</span>
+                remote: Counting objects: 4, done.
+                remote: Compressing objects: 100% (2/2), done.
+                remote: Total 3 (delta 1), reused 0 (delta 0)
+                Unpacking objects: 100% (3/3), done.
+                From C:/Program Files/Git/path/to/repos/user5
+                 * [new branch]      master     -> origin/master
+                $ </code></pre>
+
+                <p>
+                    可以使用三幅图来形象地说明一下<code>git fetch</code>命令的作用：
+                </p>
+                <div>
+                <img class="imgCenter" src="images/git-fetch-1.PNG" alt="git fetch 1" />
+                </div>
+
+                <p>
+                    1. 我的本地版本库和远程版本库保持一致，有两个分支：master和branch01。两个本地跟踪分支分别是refs/remotes/origin/master和refs/remote/origin/branch01。
+                </p>
+
+                <div>
+                <img class="imgCenter" src="images/git-fetch-2.PNG" alt="git fetch 2" />
+                </div>
+
+                <p>
+                    2. 有其他人往远程版本库上面进行了新的提交，其中master提交两次，branch01分支提交一次。同时我的本地版本库上面master分支上面有一次新的提交。
+                </p>
+
+                <div>
+                <img class="imgCenter" src="images/git-fetch-3.PNG" alt="git fetch 3" />
+                </div>
+
+                <p>
+                    3. 执行<code>git fetch</code>命令后，从远程版本库获取了master分支的两次commit和branch01分支的一次commit。然后两个本地跟踪分支分别指向对应的最新的commit。至于本地分支master和branch01的指向都不改变。
+                </p>
+
+                <p>
+                    从图中可以看出，<code>git fetch</code>命令只有两个作用：1. 将远程版本库的最新的commit获取到本地版本库；2. 将本地跟踪分支的指向进行修改。
+                </p>
+            <h2 id="git-pull">5. git pull</h2>
+
+                <pre class="terminal"><code>[jicanmeng@andy grit]$ <span class="cmd">git pull [<远程版本库名称> [<远程分支名称>:<本地分支>]]</span></code></pre>
+
+                <p>
+                    实际上拉回操作(git pull)是由两个步骤组成的：一个是获取操作(git fetch)，另一个是合并操作(git merge)，即<br />
+                    <code>git pull</code> = <code>git fetch</code> + <code>git merge</code>
+                </p>
+
+                <p>
+                    前面已经详细描述了<code>git fetch</code>命令，这里只需要再理解<code>git merge</code>命令的意思就行了。接着上面的图，如果我们在master分支上面执行<code>git merge origin/master</code>命令，那么结果如下图：
+                </p>
+
+                <div>
+                <img class="imgCenter" src="images/git-merge-1.PNG" alt="git merge 1" />
+                </div>
+
+                <p>
+                    由上图可以看出，在master分支下执行<code>git merge origin/master</code>，会将master分支指向的提交和origin/master指向的提交进行合并，生成一个新的提交。
+                </p>
+
+                <p>
+                    工作中常遇到的一个问题是：<code>git push</code>命令不能执行成功，执行<code>git pull</code>也会提示冲突。所以一定要学会这两条命令的用法。
+                </p>
+
+			<h2>参考资料</h2>
+				<ol>
+					<li>
+                        <a href="http://git-scm.com/book/zh/">Pro Git</a>
+					</li>
+					<li>
+						<a href="http://www.worldhello.net/gotgit/">git权威指南</a>
+					</li>
+					<li>
+                        <a href="http://pcottle.github.io/learnGitBranching/">Learn Git Branching</a>
+					</li>
+                    <li>
+                        阮一峰的网络日志：<a href="http://www.ruanyifeng.com/blog/2014/06/git_remote.html">Git远程操作详解</a>
+                    </li>
+				</ol>
+		</div>
+
+		<div id="footer">
+			<p>jicanmeng@126.com 2013</p>
+			<p>本站文章可随意转载，但请注明转载的本站文章地址，谢谢！</p>
+		</div>
+	</body>
+</html>

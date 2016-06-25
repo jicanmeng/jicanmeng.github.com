@@ -1,0 +1,383 @@
+﻿<!DOCTYPE html>
+<html>
+	<head>
+		<title>git format-patch; git am; git apply</title>
+		<meta http-equiv="content-type" content="text/html; charset=UTF-8">
+		<link rel="stylesheet" type="text/css" href="../../../style.css" />
+	</head>
+	<body>
+
+		<script type="text/javascript" src="../../../style.js"></script>
+
+		<div id="header">
+			<h1>每天进步一点点</h1>
+		</div>
+
+		<div id="navigation">
+			<ul id="navigation">
+				<li><a class="navigation" href="../../../index.html">Home Page</a></li>
+				<li><a class="navigation" href="../../../life/index.html">Life</a></li>
+				<li><a class="navigation" href="../../index.html">Programmig</a></li>
+				<li><a class="navigation" href="../../../projects/index.html">Projects</a></li>
+				<li><a class="navigation" href="../../../aboutme/index.html">About me</a></li>
+			</ul>
+		</div>
+
+		<div id="Article">
+			<h1>5. 如何使用git打patch？--"git format-patch;git am;git apply"</h1>
+			<p>作者：jicanmeng</p>
+			<p>时间：2015年03月21日</p>
+			<hr />
+
+
+            <ol>
+                <li><a href="#linux-diff-patch">linux下的标准命令: diff和patch</a></li>
+                <li><a href="#git-diff-patch">git下的patch命令: git diff和git apply</a></li>
+                <li><a href="#git-format-patch-am">git下的patch命令: git format-patch和git am</a></li>
+            </ol>
+
+			<h2 id="linux-diff-patch">1. linux下的标准命令: diff和patch</h2>
+			<p>
+				首先看一看linux环境下的标准的生成patch的命令"diff"和打patch的命令"patch"。
+			</p>
+
+			<p>diff命令的语法如下：
+<pre>diff [-uNr] from-file to-file
+    -u  -U NUM  --unified[=NUM]
+        Output NUM (default 3) lines of unified context.
+    -N  --new-file
+        Treat absent files as empty.
+    -r  --recursive
+        Recursively compare any subdirectories found.</pre>
+			</p>
+
+			<p>patch命令的语法如下：
+<pre>patch [-R] [-pN] [ORIGFILE] --input=patchfile
+patch [-R] [-pN] [ORIGFILE] &lt; patchfile
+    -p NUM  --strip=NUM
+        Strip NUM leading components from file names.
+    -R  --reverse
+        Assume patches were created with old and new files swapped.
+    -i patchfile  or  --input=patchfile
+        Read the patch from patchfile.  If patchfile is -, read from standard input, the default.</pre>
+			</p>
+
+			<p>
+			默认情况下，会修改patchfile中的---开头的文件。我们可以指定修改哪一个文件。
+            </p>
+
+            <p>
+                只看是不能明白的。来实际操作一下。有两个文件：hello和world。（这两个文件来自于&lt;&lt;git权威指南&gt;&gt;第一章的例子）。hello内容如下：
+<pre class="sourceCode">应该杜绝文章中的错别子。
+
+但是无论使用
+*全拼，双拼
+*还是五笔
+
+是人就有可能犯错，软件更是如此。
+
+犯了错，就要扣工资！
+
+改正的成本可能会很高。</pre>
+world文件内容如下：
+<pre class="sourceCode">应该杜绝文章中的错别字。
+
+但是无论使用
+*全拼，双拼
+*还是五笔
+
+是人就有可能犯错，软件更是如此。
+
+改正的成本可能会很高。
+
+但是“只要眼球足够多，所有Bug都好捉“，
+这就是开源的哲学之一。</pre>
+            </p>
+
+            <p>使用命令diff产生patch文件，diff最常用的option就是-u，表示产生的patch文件中带有上下文。</p>
+            <pre class="terminal"><code>$ <span class="cmd">diff -u hello world > diff.patch</span>
+			$</code></pre>
+
+            <p>diff.patch文件内容如下：
+<pre class="sourceCode">--- hello	2015-08-30 09:51:31.459999126 +0800
++++ world	2015-08-30 09:51:00.436999142 +0800
+@@ -1,4 +1,4 @@
+-应该杜绝文章中的错别子。
++应该杜绝文章中的错别字。
+
+ 但是无论使用
+ *全拼，双拼
+@@ -6,6 +6,7 @@
+
+ 是人就有可能犯错，软件更是如此。
+
+-犯了错，就要扣工资！
+-
+ 改正的成本可能会很高。
++
++但是“只要眼球足够多，所有Bug都好捉“，
++这就是开源的哲学之一。</pre>
+            </p>
+
+            <p>
+                使用命令patch来对某个文件打patch。
+            </p>
+            <pre class="terminal"><code>[jicanmeng@andy temp]$ <span class="cmd">diff -u hello world > diff.patch</span>
+			[jicanmeng@andy temp]$ <span class="cmd">ls</span>
+			diff.patch  hello  world
+			[jicanmeng@andy temp]$ <span class="cmd">rm world</span>
+			[jicanmeng@andy temp]$ <span class="cmd">cp hello world</span>
+			[jicanmeng@andy temp]$ <span class="cmd">patch world &lt; diff.patch</span>
+			patching file world
+			[jicanmeng@andy temp]$ <span class="cmd">patch -R world < diff.patch</span>
+			patching file world
+			[jicanmeng@andy temp]$ <span class="cmd">patch &lt; diff.patch</span>
+			patching file hello
+			[jicanmeng@andy temp]$ <span class="cmd">patch -R &lt; diff.patch </span>
+			patching file hello
+			[jicanmeng@andy temp]$</code></pre>
+
+            <p>
+                最后四条命令中，<code>patch world &lt; diff.patch</code>和<code>patch -R world &lt; diff.patch</code>两条命令指定对world进行patch操作。而<code>patch &lt; diff.patch</code>和<code>patch -R &lt; diff.patch</code>两条命令没有指定对哪个文件进行patch操作，默认对hello文件进行了patch操作。<b>如果不指定要打patch的文件，就从diff.patch文件进行寻找，第一行如下：--- hello	2015-08-30 09:51:31.459999126 +0800 ，表示这个文件是from-file，因此对hello文件打patch。</b>
+            </p>
+
+            <p>
+                patch最常用的option是-p，表示寻找要打patch的文件时，去除几个forward-slash符号。这个知识点在《鸟哥的linux私房菜》里面有详细的描述。这里需要指明一点，如果不指定-p选项，那么patch程序就会在当前目录下面寻找对应的文件。指定了-p选项后，才会按照去除forward-slash后的路径一级级地寻找对应的文件。
+            </p>
+
+
+			<h2 id="git-diff-patch">2. git下的patch命令: git diff和git apply</h2>
+			<p>
+				当我在工作区修改了某些文件，突然来了任务，需要还原工作区。此时我就想把工作区中的改动保存一下, 保存成一个文件，此时就可以使用<code>git diff > a.patch</code>将工作区相对于暂存区的改动保存成一个patch。然后，后面可以使用<code>git apply a.patch</code>命令又得到我们以前的改动了。
+			</p>
+
+
+			<h2 id="git-format-patch-am">3. git下的patch命令: git format-patch和git am</h2>
+			<p>
+				通常情况下，使用"git format-patch"命令生成patch，使用"git am"命令应用patch。使用"git format-patch"命令生成的patch的格式是git特有的，只能在git中使用。
+			</p>
+
+			<p>
+				<code>git format-patch</code>命令有两种常用的格式：
+				<ol>
+					<li>git format-patch -n &lt;commit&gt;</code>
+					<li>git format-patch &lt;commitA&gt;..&lt;commitB&gt;</code>
+				</ol>
+			</p>
+			<p>
+				格式1表示生成n个patch，从&lt;commit&gt;向前数。默认情况下，&lt;commit&gt;这个参数为HEAD。格式二表示生成生成&lt;commitA&gt;到&lt;commitB&gt;之间的所有提交对应的patch。
+			</p>
+
+			<p>
+				看下面一个例子：将master分支上面的提交转换为patch，应用到bugFix分支上面。
+			</p>
+            <pre class="terminal"><code>$ <span class="cmd">git branch</span>
+			* bugFix
+			&nbsp;&nbsp;master
+			$ <span class="cmd">git checkout master</span>
+				Switched to branch 'master'
+			$ <span class="cmd">git log master --oneline</span>
+				ca1f1f3 3 master
+				b0d7869 2 master
+				0a2109f 1 master
+				5c47112 initial commit
+			$ <span class="cmd">git log bugFix --oneline</span>
+				5c47112 initial commit
+			$ <span class="cmd">git format-patch -3</span>
+				0001-1-master.patch
+				0002-2-master.patch
+				0003-3-master.patch
+			$ <span class="cmd">rm *patch</span>
+			Switched to branch 'master'
+			$ <span class="cmd">git format-patch master~3..master</span>
+				0001-1-master.patch
+				0002-2-master.patch
+				0003-3-master.patch
+			$ <span class="cmd">git checkout bugFix</span>
+				Switched to branch 'bugFix'
+			$ <span class="cmd">git am *.patch</span>
+				Applying: 1 master
+				Applying: 2 master
+				Applying: 3 master
+			$ <span class="cmd">git log bugFix --oneline</span>
+				d4a68dd 3 master
+				eec20d7 2 master
+				01b5946 1 master
+				5c47112 initial commit
+			$ </code></pre>
+
+			<p>
+				通过命令可以看出，使用<code>git am</code>命令后，会自动在git库中生成新的提交。这一点非常重要。
+			</p>
+
+
+
+
+
+			<hr />
+
+
+			<p>简单总结一下：
+				<ol>
+					<li><code>git format-patch</code>和<code>git am</code>结合使用；"git diff"或"git show"和"git apply"结合着使用。</li>
+					<li><code>git am</code>命令会生成新的提交，<code>git apply</code>命令只是修改工作区而已。</li>
+					<li><code>git apply</code> 是一个事务性操作的命令，也就是说，要么所有补丁都打上去，要么全部放弃。ProGit上说明在实际打补丁之前，可以先用"git apply --check"查看补丁是否能够干净顺利地应用到当前分支中：git apply --check patch，如果执行完该命令之后没有任何输出，表示我们可以顺利采纳该补丁，接下来就是git上的提交了。</li>
+				</ol>
+			</p>
+
+			<hr />
+			<p>
+				现在来看一下使用"git am"命令打patch时出现冲突的情况：
+			</p>
+			<p>
+				假设当前git库的提交记录入下图5-1所示：
+			</p>
+
+            <figure>
+                <img class="imgCenter" src="images/git-am-patch-1.png" alt="git-am-patch-1" />
+                <br />
+                <figcaption>图5-1 Two branches</figcaption>
+            </figure>
+
+            <pre class="terminal"><code>[jicanmeng@andy andy]$ <span class="cmd">git branch</span>
+				&nbsp; bugFix
+				* master
+			[jicanmeng@andy andy]$ <span class="cmd">git format-patch -2 bugFix</span>
+				0001-bugFix-1.patch
+				0002-bugFix-2.patc
+			[jicanmeng@andy andy]$ <span class="cmd">git am *.patch</span>
+				Applying: bugFix-1
+				error: patch failed: a.c:1
+				error: a.c: patch does not apply
+				Patch failed at 0001 bugFix-1
+				When you have resolved this problem run "git am --resolved".
+				If you would prefer to skip this patch, instead run "git am --skip".
+				To restore the original branch and stop patching run "git am --abort".
+			[jicanmeng@andy andy]$ <span class="cmd">git apply 0001-bugFix-1.patch --reject</span>
+				Checking patch a.c...
+				error: while searching for:
+				1
+				2
+				3
+				4
+				5
+
+				error: patch failed: a.c:1
+				Checking patch b.c...
+				Applying patch a.c with 1 rejects...
+				Rejected hunk #1.
+				Applied patch b.c cleanly.
+			[jicanmeng@andy andy]$ <span class="cmd">git st</span>
+				# On branch master
+				# Changed but not updated:
+				# &nbsp; (use "git add <file>..." to update what will be committed)
+				# &nbsp; (use "git checkout -- <file>..." to discard changes in working directory)
+				#
+				# &nbsp;&nbsp;&nbsp;&nbsp;&nbsp; modified:   b.c
+				#
+				# Untracked files:
+				# &nbsp; (use "git add <file>..." to include in what will be committed)
+				#
+				# &nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 0001-bugFix-1.patch
+				# &nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 0002-bugFix-2.patch
+				# &nbsp;&nbsp;&nbsp;&nbsp;&nbsp; a.c.rej
+				no changes added to commit (use "git add" and/or "git commit -a")
+			[jicanmeng@andy andy]$ <span class="cmd">vim a.c</span>
+			[jicanmeng@andy andy]$ <span class="cmd">git st</span>
+				# On branch master
+				# Changed but not updated:
+				# &nbsp; (use "git add <file>..." to update what will be committed)
+				# &nbsp; (use "git checkout -- <file>..." to discard changes in working directory)
+				#
+				# &nbsp;&nbsp;&nbsp;&nbsp;&nbsp; modified:   a.c
+				# &nbsp;&nbsp;&nbsp;&nbsp;&nbsp; modified:   b.c
+				#
+				# Untracked files:
+				# &nbsp; (use "git add <file>..." to include in what will be committed)
+				#
+				# &nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 0001-bugFix-1.patch
+				# &nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 0002-bugFix-2.patch
+				# &nbsp;&nbsp;&nbsp;&nbsp;&nbsp; a.c.rej
+				no changes added to commit (use "git add" and/or "git commit -a")
+			[jicanmeng@andy andy]$ <span class="cmd">git add a.c b.c</span>
+			[jicanmeng@andy andy]$ <span class="cmd">git st</span>
+				# On branch master
+				# Changes to be committed:
+				# &nbsp; (use "git reset HEAD <file>..." to unstage)
+				#
+				# &nbsp;&nbsp;&nbsp;&nbsp;&nbsp; modified:   a.c
+				# &nbsp;&nbsp;&nbsp;&nbsp;&nbsp; modified:   b.c
+				#
+				# Untracked files:
+				#   (use "git add <file>..." to include in what will be committed)
+				#
+				# &nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 0001-bugFix-1.patch
+				# &nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 0002-bugFix-2.patch
+				# &nbsp;&nbsp;&nbsp;&nbsp;&nbsp; a.c.rej
+			[jicanmeng@andy andy]$ <span class="cmd">git am --resolved</span>
+				Applying: bugFix-1
+				Applying: bugFix-2
+				error: patch failed: a.c:1
+				error: a.c: patch does not apply
+				Patch failed at 0002 bugFix-2
+				When you have resolved this problem run "git am --resolved".
+				If you would prefer to skip this patch, instead run "git am --skip".
+				To restore the original branch and stop patching run "git am --abort".
+			[jicanmeng@andy andy]$</code></pre>
+
+			<p>
+				如果使用"git am *.patch"命令失败，那么需要使用"git apply 失败的patch --reject"这个命令来打patch。0001-bugFix-1.patch这个patch中修改了a.c文件和b.c文件。从命令的结果中可以看到。b.c文件打patch成功，a.c文件打patch失败，将冲突的文件放到a.c.rej文件中。我们打开a.c.rej看看什么地方冲突，然后用vim打开a.c文件手动将a.c.rej文件中的部分修改到a.c中。然后将a.c和b.c都添加到暂存区，使用"git am --resolved"命令表示这个patch解决了，可以继续打下一个patch了。
+			</p>
+			<p>
+				命令执行到这里，git库中的提交记录如下图5-2所示：
+			</p>
+            <figure>
+                <img class="imgCenter" src="images/git-am-patch-2.png" alt="git-am-patch-2" />
+                <br />
+                <figcaption>图5-2 first time after "git am --resolved"</figcaption>
+            </figure>
+
+			<p>
+				虽然此时已经有了一个C3'的提交，但是此时如果我们执行"git am --abort"命令，就会回到如图6-1所示的状态。我们继续解决下一个patch中的冲突，解决完之后，所有的patch就打完了，如图5-3所示：
+			</p>
+            <figure>
+                <img class="imgCenter" src="images/git-am-patch-3.png" alt="git-am-patch-3" />
+                <br />
+                <figcaption>图5-3 second time after "git am --resolved"</figcaption>
+            </figure>
+
+			<h2>参考资料</h2>
+				<ol>
+					<li>
+						<a href="http://www.worldhello.net/gotgit/" target="_blank">git权威指南</a>
+					</li>
+					<li>
+						<a href="http://iissnan.com/progit/html/zh/ch5_3.html" target="_blank">Pro Git: 项目的管理</a>
+					</li>
+					<li>
+                        <a href="http://blog.csdn.net/maybe_windleave/article/details/8703778" target="_blank">git生成patch和使用patch </a>
+					</li>
+					<li>
+						<a href="http://blog.csdn.net/sunnylgz/article/details/7660638" target="_blank">git am PATCH 失败的处理方法</a>
+					</li>
+					<li>
+						<a href="http://blog.csdn.net/kangear/article/details/39675421" target="_blank">Git打补丁常见问题 </a>
+					</li>
+					<li>
+						<a href="http://www.fwolf.com/blog/post/448" target="_blank">Git 合并 patch 时的冲突处理一例</a>
+					</li>
+					<li>
+						<a href="http://openwares.net/linux/git_diff_git_apply_patch.html" target="_blank">git diff,git apply和patch小问题三则</a>
+					</li>
+					<li>
+					    <a href="http://blog.sina.com.cn/s/blog_5372b1a301015y0n.html" target="_blank">http://blog.sina.com.cn/s/blog_5372b1a301015y0n.html</a>
+					</li>
+				</ol>
+		</div>
+
+		<div id="footer">
+			<p>jicanmeng@126.com 2013</p>
+			<p>本站文章可随意转载，但请注明转载的本站文章地址，谢谢！</p>
+		</div>
+	</body>
+</html>

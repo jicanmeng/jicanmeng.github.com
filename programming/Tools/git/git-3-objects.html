@@ -1,0 +1,84 @@
+﻿<!DOCTYPE html>
+<html>
+	<head>
+		<title>git cat-file</title>
+		<meta http-equiv="content-type" content="text/html; charset=UTF-8">
+		<link rel="stylesheet" type="text/css" href="../../../style.css" />
+	</head>
+	<body>
+
+		<script type="text/javascript" src="../../../style.js"></script>
+
+		<div id="header">
+			<h1>每天进步一点点</h1>
+		</div>
+
+		<div id="navigation">
+			<ul id="navigation">
+				<li><a class="navigation" href="../../../index.html">Home Page</a></li>
+				<li><a class="navigation" href="../../../life/index.html">Life</a></li>
+				<li><a class="navigation" href="../../index.html">Programmig</a></li>
+				<li><a class="navigation" href="../../../projects/index.html">Projects</a></li>
+				<li><a class="navigation" href="../../../aboutme/index.html">About me</a></li>
+			</ul>
+		</div>
+
+		<div id="Article">
+			<h1>3.  git对象--"git cat-file" </h1>
+			<p>作者：jicanmeng</p>
+			<p>时间：2015年03月10日</p>
+			<hr />
+
+			<p>
+				git中共有四种类型的对象：commit对象，tree对象，blob对象，tag对象。
+				<ul>
+					<li>
+						commit对象表示提交，每次执行<code>git commit</code>命令的时候都会生成一个commit对象。
+					</li>
+					<li>
+						tree对象表示目录：每次执行<code>git commit</code>命令的时候除了生成一个commit对象，还会生成一个git根目录(即.git目录所在的目录)的tree对象。
+					</li>
+					<li>
+						blob对象表示文件。每次执行<code>git add</code>命令时，都会在git库中生成新的blob对象。
+					</li>
+					<li>
+						tag对象表示标签，这里暂时不讨论。
+					</li>
+				</ul>
+			</p>
+
+
+
+			<p>
+				分支总是会指向一个commit对象，一个commit对象中包含一个指向git根目录的tree对象的指针，还包含author和提交信息，还包括parent commit的commit ID。&lt;&lt;Pro Git&gt;&gt;中是这样描述的：
+				<blockquote>
+					When you commit in Git, Git stores a commit object that contains a pointer to the snapshot of the content you staged, the author and message metadata, and zero or more pointers to the commit or commits that were the direct parents of this commit: zero parents for the first commit, one parent for a normal commit, and multiple parents for a commit that results from a merge of two or more branches.
+				</blockquote>
+			</p>
+
+			<p>
+				我们使用<code>git cat-file</code>命令来查看对象的类型的和内容。
+				<ul>
+					<li><code>git cat-file -t &lt;ID&gt;</code>命令用于查看对象的类型。</li>
+					<li><code>git cat-file -p &lt;ID&gt;</code>命令用于查看对象的内容。</li>
+				</ul>
+			</p>
+
+
+			<h2>参考资料</h2>
+				<ol>
+					<li>
+                        <a href="http://git-scm.com/book/zh/" target="_blank">Pro Git</a> 3 Git Branching
+					</li>
+					<li>
+						<a href="http://www.worldhello.net/gotgit/" target="_blank">git权威指南</a> 第6章 Git对象
+					</li>
+				</ol>
+		</div>
+
+		<div id="footer">
+			<p>jicanmeng@126.com 2013</p>
+			<p>本站文章可随意转载，但请注明转载的本站文章地址，谢谢！</p>
+		</div>
+	</body>
+</html>
