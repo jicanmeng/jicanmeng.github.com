@@ -1,0 +1,247 @@
+﻿<!DOCTYPE html>
+<html>
+	<head>
+		<title>install virtualbox on centos6.5</title>
+		<meta http-equiv="content-type" content="text/html; charset=UTF-8">
+		<link rel="stylesheet" type="text/css" href="../../../style.css" />
+	</head>
+	<body>
+
+		<script type="text/javascript" src="style.js"></script>
+
+		<div id="header">
+			<h1>每天进步一点点</h1>
+		</div>
+
+		<div id="navigation">
+			<ul id="navigation">
+				<li><a class="navigation" href="../../../index.html">Home Page</a></li>
+				<li><a class="navigation" href="../../../life/index.html">Life</a></li>
+				<li><a class="navigation" href="../../index.html">Programmig</a></li>
+				<li><a class="navigation" href="../../../projects/index.html">Projects</a></li>
+				<li><a class="navigation" href="../../../aboutme/index.html">About me</a></li>
+			</ul>
+		</div>
+
+		<div id="Article">
+			<h1>在centos上面安装virtualbox</h1>
+			<p>作者：jicanmeng</p>
+			<p>时间：2014年11月1日</p>
+			<hr />
+
+			<p>
+				在windows下安装virtualbox非常简单，下载了安装文件后，一直点击"下一步"就可以安装成功了。但是在centos下安装就麻烦一些。下面是安装的过程。
+			</p>
+
+				<pre class="terminal"><code>[jicanmeng@centos01-64 Desktop]$ <span class="cmd">sudo wget -P /etc/yum.repos.d/ http://download.virtualbox.org/virtualbox/rpm/rhel/virtualbox.repo</span>
+
+				We trust you have received the usual lecture from the local System
+				Administrator. It usually boils down to these three things:
+
+					#1) Respect the privacy of others.
+					#2) Think before you type.
+					#3) With great power comes great responsibility.
+
+				[sudo] password for jicanmeng:
+				jicanmeng is not in the sudoers file.  This incident will be reported.
+
+
+				[jicanmeng@centos01-64 Desktop]$ <span class="cmd">su -</span>
+				Password:
+				[root@centos01-64 ~]# <span class="cmd">vim /etc/sudoers</span>
+				[root@centos01-64 etc]# <span class="cmd">logout</span>
+				[jicanmeng@centos01-64 ~]$ <span class="cmd">cd Desktop</span>
+				[jicanmeng@centos01-64 Desktop]$ <span class="cmd">sudo wget -P /etc/yum.repos.d/ http://download.virtualbox.org/virtualbox/rpm/rhel/virtualbox.repo</span>
+				[sudo] password for jicanmeng:
+				--2014-11-01 16:12:25--  http://download.virtualbox.org/virtualbox/rpm/rhel/virtualbox.repo
+				Resolving download.virtualbox.org... 137.254.120.26
+				Connecting to download.virtualbox.org|137.254.120.26|:80... connected.
+				HTTP request sent, awaiting response... 200 OK
+				Length: 243 [text/plain]
+				Saving to: “/etc/yum.repos.d/virtualbox.repo”
+
+				100%[======================================>] 243         --.-K/s   in 0s
+
+				2014-11-01 16:12:29 (14.5 MB/s) - “/etc/yum.repos.d/virtualbox.repo” saved [243/243]
+
+				[jicanmeng@centos01-64 Desktop]$ <span class="cmd">yum info VirtualBox-4.3</span>
+				Loaded plugins: fastestmirror, refresh-packagekit, security
+				Determining fastest mirrors
+				 * base: mirrors.btte.net
+				 * extras: mirrors.btte.net
+				 * updates: mirrors.btte.net
+				base                                                     | 3.7 kB     00:00
+				base/primary_db                                          | 4.6 MB     00:08
+				extras                                                   | 3.3 kB     00:00
+				extras/primary_db                                        |  19 kB     00:00
+				updates                                                  | 3.4 kB     00:00
+				updates/primary_db                                       | 171 kB     00:00
+				virtualbox                                               |  951 B     00:00
+				virtualbox/primary                                       | 5.3 kB     00:00
+				virtualbox: [######################################                     ] 19/29Available Packages
+				Name        : VirtualBox-4.3
+				Arch        : x86_64
+				Version     : 4.3.18_96516_el6
+				Release     : 1
+				Size        : 68 M
+				Repo        : virtualbox
+				Summary     : Oracle VM VirtualBox
+				URL         : http://www.virtualbox.org/
+				License     : GPLv2
+				Description : VirtualBox is a powerful PC virtualization solution allowing
+							: you to run a wide range of PC operating systems on your Linux
+							: system. This includes Windows, Linux, FreeBSD, DOS, OpenBSD
+							: and others. VirtualBox comes with a broad feature set and
+							: excellent performance, making it the premier virtualization
+							: software solution on the market.
+
+				[jicanmeng@centos01-64 Desktop]$ <span class="cmd">sudo yum install VirtualBox-4.3</span>
+				Loaded plugins: fastestmirror, refresh-packagekit, security
+				base                                                     | 3.7 kB     00:00
+				base/primary_db                                          | 4.6 MB     00:08
+				extras                                                   | 3.3 kB     00:00
+				extras/primary_db                                        |  19 kB     00:00
+				updates                                                  | 3.4 kB     00:00
+				updates/primary_db                                       | 171 kB     00:00
+				virtualbox                                               |  951 B     00:00
+				virtualbox/primary                                       | 5.3 kB     00:00
+				virtualbox: [######################################                     ] 19/29Setting up Install Process
+				Resolving Dependencies
+				--> Running transaction check
+				---> Package VirtualBox-4.3.x86_64 0:4.3.18_96516_el6-1 will be installed
+				--> Finished Dependency Resolution
+
+				Dependencies Resolved
+
+				================================================================================
+				 Package             Arch        Version                  Repository       Size
+				================================================================================
+				Installing:
+				 VirtualBox-4.3      x86_64      4.3.18_96516_el6-1       virtualbox       68 M
+
+				Transaction Summary
+				================================================================================
+				Install       1 Package(s)
+
+				Total download size: 68 M
+				Installed size: 144 M
+				Is this ok [y/N]: y
+				Downloading Packages:
+				http://download.virtualbox.org/virtualbox/rpm/el/6/x86_64/VirtualBox-4.3-4.3.18_96516_el6-1.x86_64.rpm: [Errno 12] Timeout on http://download.virtualbox.org/virtualbox/rpm/el/6/x86_64/VirtualBox-4.3-4.3.18_96516_el6-1.x86_64.rpm: (28, 'Operation too slow. Less than 1 bytes/sec transfered the last 30 seconds')
+				Trying other mirror.
+
+
+				Error Downloading Packages:
+				  VirtualBox-4.3-4.3.18_96516_el6-1.x86_64: failure: VirtualBox-4.3-4.3.18_96516_el6-1.x86_64.rpm from virtualbox: [Errno 256] No more mirrors to try.
+
+				[jicanmeng@centos01-64 Desktop]$ <span class="cmd">sudo rpm -ivh VirtualBox-4.3-4.3.18_96516_el6-1.x86_64.rpm</span>
+				[sudo] password for jicanmeng:
+				warning: VirtualBox-4.3-4.3.18_96516_el6-1.x86_64.rpm: Header V4 DSA/SHA1 Signature, key ID 98ab5139: NOKEY
+				Preparing...                ########################################### [100%]
+				   1:VirtualBox-4.3         ########################################### [100%]
+
+				Creating group 'vboxusers'. VM users must be member of that group!
+
+				No precompiled module for this kernel found -- trying to build one. Messages
+				emitted during module compilation will be logged to /var/log/vbox-install.log.
+
+				Stopping VirtualBox kernel modules [  OK  ]
+				Recompiling VirtualBox kernel modules [  OK  ]
+				Starting VirtualBox kernel modules [  OK  ]
+				[jicanmeng@centos01-64 Desktop]$
+				[jicanmeng@centos01-64 Desktop]$ <span class="cmd">sudo usermod -a -G vboxusers jicanmeng</span>
+				[jicanmeng@centos01-64 Desktop]$ <span class="cmd">sudo yum install kernel-headers kernel-devel gcc</span>
+				Loaded plugins: fastestmirror, refresh-packagekit, security
+				Loading mirror speeds from cached hostfile
+				 * base: mirrors.btte.net
+				 * extras: mirrors.btte.net
+				 * updates: mirrors.btte.net
+				Setting up Install Process
+				Resolving Dependencies
+
+				……………
+
+				Dependency Updated:
+				  cpp.x86_64 0:4.4.7-11.el6     gcc-c++.x86_64 0:4.4.7-11.el6   gcc-gfortran.x86_64 0:4.4.7-11.el6    libgcc.x86_64 0:4.4.7-11.el6 libgfortran.x86_64 0:4.4.7-11.el6
+				  libgomp.x86_64 0:4.4.7-11.el6 libstdc++.x86_64 0:4.4.7-11.el6 libstdc++-devel.x86_64 0:4.4.7-11.el6
+
+				Complete!
+				[jicanmeng@centos01-64 Desktop]$ <span class="cmd">cd /usr/src/kernels/</span>
+				[jicanmeng@centos01-64 kernels]$ <span class="cmd">ls</span>
+				2.6.32-431.el6.x86_64  2.6.32-504.el6.x86_64
+				[jicanmeng@centos01-64 kernels]$ <span class="cmd">ll</span>
+				total 8
+				drwxr-xr-x. 22 root root 4096 Jun  8 21:12 2.6.32-431.el6.x86_64
+				drwxr-xr-x. 22 root root 4096 Nov  1 16:58 2.6.32-504.el6.x86_64
+				[jicanmeng@centos01-64 kernels]$ <span class="cmd">echo $KERN_DIR</span>
+
+				[jicanmeng@centos01-64 kernels]$ <span class="cmd">sudo echo $KERN_DIR</span>
+
+				[jicanmeng@centos01-64 kernels]$ <span class="cmd">KERN_DIR=/usr/src/kernels/2.6.32-431.el6.x86_64</span>
+				[jicanmeng@centos01-64 kernels]$ <span class="cmd">echo $KERN_DIR</span>
+				/usr/src/kernels/2.6.32-431.el6.x86_64
+				[jicanmeng@centos01-64 kernels]$ <span class="cmd">service vboxdrv setup</span>
+				Stopping VirtualBox kernel modules                         [FAILED]
+				  (Cannot unload module vboxpci)
+				[jicanmeng@centos01-64 kernels]$ <span class="cmd">sudo service vboxdrv setup</span>
+				Stopping VirtualBox kernel modules                         [  OK  ]
+				Removing old VirtualBox pci kernel module                  [  OK  ]
+				Removing old VirtualBox netadp kernel module               [  OK  ]
+				Removing old VirtualBox netflt kernel module               [  OK  ]
+				Removing old VirtualBox kernel module                      [  OK  ]
+				Recompiling VirtualBox kernel modules                      [  OK  ]
+				Starting VirtualBox kernel modules                         [  OK  ]
+				[jicanmeng@centos01-64 kernels]$ <span class="cmd">virtualbox &</span>
+				[1] 12179
+				[jicanmeng@centos01-64 kernels]$ </code></pre>
+
+			<p>
+				1. 第一次执行<code>sudo wget -P /etc/yum.repos.d/ http://download.virtualbox.org/virtualbox/rpm/rhel/virtualbox.repo</code>命令失败后，切换到root用户，打开/etc/sudoers文件，在root	ALL=(ALL)	ALL这一行的下面一行，添加jicanmeng	ALL=(ALL)	ALL。这样，再次执行上面的命令就会成功了。
+			</p>
+			<p>
+				2. 执行<code>sudo yum install VirtualBox-4.3</code>命令失败了。就直接下载了VirtualBox-4.3-4.3.18_96516_el6-1.x86_64.rpm文件，然后使用rpm命令安装了。
+			</p>
+			<p>
+				3. 在引用文章1中提到"请为每一个会执行 VirtualBox 的用户执行: usermod -a -G vboxusers 用户名称"。所以执行<code>sudo usermod -a -G vboxusers jicanmeng</code>命令。
+			</p>
+
+			<h2>参考资料</h2>
+				<ol>
+
+					<li>在 CentOS 上安装及使用 VirtualBox:<br />
+					<a href="http://wiki.centos.org/zh/HowTos/Virtualization/VirtualBox" target="_blank">http://wiki.centos.org/zh/HowTos/Virtualization/VirtualBox</a>
+					</li>
+
+					<li>Install VirtualBox on CentOS / Scientific Linux:<br />
+					<a href="http://www.libre-software.net/install-virtualbox-on-centos-scientific-linux-rhel" target="_blank">http://www.libre-software.net/install-virtualbox-on-centos-scientific-linux-rhel</a>
+					</li>
+
+					<li>centos将用户添加到sudo用户组的方法:<br />
+					<a href="http://www.blogjava.net/yuanqixun/articles/362234.html" target="_blank">http://www.blogjava.net/yuanqixun/articles/362234.html</a>
+					</li>
+
+					<li>CentOS6.5安装VirualBox虚拟机软件:<br />
+					<a href="http://www.cnblogs.com/xia520pi/p/3545666.html" target="_blank">http://www.cnblogs.com/xia520pi/p/3545666.html</a>
+					</li>
+
+					<li>如何把一个命令加入到某个用户sudo的列表中 :<br />
+					<a href="http://blog.csdn.net/tenfyguo/article/details/6801544" target="_blank">http://blog.csdn.net/tenfyguo/article/details/6801544</a>
+					</li>
+
+					<li>CentOS6 命令行下使用 VirtualBox 安装 Windows XP 虚拟机 :<br />
+					<a href="http://zpz.name/2274/" target="_blank">http://zpz.name/2274/</a>
+					</li>
+
+					<li>Fedora 13安装virtualbox增强工具出错 :<br />
+					<a href="http://bbs.csdn.net/topics/350114854" target="_blank">http://bbs.csdn.net/topics/350114854</a>
+					</li>
+
+				</ol>
+		</div>
+
+		<div id="footer">
+			<p>jicanmeng@126.com 2013</p>
+			<p>本站文章可随意转载，但请注明转载的本站文章地址，谢谢！</p>
+		</div>
+	</body>
+</html>

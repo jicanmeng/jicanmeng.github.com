@@ -1,0 +1,150 @@
+﻿<!DOCTYPE html>
+<html>
+	<head>
+		<title>share folders between host and guest in virtualbox</title>
+		<meta http-equiv="content-type" content="text/html; charset=UTF-8">
+		<link rel="stylesheet" type="text/css" href="../../../style.css" />
+	</head>
+	<body>
+
+		<script type="text/javascript" src="style.js"></script>
+
+		<div id="header">
+			<h1>每天进步一点点</h1>
+		</div>
+
+		<div id="navigation">
+			<ul id="navigation">
+				<li><a class="navigation" href="../../../index.html">Home Page</a></li>
+				<li><a class="navigation" href="../../../life/index.html">Life</a></li>
+				<li><a class="navigation" href="../../index.html">Programmig</a></li>
+				<li><a class="navigation" href="../../../projects/index.html">Projects</a></li>
+				<li><a class="navigation" href="../../../aboutme/index.html">About me</a></li>
+			</ul>
+		</div>
+
+		<div id="Article">
+			<h1>使用virtualbox设置共享目录</h1>
+			<p>作者：jicanmeng</p>
+			<p>时间：2014年11月1日</p>
+			<hr />
+
+			<ol class="content">
+				<li>
+					<a href="#guest-windows">guest为windows XP</a>
+					<ol class="content">
+						<li><a href="#additions-windows">安装virtualbox additions</a></li>
+						<li><a href="#share-windows-host">设置共享目录，host中的设置</a></li>
+						<li><a href="#share-windows-guest">设置共享目录，guest中的设置</a></li>
+					</ol>
+				</li>
+				<li>
+					<a href="#guest-centos">guest为centos</a>
+					<ol class="content">
+						<li><a href="#additions-centos">安装virtualbox additions</a></li>
+						<li><a href="#share-centos-host">设置共享目录，host中的设置</a></li>
+						<li><a href="#share-centos-guest">设置共享目录，guest中的设置</a></li>
+					</ol>
+				</li>
+				<li><a href="#chaqu">安装centos32-bit时的一个小插曲</a></li>
+			</ol>
+
+			<p>
+				在本机(centos6.5-64bit)上面安装了virtualbox后,下一步就是在virtualbox中创建虚拟机了.我创建了两个虚拟机,分别安装了windowsXP和centos6.5-64bit操作系统.安装完后,使用虚拟机时,发现不能全屏,也不能设置共享文件夹,在网上查了查,发现需要首先在虚拟机中(guest)安装virtualbox Additions，中文名称是功能增强插件，安装方法如下:
+			</p>
+
+			<h2 id="guest-windows">1. guest为windows XP</h2>
+			<h3 id="additions-windows">1.1 安装virtualbox additions</h3>
+			<p>
+				假设host为centos6.5-64bit,guest为windowsXP,那么启动windowsXP后,点击"Devices->Insert Guest Additions CD Image...  Host+D",然后会跳出安装对话框,然后点击"Next"一步步往下走就可以安装好了,最后会提示重启.重启后就可以通过按"右侧ctrl+F"快捷键切换到全屏模式了.
+			</p>
+			<h3 id="share-windows-host">1.2 设置共享目录，host中的设置</h3>
+			<p>
+				选择"settings"->"Shared Folders",选择本机的一个目录作为和虚拟机的共享目录.假设和windowsXP的共享目录为/home/jicanmeng/Desktop/virtualbox/windowsXPshared.
+			</p>
+			<h3 id="share-windows-guest">1.3 设置共享目录，guest中的设置</h3>
+			<p>
+				进入虚拟机后,右键点击"网上邻居",选择"映射网络驱动器",点击"浏览",在跳出的对话框中选择windowsXPshared目录作为共享文件夹,点击"确定"就可以了.如下图所示.这时就可以通过访问Z盘来访问共享文件夹了.
+			</p>
+			<div>
+				<img class="imgCenter" src="images/windows-shared-folder.png" alt="windows-shared-folder" />
+			</div>
+
+
+			<h2 id="guest-centos">2. guest为centos</h2>
+			<h3 id="additions-centos">2.1 安装virtualbox additions</h3>
+			<p>
+				假设host为centos6.5-64bit,guest为centos6.5-64bit,那么启动centos后,点击"Devices->Insert Guest Additions CD Image...  Host+D",然后会跳出安装对话框,然后点击"Next"一步步往下走就可以安装好了,安装成功会有下图到提示信息.重启后就可以通过按"右侧ctrl+F"快捷键切换到全屏模式了.
+			</p>
+			<div>
+				<img class="imgCenter" src="images/centos-install-addition-success-message.png" alt="install virtualbox additions success" />
+			</div>
+			<p>
+				或者,我们也可以手动加载光盘,点击"Devices->CD/DVD Devices->Choose a virtual CD/DVD disk file",选择 /usr/share/virtualbox 目录下的VBoxGuestAdditions.iso文件.也会跳出安装对话框,和前面同样的步骤,就可以安装好了.(如果没有跳出安装对话框,那么就使用mount命令手动挂载一下.) 使用mount命令查看一下,可以发现,iso文件被挂载到/media/VBOXADDITIONS_4.3.12_93733目录下面了.如下图所示:
+			</p>
+			<div>
+				<img class="imgCenter" src="images/centos-iso-mounted-to-media.png" alt="centos-iso-mounted-to-media" />
+			</div>
+			<p>
+				另外安装完后记得要执行<code>umount /media/VBOXADDITIONS_4.3.12_93733</code>命令.然后点击"Devices"->"CD/DVD Devices",将"VBoxGuestAdditions.iso"前面单选框中的勾号去掉,这一步对于虚拟机来说,相当于拔出光盘.
+			</p>
+
+			<h3 id="share-centos-host">2.2 设置共享目录，host中的设置</h3>
+			<p>
+				选择"settings"->"Shared Folders",选择本机的一个目录作为和虚拟机的共享目录.假设和centos6.5-64bit虚拟机的共享目录为/home/jicanmeng/Desktop/virtualbox/centosshared.
+			</p>
+			<h3 id="share-centos-guest">2.3 设置共享目录，guest中的设置</h3>
+			<p>
+				首先在virtualbox中，点击"Devices"->"Shared Folders Settings",将本机的某个目录设置为和虚拟机共享的目录,假设为 /home/jicanmeng/Desktop/virtualbox/centosshared 目录,并勾选上"Auto-mount"和"Make Permanent".重启虚拟机,执行mount命令,就可以看到 centosshared 目录被挂在到/media/sf_centosshared目录下面了.
+			<p>
+			<div>
+				<img class="imgCenter" src="images/after-reboot-sharedfolder-mounted-to-media.png" alt="after-reboot-sharedfolder-mounted-to-media" />
+			</div>
+			<p>
+				或者也可以这么做,我们在virtualbox中设置共享目录的时候,不勾选"Auto-mount",在启动虚拟机后,执行如下命令:
+			</p>
+				<pre class="terminal"><code>[jicanmeng@andy Desktop]# <span class="cmd">cd /home/jicanmeng/Desktop</span>
+					[jicanmeng@andy Desktop]# <span class="cmd">mkdir shared</span>
+					[jicanmeng@andy Desktop]# <span class="cmd">mount -t vboxsf centosshared /home/jicanmeng/Desktop/shared</span>
+				[jicanmeng@andy Desktop]#</code></pre>
+			<p>
+				就可以将host中的 centosshared 目录挂载到虚拟机中的 /home/jicanmeng/Desktop/shared 目录了.
+				卸载的话使用下面的命令:<code>umount -f /home/jicanmeng/Desktop/shared</code>.
+			<p>
+
+			<h2 id="chaqu">3. 安装centos32-bit时的一个小插曲</h2>
+			<p>
+				在virtualbox中安装centos6.3-32bit时有一个小插曲,提示如下错误:
+				<pre class="terminal"><code>This kernel requires the following features not present on the CPU:
+				pae
+				Unable to boot – please use a kernel appropriate for your CPU</code></pre>
+				解决办法:
+				关闭虚拟机,在setting中选择"system->Processor",勾选上"Enable PAE/NX",点击"OK",重启虚拟机就可以了.如下图所示：
+			</p>
+			<div>
+				<img class="imgCenter" src="images/enable-pae.png" alt="enable-pae" />
+			</div>
+
+			<h2>参考资料</h2>
+				<ol>
+					<li>linux mount挂载设备（u盘,光盘,iso等 ）使用说明:<br />
+					<a href="http://www.cnblogs.com/chengmo/archive/2010/10/13/1850515.html" target="_blank">http://www.cnblogs.com/chengmo/archive/2010/10/13/1850515.html</a>
+					</li>
+
+					<li>VirtualBox内Linux系统怎样与Windows共享文件夹:<br />
+					<a href="http://jingyan.baidu.com/article/2fb0ba40541a5900f2ec5f07.html" target="_blank">http://jingyan.baidu.com/article/2fb0ba40541a5900f2ec5f07.html</a>
+					</li>
+
+					<li>VirtualBox中共享文件夹的设置:<br />
+					<a href="http://blog.sina.com.cn/s/blog_4696f46b01000bnh.html" target="_blank">http://blog.sina.com.cn/s/blog_4696f46b01000bnh.html</a>
+					</li>
+
+				</ol>
+		</div>
+
+		<div id="footer">
+			<p>jicanmeng@126.com 2013</p>
+			<p>本站文章可随意转载，但请注明转载的本站文章地址，谢谢！</p>
+		</div>
+	</body>
+</html>
