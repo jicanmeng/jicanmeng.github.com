@@ -1,0 +1,569 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<title>regular expression tool: sed</title>
+		<meta http-equiv="content-type" content="text/html; charset=UTF-8">
+		<link rel="stylesheet" type="text/css" href="../../../style.css" />
+	</head>
+	<body>
+
+		<script type="text/javascript" src="../../../style.js"></script>
+
+		<div id="header">
+			<h1>每天进步一点点</h1>
+		</div>
+
+		<div id="navigation">
+			<ul id="navigation">
+				<li><a class="navigation" href="../../../index.html">Home Page</a></li>
+				<li><a class="navigation" href="../../../life/index.html">Life</a></li>
+				<li><a class="navigation" href="../../index.html">Programmig</a></li>
+				<li><a class="navigation" href="../../../projects/index.html">Projects</a></li>
+				<li><a class="navigation" href="../../../aboutme/index.html">About me</a></li>
+			</ul>
+		</div>
+
+		<div id="Article">
+			<h1>正则表达式工具：sed</h1>
+			<p>作者：jicanmeng</p>
+			<p>时间：2015年09月14日</p>
+			<hr />
+
+
+            <ol>
+                <li><a href="#s_command">s命令表示替换</a></li>
+                <li><a href="#i_command">i命令表示插入(insert)</a></li>
+                <li><a href="#a_command">a命令表示追加(append)</a></li>
+                <li><a href="#c_command">c命令表示修改(change)</a></li>
+                <li><a href="#print_command">打印命令:p, =, l，P</a></li>
+                <li><a href="#semicolon_command">符号;用于隔开多个命令</a></li>
+                <li><a href="#command_grouping">{}表示命令打包(command grouping)</a></li>
+                <li><a href="#command_from_file">从文件读取sed命令</a></li>
+                <li><a href="#y_command">y命令表示替换</a></li>
+                <li><a href="#file_command">文件读写命令：r和w。</a></li>
+                <li><a href="#n_N_command">读取下行数据，继续执行命令，而不用回到命令的最开始地方执行：n和N。</a></li>
+                <li><a href="#d_D_command">d命令表示删除(delete)</a></li>
+                <li><a href="#b_t_command">跳转命令：b和t</a></li>
+                <li><a href="#and_command">&命令表示替换匹配的正则表达式</a></li>
+                <li><a href="#sed_examples">几个例子</a></li>
+            </ol>
+
+            <p>关于sed有两个重要的概念，pattern space 和 hold buffer。每次sed从文件中读取一行后，都会放到pattern space中。hold buffer可以看做是一个临时的暂存区。</p>
+
+            <p>sed的工作原理如下：
+<pre>while(input stream中有剩余的内容) {
+    从input stream读入下一行;
+    去除行尾的换行符'\n'，然后放到pattern space中;
+    对pattern space中的这一行文本执行script中的内容;
+    对pattern space中的内容添加换行符'\n'，再输出到output stream中。
+}</pre>
+每次循环称为一个cycle。
+            </p>
+
+            <p>
+                sed命令的格式如下：<br />
+                <code>sed [OPTION] {script} [input-file]</code>
+            </p>
+
+            <p>
+<pre>
+常用的options如下：
+-n
+--quiet
+--silent
+      suppress automatic printing of pattern space
+      执行完script中的命令后，不会将pattern space中的内容输出到output stream中。这个选项常常和p命令一起用。
+-e SCRIPT
+--expression=SCRIPT
+      add the script to the commands to be executed
+      指定执行某个script。可以有多个-e选项同时使用。
+-f script-file
+--file=script-file
+      add the contents of script-file to the commands to be executed
+      指定执行某个文件中的script。
+-r
+--regexp-extended
+      use extended regular expressions in the script.
+      sed默认使用基本的正则表达式。使用-r选项会使用扩展的正则表达式。
+-i[SUFFIX]
+--in-place[=SUFFIX]
+    直接修改输入文件。如果指定后缀，例如-i.bak，那么会首先创建一个.bak文件，然后再修改输入文件。</pre>
+            </p>
+
+            <p>
+                script的格式如下：<br />
+                <code>[address[,address]]command</code>
+            </p>
+            <p>
+            address可以直接使用数字表示，表示对第几行执行命令。例如2d表示删除第2行的内容，2,7d表示删除2到7行的内容。
+address也可以使用正则表达式的形式表示，表示对符合要求的某行执行命令。例如/abcd/d表示将包含有abcd字符的行删除，/abcd/,/defg/d表示将从包含abcd的行开始，一直到包含defg的行结束，全部删除。（<b>这里特别需要注意的是，使用两个正则表达式表示范围时，第一个正则表达式表示打开功能，第二个正则表达式表示关闭功能。</b>对于本例来说，如果文件中第3行包含abcd，第5行包含defg，第9行包含abcd，然后一直到文件末尾都不包含defg，那么会删除第3行到第5行的内容和第9行到文件末尾的内容。）
+            </p>
+
+            <ul>有如下常用的命令：
+                <li>s: 替换某些字符。例如s/ab/cd/g表示将这一行的所有ab都替换为cd。</li>
+                <li>i: 在某行的前面加入内容。</li>
+                <li>a: 在某行的后面加入内容。</li>
+                <li>c: 修改某行的内容。</li>
+                <li>d: Delete the pattern space; immediately start next cycle。</li>
+                <li>p: 将pattern space中的内容添加换行符'\n'后输出到output stream。通常情况下和-n选项一起用。</li>
+                <li>g: 将hold buffer中的内容拷贝到pattern space中。</li>
+                <li>G: 先将pattern space中的内容添加换行符'\n'，再将hold buffer中的内容append到pattern space中。</li>
+                <li>h: 将pattern space中的内容拷贝到hold space中。</li>
+                <li>H: 先将hold buffer中的内容添加换行符'\n'，再将pattern space中的内容append到hold buffer中。</li>
+                <li>x: 交换pattern space和hold space的内容。</li>
+                <li>y: 替换某个字符。</li>
+            </ul>
+
+            <p>
+                符号！放在某个address后面，表示对于这个address，不执行对应的命令。
+            </p>
+
+            <p>
+                符号$表示最后一行。
+            </p>
+
+            <p>
+                符号;用于分隔开多个command。等价于使用多个-e选项。
+            </p>
+
+            <p>
+                符号{}用于组合多个命令，各个命令之间使用;隔开。
+            </p>
+
+            <h3 id="s_command">s命令表示替换</h3>
+            <p>
+				s命令的格式如下：<code>s/pattern/replacement/flags</code>
+				<p>
+					常见的flag有四种：
+					<ul>
+						<li>数字：表示新文本会替换本行第几处模式匹配的地方；
+						</li>
+						<li>g：表示新文本会替换本行所有的模式匹配的地方；
+						</li>
+						<li>p：表示如果替换成功，就会将替换后pattern space的内容打印出来；
+						</li>
+						<li>w file：表示如果替换成功，就将替换后的结果写到file中；
+						</li>
+					</ul>
+				</p>
+                <ol>
+                    <li>flag为数字：
+                        <ol>
+				            <li>只把每一行中的第一个my替换为your:</li>
+				                <code>sed "s/my/your/" pets.txt</code><br />
+				                或者<code>sed "s/my/your/1" pets.txt</code>
+				            <li>只把每一行中的第二个my替换为your:</li>
+				                <code>sed "s/my/your/2" pets.txt</code>
+                        </ol>
+                    </li>
+
+                    <li>flag为g：
+                        <ol>
+				            <li>把每一行中的所有my替换为your:</li>
+				                <code>sed "s/my/your/g" pets.txt</code>
+				            <li>把每一行中的第3个到最后一个my替换为your:</li>
+				                <code>sed "s/my/your/3g" pets.txt</code>
+				            <li>只把第三行中的所有my替换为your:</li>
+				                <code>sed "3s/my/your/g" pets.txt</code>
+				            <li>把第三行到第六行中的所有my替换为your:</li>
+				                <code>sed "3,6s/my/your/g" pets.txt</code>
+                        </ol>
+                    </li>
+
+                    <li>flag为p：
+                        <ol>
+				            <li>查找包含test字符串的行,并把本行中的第一个test字符串修改为abc,然后显示出来:</li>
+				                <code>sed -n "s/test/abc/p" pets.txt</code><br />
+				                或者<code>sed -n "s/test/abc/1p" pets.txt</code>
+				            <li>查找包含test字符串的行,并把本行中的第二个test字符串修改为abc,然后显示出来:</li>
+				                <code>sed -n "s/test/abc/2p" pets.txt</code>
+                        </ol>
+                    </li>
+
+                    <li>flag为w：
+                        <ol>
+				            <li>查找包含test字符串的行,并把本行中的第一个test字符串修改为abc,然后保存到result.txt文件中:</li>
+				                <code>sed -n "s/test/abc/w result.txt" pets.txt</code><br />
+				                或者<code>sed -n "s/test/abc/1w result.txt" pets.txt</code>
+				            <li>查找包含test字符串的行,并把本行中的第二个test字符串修改为abc,然后保存到result.txt文件中:</li>
+				                <code>sed -n "s/test/abc/2w result.txt" pets.txt</code>
+                        </ol>
+                    </li>
+                </ol>
+            </p>
+            <p>
+                从上面可以看出来，s命令使用正斜线/来分隔各个字段。如果pattern或replacement中也出现了正斜线/，那么必须要使用反斜线进行转义。例如：将/etc/passwd文件中的/bin/bash替换为/bin/csh：<br />
+                <code>sed 's/\/bin\/bash/\/bin\/csh/' /etc/passwd</code><br />
+                这样看起来就非常不方便。为了解决这个问题，sed命令允许使用其它字符来作为s命令的字段分隔符，例如！，%都可以。info sed中时这样描述的：
+                <blockquote>
+                The `/' characters may be uniformly
+replaced by any other single character within any given `s' command.
+The `/' character (or whatever other character is used in its stead)
+can appear in the REGEXP or REPLACEMENT only if it is preceded by a `\'
+character.
+                </blockquote>
+                上面这个例子就可以写为：<br />
+                <code>sed 's!/bin/bash!/bin/csh!' /etc/passwd</code><br />
+                这样看起来就清晰多了。
+		    <p>
+
+
+
+            <h3 id="i_command">i命令表示插入(insert)</h3>
+                <ol>
+                    <li>在第1行前面插入一行:</li>
+                        <code>echo "Test Line 1" | sed '1i hello,world!'</code><br /><br />
+                    使用上面的命令，会在第一行前面添加一行，其中hello,world从第一列开始。但是如果我希望hello,world不从第一列开始呢？那么就需要特殊符号\了，而且在插入多行时非常方便。
+                    <li>在第一行前面插入一行:</li>
+                        <code>echo "Test Line 1" | sed '1i\ hello,world!'</code>
+                    <li>在第一行前面插入两行:</li>
+                        <pre><code>echo "Test Line 1" | sed '1i\
+ hello,world!\
+hello,programmer!'</code></pre>
+                    <pre class="terminal"><code>[jicanmeng@andy tmp]$ <span class="cmd">echo "Test Line 1" | sed '1i\ hello,world!'</span>
+                        &nbsp;hello,world!
+                        Test Line 1
+                [jicanmeng@andy tmp]$ <span class="cmd">echo "Test Line 1" | sed '1i\</span>
+                > <span class="cmd">&nbsp;&nbsp;hello,world\</span>
+                > <span class="cmd">&nbsp;hello,programmer!'</span>
+                &nbsp;&nbsp;hello,world!
+                &nbsp;hello,programmer!
+                Test Line 1
+                [jicanmeng@andy tmp]$ </code></pre>
+
+                从上图可以看出，要插入多行文本时，需要对新文本的末尾都使用反斜线，直到你要插入的文本的最后一行。
+                </ol>
+
+
+            <h3 id="a_command">a命令表示追加(append)</h3>
+                <ol>
+                    <li>在最后一行后面追加一行:</li>
+                        <code>sed "$ a This is my monkey, my monkey's name is wukong" pets.txt</code><br /><br />
+                    和命令i一样，a命令也会使用特殊符号\。这里就不列举例子了。
+                </ol>
+
+            <h3 id="c_command">c命令表示修改(change)</h3>
+                <ol>
+                    <li>修改第2行:</li>
+                        <code>sed "2 c This is my monkey, my monkey's name is wukong" pets.txt</code>
+                    <li>修改包含fish的行:</li>
+                        <code>sed "/fish/c This is my monkey, my monkey's name is wukong" pets.txt</code><br /><br />
+                    和命令i和命令a一样，c命令也会使用特殊符号\。这里就不列举例子了。
+                </ol>
+
+
+            <h3 id="print_command">打印命令:p, =, l，P</h3>
+            <p>
+                p命令会打印pattern space的内容，=命令会打印当前正在处理的数据流的行号，l命令也会打印pattern space的内容，和p命令不同的是，l命令同时还把一些特殊字符打印了出来。P命令只会打印pattern space中的第一行。
+            </p>
+                <ol>
+                    <li>打印包含fish的行:</li>
+                        <code>sed -n '/fish/p' pets.txt</code>
+                    <li>打印从第一个包含dog的行到第一个包含fish的行的中间所有行:</li>
+                        <code>sed -n '/dog/,/fish/p' pets.txt</code>
+                    <li>打印第1行到第一个包含fish的行的中间所有行:</li>
+                        <code>sed -n '1,/fish/p' pets.txt</code>
+                    <li>打印文件内容，并显示行号:</li>
+                        <code>sed '=' pets.txt</code>
+                    <li>打印包含fish的行，并显示行号:</li>
+                        <code>sed -n '/fish/{=;p}' pets.txt</code>
+                    <li>显示pets.txt文件的内容，包括特殊字符:</li>
+                        <code>sed -n 'l' pets.txt</code>
+                </ol>
+
+            <h3 id="semicolon_command">符号;用于隔开多个命令</h3>
+                <ol>
+                    <li>把第1行到第3行中的my替换为your，第3行到最后一行中的This替换为That:</li>
+                        <code>sed '1,3s/my/your/g; 3,$s/This/That/g' pets.txt</code><br />
+                        等价于<code>sed -e '1,3s/my/your/g' -e '3,$s/This/That/g' my.txt</code>
+                </ol>
+
+
+            <h3 id="command_grouping">{}表示命令打包(command grouping)</h3>
+                <ol>
+                    <li>对3行到第6行，寻找包含This的行，找到就删除:</li>
+                        <code>sed '3,6 {/This/d}' pets.txt</code>
+                    <li>对3行到第6行，匹配/This/成功后，再匹配/fish/，成功后执行d命令:</li>
+                        <code>sed '3,6 {/This/{/fish/d}}' pets.txt</code>
+                    <li>从第一行到最后一行，如果匹配到This，则删除之；如果前面有空格，则去除空格:</li>
+                        <code>sed '1,${/This/d;s/^ *//g}' pets.txt</code>
+                </ol>
+
+            <h3 id="command_from_file">从文件读取sed命令</h3>
+                <pre class="terminal"><code>[jicanmeng@andy tmp]$ <span class="cmd">cat script1</span>
+                    s/brown/green/
+                    s/fox/elephant/
+                    s/dog/cat/
+                [jicanmeng@andy tmp]$ <span class="cmd">cat data1</span>
+                    The quick brown fox jumps over the lazy dog.
+                [jicanmeng@andy tmp]$ <span class="cmd">sed -f script1 data1</span>
+                    The quick green elephant jumps over the lazy cat.
+                [jicanmeng@andy tmp]$ </code></pre>
+
+            <h3 id="y_command">y命令表示替换</h3>
+                <p>y命令是唯一可以处理单个字符的sed编辑器命令。命令格式如下：<br />
+                <code>[address]y/inchars/outchars/</code><br />
+                转换命令会进行inchars和outchars值的一对一映射。inchars中的第一个字符会被转换为outchars中的第一个字符，第二个字符会被转换为outchars中的第二个字符。这个映射会一直持续到处理完指定字符。如果inchars和outchars的长度不同，则sed编辑器会产生一条错误信息。
+                </p>
+                <ol>
+                    <li>将所有行中的1转换为4，2转换为5，3转换为6:</li>
+                        <code>sed 'y/123/456' pets.txt</code>
+                </ol>
+                <p>
+                    y命令是一个全局命令，也就是说，它会自动替换一行中出现所有的inchars中的字符，你无法指定只替换某个字符，也无法指定只替换某字符第几次出现的地方。
+                </p>
+
+            <h3 id="file_command">文件读写命令：r和w</h3>
+                <p>w命令表示写到文件中，r表示从文件读取数据。info sed文档中对r命令的描述是：
+                </p>
+
+                <blockquote>
+                    <p>Queue the contents of FILENAME to be read and inserted into the output stream at the end of the current cycle, or when the next input line is read.  Note that if FILENAME cannot be read, it is treated as if it were an empty file, without any error indication.</p>
+                </blockquote>
+
+                <ol>
+                    <li>将前两行保存到一个文件中:</li>
+                        <code>sed '1,2w test.txt' pets.txt</code>
+                    <li>将test.txt文件的内容插入到第2行后面:</li>
+                        <code>sed '2r test.txt' pets.txt</code>
+                    <li>将包含fox的行删除，替换为test.txt文件的内容:</li>
+                        <pre class="terminal"><code>[jicanmeng@andy tmp]$ <span class="cmd">cat script1</span>
+                            s/brown/green/
+                            s/fox/elephant/
+                            s/dog/cat/
+                        [jicanmeng@andy tmp]$ <span class="cmd">cat data1</span>
+                            The quick brown fox jumps over the lazy dog.
+                        [jicanmeng@andy tmp]$ <span class="cmd">sed '/fox/{</span>
+                        > <span class="cmd">r data1</span>
+                        > <span class="cmd">d}' script1</span>
+                        s/brown/green/
+                        The quick brown fox jumps over the lazy dog.
+                        s/dog/cat/
+                        [jicanmeng@andy tmp]$ </code></pre>
+                </ol>
+                <p>两点需要注意：1. 对于r命令：在本次cycle中所有命令执行完毕后，下次cycle从data1文件中读取数据，data1文件的数据读取完毕后，再继续从script1文件读取数据。2. 对于r命令，不要和其它的命令写在一行，因为文件名时可以包含一些特殊字符的，写在一行往往会出现读取的文件不存在的问题导致出错。
+                </p>
+
+            <h3 id="n_N_command">读取下行数据，继续执行命令，而不用回到命令的最开始地方执行：n和N。</h3>
+                <p>通常sed编辑器会在本行上执行完所有的命令，才会读取数据流的下一行，进行下次的命令执行过程。n命令改变了这个流程。它会直接读取下一行，放到pattern space中，继续执行本次循环中n命令后面的命令。info sed文档中对n命令的描述是：</p>
+
+                <blockquote>
+                    <p>If auto-print is not disabled, print the pattern space, then, regardless, replace the pattern space with the next line of input.</p>
+                </blockquote>
+
+                <p>
+                    N命令也会读取下一行，但不是替换pattern space的内容，而是附加到pattern space中，然后继续执行N命令后面的命令。info sed文档中对N命令的描述是：
+                </p>
+                <blockquote>
+                    <p>Add a newline to the pattern space, then append the next line of input to the pattern space.  If there is no more input then `sed' exits without processing any more commands.</p>
+                </blockquote>
+                <ol>
+                    <li>将短语System Administrator替换为Desktop User:</li>
+                        <pre class="terminal"><code>[jicanmeng@andy tmp]$ <span class="cmd">cat data3</span>
+                            The first meeting of the Linux System
+                            Administrator's group will be held on Tuesday.
+                            All System Administrator should attend this meeting.
+                            Thank you for your attentance.
+                        [jicanmeng@andy tmp]$ <span class="cmd">sed 'N; s/System\(.\)Administrator/Desktop\1User/' data3</span>
+                            The first meeting of the Linux Desktop
+                            User's group will be held on Tuesday.
+                            All Desktop User should attend this meeting.
+                            Thank you for your attentance.
+                        [jicanmeng@andy tmp]$ <span class="cmd">sed '{</span>
+                        > <span class="cmd">N</span>
+                        > <span class="cmd">s/System\nAdministrator/Desktop\nUser/</span>
+                        > <span class="cmd">s/System Administrator/Desktop User/}' data3</span>
+                            The first meeting of the Linux Desktop
+                            User's group will be held on Tuesday.
+                            All Desktop User should attend this meeting.
+                            Thank you for your attentance.
+                        [jicanmeng@andy tmp]$ </code></pre>
+
+                        这个例子非常典型。使用一条命令就可以代替下面的三条命令。<b>由此也可以看出，在正则表达式中，.符号也可以代表换行符\n。</b>我们再通过一个例子看一看n和N的用法：
+                        <pre class="terminal"><code>[jicanmeng@andy tmp]$ <span class="cmd">cat one.txt</span>
+                        I install linux on my computer
+                        hello world
+                        I like programming.
+                        [jicanmeng@andy tmp]$ <span class="cmd">sed '=;n;=;=;=' one.txt</span>
+                            1
+                            I install linux on my computer
+                            2
+                            2
+                            2
+                            hello world
+                            3
+                            I like programming
+                        [jicanmeng@andy tmp]$ <span class="cmd">sed -n '=;n;=;=;=' one.txt</span>
+                            1
+                            2
+                            2
+                            2
+                            3
+                        [jicanmeng@andy tmp]$ <span class="cmd">sed '=;N;=;=;=' one.txt</span>
+                            1
+                            2
+                            2
+                            2
+                            I install linux on my computer
+                            hello world
+                            3
+                            I like programming
+                        [jicanmeng@andy tmp]$ </code></pre>
+                        可以看出，当下一行没有数据时，无论是n还是N，都不会继续执行后面的命令了，而是直接打印pattern space，结束本次循环了。
+                </ol>
+
+            <h3 id="d_D_command">d命令表示删除(delete)</h3>
+                <p>和n命令和N命令相同，d命令和D命令也改变了sed的命令执行过程。d命令删除pattern space，然后从头开始执行命令，即开始下次循环。D命令仅仅删除pattern space的第一行，如果pattern space中还有数据，就不读下一行，而是从头再进行一次命令循环；如果pattern space中没有数据了，就读取下一行，进行一次命令循环。
+                </p>
+                <p>
+                    info sed文档中对D命令的描述是：
+                </p>
+                <blockquote>
+                    <p>Delete text in the pattern space up to the first newline.  If any text is left, restart cycle with the resultant pattern space (without reading a new line of input), otherwise start a normal new cycle.</p>
+                </blockquote>
+                <ol>
+                    <li>删除包含fish的行:</li>
+                        <code>sed '/fish/d' pets.txt</code>
+                    <li>删除第2行:</li>
+                        <code>sed '2d' pets.txt</code>
+                    <li>删除第2行到最后一行:</li>
+                        <code>sed '2,$d' pets.txt</code>
+                </ol>
+                再看一个D命令的例子：
+                        <pre class="terminal"><code>[jicanmeng@andy tmp]$ <span class="cmd">cat one.txt</span>
+                        I install linux on my computer
+                        hello world
+                        I like programming.
+                        [jicanmeng@andy tmp]$ <span class="cmd">sed '=;=;N;D;=;=;=' one.txt</span>
+                            1
+                            1
+                            2
+                            2
+                            3
+                            3
+                            I like programming
+                        [jicanmeng@andy tmp]$ </code></pre>
+
+
+            <h3 id="b_t_command">跳转命令：b和t</h3>
+                <p>b命令表示跳转，格式如下：
+                <code>[address]b [label]</code><br />
+                address参数决定了哪行或哪些行的数据会触发跳转命令。label参数定义了要跳转到的位置。如果没有加label参数，跳转命令就会跳转到脚本的末尾。
+                </p>
+                <ol>
+                    <li>例1:</li>
+                        <pre class="terminal"><code>[jicanmeng@andy tmp]$ <span class="cmd">echo "This, is, a, test, to, remove, commas." | sed -n '{</span>
+                        > <span class="cmd">:start</span>
+                        > <span class="cmd">s/,//1p</span>
+                        > <span class="cmd">b start</span>
+                        > <span class="cmd">}'</span>
+                            This is, a, test, to, remove, commas.
+                            This is a, test, to, remove, commas.
+                            This is a test, to, remove, commas.
+                            This is a test to, remove, commas.
+                            This is a test to remove, commas.
+                            This is a test to remove commas.
+                            ^C
+                        [jicanmeng@andy tmp]$ </code></pre>
+
+                        这个脚本有个问题。它永远都不会停下，因为总会跳转到start。我们可以用t命令来解决这个问题。测试(test)命令t会基于替换命令的输出跳转到一个标签。格式如下：
+                        <code>[address]b [label]</code><br /><br />
+                        如果替换命令成功匹配，就会跳转到label。和b命令一样，在没有指定标签的情况下，如果测试成功，sed会跳转到脚本的末尾。
+
+                    <li>例2:</li>
+                        <pre class="terminal"><code>[jicanmeng@andy tmp]$ <span class="cmd">echo "This, is, a, test, to, remove, commas." | sed -n '{</span>
+                        > <span class="cmd">:start</span>
+                        > <span class="cmd">s/,//1p</span>
+                        > <span class="cmd">t start</span>
+                        > <span class="cmd">}'</span>
+                            This is, a, test, to, remove, commas.
+                            This is a, test, to, remove, commas.
+                            This is a test, to, remove, commas.
+                            This is a test to, remove, commas.
+                            This is a test to remove, commas.
+                            This is a test to remove commas.
+                        [jicanmeng@andy tmp]$ </code></pre>
+
+                    <li>例3:</li>
+                        <pre class="terminal"><code>[jicanmeng@andy tmp]$ <span class="cmd">echo "1234567" | sed '{</span>
+                        > <span class="cmd">:start</span>
+                        > <span class="cmd">s/\(.*[0-9]\)\([0-9]\{3\}\)/\1,\2/</span>
+                        > <span class="cmd">t start</span>
+                        > <span class="cmd">}'</span>
+                            1,234,567
+                        [jicanmeng@andy tmp]$ </code></pre>
+
+                        <b>这个例子非常重要，它体现了正则表达式匹配中的"贪心法"原则。</b>
+                </ol>
+
+
+            <h3 id="and_command">&命令表示替换匹配的正则表达式</h3>
+                <ol>
+                    <li>看一个例子:</li>
+                        <pre class="terminal"><code>[jicanmeng@andy tmp]$ <span class="cmd">echo "The cat sleeps in his hat." | sed 's/.cat/"&"/g'</span>
+                            The "cat" sleeps in his "hat".
+                        [jicanmeng@andy tmp]$ </code></pre>
+                </ol>
+
+            <h3 id="sed_examples">几个例子</h3>
+                <ol>
+                    <li>加倍行间距:</li>
+                        <code>sed 'G' test.txt</code>
+                    <li>加倍行间距,但最后一行不用加倍:</li>
+                        <code>sed '$!G' test.txt</code>
+                    <li>加倍行间距,但如果两行之间已经有空白行,就不用加倍了:</li>
+                        <code>sed '/^$/d; $!G' test.txt</code>
+                    <li>给文件中的行编号:</li>
+                        <code>sed '=' test.txt</code>
+                    <li>给文件中的行编号,并且行号和行内容在同一行:</li>
+                        <code>sed '=' test.txt | sed 'N; s/\n/ /'</code>
+                    <li>打印末尾的10行:</li>
+                        <pre class="terminal"><code>[jicanmeng@andy tmp]$ <span class="cmd">sed '{</span>
+                        > <span class="cmd">:start</span>
+                        > <span class="cmd">$q</span>
+                        > <span class="cmd">N</span>
+                        > <span class="cmd">11,$D</span>
+                        > <span class="cmd">b start</span>
+                        > <span class="cmd">}' /etc/passwd</span>
+                        [jicanmeng@andy tmp]$ </code></pre>
+                        <b>这个例子很好，注意看<code>11,$D</code>,如果文件内容小于10行，这句就不起作用。</b>
+                    <li>删除文件中连续的空白行，保证两行之间只有一个空白行即可:</li>
+                        <code>sed '/./,/^$/!d' test.txt</code>
+                        <b>这个例子也非常妙，区间是<code>/./</code>到<code>/^$/</code>,区间的开始地址匹配会匹配任何含有至少一个字符的行，区间的结束地址会匹配一个空行。在这个区间内的行不会被删除，其余的行都被删除了。</b>
+                    <li>删除开头的空白行:</li>
+                        <code>sed '/./,$!d' test.txt</code>
+                    <li>打印结尾的空白行:</li>
+                        <pre class="terminal"><code>[jicanmeng@andy tmp]$ <span class="cmd">sed '{</span>
+                        > <span class="cmd">:start</span>
+                        > <span class="cmd">/^\n*$/{$d; N; b start}</span>
+                        > <span class="cmd">}' test.txt</span>
+                        [jicanmeng@andy tmp]$ </code></pre>
+                </ol>
+
+			<h2>参考资料</h2>
+				<ol>
+					<li>第十二章、正规表示法与文件格式化处理：<br />
+                        <a href="http://vbird.dic.ksu.edu.tw/linux_basic/0330regularex.php#sed" target="_blank">http://vbird.dic.ksu.edu.tw/linux_basic/0330regularex.php#sed</a>
+					</li>
+					<li>coolshell：sed 简明教程：<br />
+                        <a href="http://coolshell.cn/articles/9104.html" target="_blank">http://coolshell.cn/articles/9104.html</a>
+					</li>
+					<li>World's best introduction to sed：<br />
+                        <a href="http://www.catonmat.net/blog/worlds-best-introduction-to-sed/" target="_blank">http://www.catonmat.net/blog/worlds-best-introduction-to-sed/</a>
+					</li>
+					<li>Famous Sed One-Liners Explained：<br />
+                        <a href="http://www.catonmat.net/blog/sed-one-liners-explained-part-one/" target="_blank">http://www.catonmat.net/blog/sed-one-liners-explained-part-one/</a><br />
+                        <a href="http://www.catonmat.net/blog/sed-one-liners-explained-part-two/" target="_blank">http://www.catonmat.net/blog/sed-one-liners-explained-part-two/</a><br />
+                        <a href="http://www.catonmat.net/blog/sed-one-liners-explained-part-three/" target="_blank">http://www.catonmat.net/blog/sed-one-liners-explained-part-three/</a><br />
+                        <a href="http://www.catonmat.net/blog/sed-book/" target="_blank">http://www.catonmat.net/blog/sed-book/</a>
+					</li>
+                </ol>
+
+		</div>
+
+		<div id="footer">
+			<p>jicanmeng@126.com 2013</p>
+			<p>本站文章可随意转载，但请注明转载的本站文章地址，谢谢！</p>
+		</div>
+	</body>
+</html>

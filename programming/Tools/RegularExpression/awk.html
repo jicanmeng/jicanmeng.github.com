@@ -1,0 +1,595 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<title>regular expression tool: awk</title>
+		<meta http-equiv="content-type" content="text/html; charset=UTF-8">
+		<link rel="stylesheet" type="text/css" href="../../../style.css" />
+	</head>
+	<body>
+
+		<script type="text/javascript" src="../../../style.js"></script>
+
+		<div id="header">
+			<h1>每天进步一点点</h1>
+		</div>
+
+		<div id="navigation">
+			<ul id="navigation">
+				<li><a class="navigation" href="../../../index.html">Home Page</a></li>
+				<li><a class="navigation" href="../../../life/index.html">Life</a></li>
+				<li><a class="navigation" href="../../index.html">Programmig</a></li>
+				<li><a class="navigation" href="../../../projects/index.html">Projects</a></li>
+				<li><a class="navigation" href="../../../aboutme/index.html">About me</a></li>
+			</ul>
+		</div>
+
+		<div id="Article">
+			<h1>正则表达式工具：awk</h1>
+			<p>作者：jicanmeng</p>
+			<p>时间：2015年09月17日</p>
+			<hr />
+
+            <ol>
+                <li><a href="#gawk_principle">gawk工作原理原理</a></li>
+                <br />
+                <li><a href="#gawk_reshen_1">gawk热身1：gawk命令格式</a></li>
+                <li><a href="#gawk_reshen_2">gawk热身2：使用变量,自定义字段分隔符</a></li>
+                <li><a href="#gawk_reshen_3">gawk热身3：在程序脚本中使用多个命令</a></li>
+                <li><a href="#gawk_reshen_4">gawk热身4：从文件读取程序脚本</a></li>
+                <li><a href="#gawk_reshen_5">gawk热身5：BEGIN和END</a></li>
+                <br />
+                <li><a href="#gawk_advanced_variable_internal">gawk进阶1：内置变量</a></li>
+                <li><a href="#gawk_advanced_variable_userDefined">gawk进阶1：自定义变量</a></li>
+                <br />
+                <li><a href="#gawk_advanced_array">gawk进阶2：数组</a></li>
+                <br />
+                <li><a href="#gawk_advanced_pattern">gawk进阶3：使用模式</a></li>
+                <br />
+                <li><a href="#gawk_advanced_structure_commands">gawk进阶4：结构化命令</a></li>
+                <br />
+                <li><a href="#gawk_advanced_functions">gawk进阶5：函数</a></li>
+            </ol>
+
+            <p>
+                和sed打印一行的行为不同，gawk常常只打印一行的部分内容。
+            </p>
+
+            <p>
+                gawk命令的格式如下：<br />
+                <code>gawk [OPTION] 'pattern1 {action1} pattern2 {action2} ...' [input-file]</code>
+            </p>
+
+            <h3 id="gawk_principle">gawk工作原理</h3>
+            <p>gawk的工作原理如下：
+<pre>while(input stream中有剩余的内容) {
+    从input stream读入下一行,并将第一行的数据填入 $0, $1, $2.... 等变量当中;
+    判断是否满足pattern1，如果满足就进行action1的动作；
+    再判断是否满足pattern2，如果满足就进行action2的动作；
+    依次类推，直到执行完所有的pattern和action；
+}</pre>
+每次循环称为一个cycle。
+            </p>
+
+            <p>
+                对于pattern/action对，有如下规则：如果省略了action，那么默认会打印满足pattern的这一行；如果省略了pattern，那么会对所有行都执行action操作。
+            </p>
+            <p>
+                gawk有很多内置变量。$0表示读入的一行的内容，$1表示这一行的第一列的内容，$2表示这一行的第二列的内容，...。
+            </p>
+
+            <p>
+                gawk对字符串的操作和c语言不同，可以直接使用关系运算符：==, !=, >, >=, <, <=。
+            </p>
+
+            <p>
+                如果action中有多个命令，使用;隔开。另外，每相邻的pattern/action对之间也可以使用;隔开。
+            </p>
+
+            <p>
+                格式化输出时，在 printf 的格式配置当中，务必加上 \n ，才能进行分行！
+            </p>
+
+            <p>
+                与 bash shell 的变量不同，在 gawk 当中，变量可以直接使用，不需加上 $ 符号。
+            </p>
+
+            <p>
+                gawk重定向。
+            <p>
+
+            <p>
+                常用的action有print，printf（格式化输出），
+            </p>
+
+            <h3 id="gawk_reshen_1">gawk热身1：gawk命令格式</h3>
+            <p>
+                pattern/action对 中的action也可以看作是script，即程序脚本。gawk的强大之处就在于程序脚本。你可以写脚本来读取文本行的数据，然后处理并显示数据，创建任何类型的输出报告。 
+            </p>
+
+            <p>1. gawk的程序脚本用一对花括号来定义。你<b>必须将脚本命令放到两个括号中</b>。由于gawk命令行假定脚本是单个文本字符串，你<b>必须将脚本放到单引号中</b>。例如：
+                <pre class="terminal"><code>[jicanmeng@andy tmp]$ <span class="cmd">cat test.txt</span>
+                one
+                two
+                [jicanmeng@andy tmp]$ <span class="cmd">gawk '{print "hello,world"}' test.txt</span>
+                hello,world
+                hello,world
+                [jicanmeng@andy tmp]$ <span class="cmd">gawk '{print "hello,world"}'</span>
+                <span class="cmd">aaa</span>
+                hello,world
+                <span class="cmd">bbb</span>
+                hello,world
+                [jicanmeng@andy tmp]$ </code></pre>
+                可以看到，如果gawk命令没有input-file，那么它会从standard input接收数据并进行处理。对于上面的例子，不管读入的数据是什么，都会打印<code>hello,world</code>。我们使用ctrl-D来结束输入。
+            </p>
+
+            <h3 id="gawk_reshen_2">gawk热身2：使用变量,自定义字段分隔符</h3>
+            <p>2. 默认情况下，每次读取一行数据，gawk都会将如下变量分配给本行中的各个数据字段：$0表示本行，$1表示第一个数据字段，$2表示第二个数据字段...。每个数据字段通过字段分隔符来隔离开。默认情况下，gawk中的字段分隔符是任意的空白字符（例如空格或制表符）。例如：
+                <pre class="terminal"><code>[jicanmeng@andy tmp]$ <span class="cmd">gawk '{print $1}' test.txt</span>
+                [jicanmeng@andy tmp]$ </code></pre>
+                如果我们要使用其它的字段分隔符，可以使用-F选项指定：
+                <pre class="terminal"><code>[jicanmeng@andy tmp]$ <span class="cmd">gawk -F: '{print $1}' /etc/passwd</span>
+                [jicanmeng@andy tmp]$ </code></pre>
+            </p>
+
+            <h3 id="gawk_reshen_3">gawk热身3：在程序脚本中使用多个命令</h3>
+            <p>3. 程序脚本有多条命令时，用;隔开。例如：
+                <pre class="terminal"><code>[jicanmeng@andy tmp]$ <span class="cmd">echo "my name is rich" | gawk '{$4="jicanmeng"; print $0}'</span>
+                my name is jicanmeng
+                [jicanmeng@andy tmp]$ </code></pre>
+                或者使用次提示符一次一行地输入脚本命令:
+                <pre class="terminal"><code>[jicanmeng@andy tmp]$ <span class="cmd">echo "my name is rich" | gawk '{</span>
+                ><span class="cmd"> $4="jicanmeng"</span>
+                ><span class="cmd"> print $0}'</span>
+                my name is jicanmeng
+                [jicanmeng@andy tmp]$ </code></pre>
+            </p>
+
+            <h3 id="gawk_reshen_4">gawk热身4：从文件读取程序脚本</h3>
+            <p>4. 程序脚本中使用-f从文件中读取命令。例如：
+                <pre class="terminal"><code>[jicanmeng@andy tmp]$ <span class="cmd">cat script2</span>
+                { print $1 "'s home directory is " $6}
+                [jicanmeng@andy tmp]$ <span class="cmd">gawk -F: -f script2 /etc/passwd</span>
+                root's home directory is /root
+                bin's home directory is /bin
+                daemon's home directory is /sbin
+                ...
+                [jicanmeng@andy tmp]$ </code></pre>
+
+                可以在文件中指定多条命令。每个命令占用一行，不需要使用分号。例如：
+                <pre class="terminal"><code>[jicanmeng@andy tmp]$ <span class="cmd">cat script3</span>
+                {
+                text = "'s home directory is "
+                print $1 text $6
+                }
+                [jicanmeng@andy tmp]$ <span class="cmd">gawk -F: -f script3 /etc/passwd</span>
+                root's home directory is /root
+                bin's home directory is /bin
+                daemon's home directory is /sbin
+                ...
+                [jicanmeng@andy tmp]$ </code></pre>
+                需要注意的是：1. gawk程序脚本中引用变量时并未像shell脚本一样使用美元符$。2. print打印连续三个变量，三个变量使用空格分开，但是打印出来的内容之间是没有空格的。
+            </p>
+
+            <h3 id="gawk_reshen_5">gawk热身5：BEGIN和END</h3>
+            <p>5. 默认情况下，gawk从输入中读取一行文本，然后使用程序脚本进行处理，然后读取下一行，再进行处理，直到处理完所有行。但有时可能需要在读取文件的第一行文本前执行一些命令，例如为报告创建开头部分，BEGIN关键字就是用来做这个的。例如：
+                <pre class="terminal"><code>[jicanmeng@andy tmp]$ <span class="cmd">gawk 'BEGIN{print "hello,world!"}'</span>
+                hello,world!
+                [jicanmeng@andy tmp]$ </code></pre>
+                可以看到，显示了文本后，gawk快速退出了，而没有继续等待任何数据。这样的原因是gawk处理任何数据前，BEGIN关键字只执行指定的脚本。要想在正常的程序脚本中处理数据，必须用另外一个脚本段来定义程序：
+                <pre class="terminal"><code>[jicanmeng@andy tmp]$ <span class="cmd">gawk -F: 'BEGIN{print "all users are:"} {print $1}' /etc/passwd</span>
+                all users are:
+                root
+                bin
+                ...
+                vboxadd
+                [jicanmeng@andy tmp]$ </code></pre>
+            </p>
+
+            <p>6. END关键字和BEGIN关键字相反，用于在读取并处理完所有行的数据后执行对应的脚本程序。例如：
+                <pre class="terminal"><code>[jicanmeng@andy tmp]$ <span class="cmd">gawk -F: 'BEGIN{print "all users are:"} {print $1} END{print "end of users."}' /etc/passwd</span>
+                all users are:
+                root
+                bin
+                ...
+                vboxadd
+                end of users.
+                [jicanmeng@andy tmp]$ </code></pre>
+                可以将所有的这些内容组合在一起，组成一个很小的程序脚本文件。如下：
+                <pre class="terminal"><code>[jicanmeng@andy tmp]$<span class="cmd">cat script4</span>
+                BEGIN {
+                print "all user are: "
+                print "userid &nbsp;&nbsp;&nbsp;shell"
+                print "------ &nbsp;&nbsp;&nbsp;-----"
+                FS=":"
+                }
+
+                {
+                print $1 " &nbsp;&nbsp;&nbsp;" $7
+                }
+
+                END {
+                print "end of user."
+                }
+
+                [jicanmeng@andy tmp]$ <span class="cmd">gawk -f script4 /etc/passwd</span>
+                all user are:
+                userid    shell
+                ------    -----
+                root &nbsp;&nbsp;&nbsp;/bin/bash
+                bin &nbsp;&nbsp;&nbsp;/sbin/nologin
+                ...
+                vboxadd &nbsp;&nbsp;&nbsp;/bin/false
+                end of users.
+                [jicanmeng@andy tmp]$ </code></pre>
+                这个脚本中还定义了一个FS的特殊变量，这是定义字段分隔符的一种方法。和在命令行指定<code>-F:</code>的作用是相同的。
+            </p>
+
+
+            <h3 id="gawk_advanced_variable_internal">gawk进阶1：内置变量</h3>
+            <p>
+                gawk支持两种不同类型的变量：1. 内置变量；2. 自定义变量。内置变量常常用来保存数据文件中数据行和数据字段的信息。下面是几个常用的内置变量：
+
+                <table border>
+	                <tr>
+		                <td align=center>变量</td>
+		                <td align=center>描述</td>
+	                </tr>
+	                <tr>
+		                <td align=left>FS</td>
+		                <td align=left>输入字段分隔符，默认情况下是一个空白符，即空格符或制表符</td>
+	                </tr>
+	                <tr>
+		                <td align=left>RS</td>
+		                <td align=left>输入数据行分隔符，默认情况下是一个换行符</td>
+	                </tr>
+	                <tr>
+		                <td align=left>OFS</td>
+		                <td align=left>输出字段分隔符，默认情况下是一个空格符</td>
+	                </tr>
+	                <tr>
+		                <td align=left>ORS</td>
+		                <td align=left>输出数据行分隔符，默认情况下是一个换行符</td>
+	                </tr>
+	                <tr>
+		                <td align=left>FILEDWIDTHS</td>
+		                <td align=left>由空格分隔开的定义了每个数据字段确切宽度的一串数字</td>
+	                </tr>
+                </table>
+            </p>
+
+            <p>
+                1. 读取/etc/passwd文件，只显示用户名和使用的shell：
+                <pre class="terminal"><code>[jicanmeng@andy tmp]$ <span class="cmd">gawk 'BEGIN{FS = ":"} {print $1,$7}' /etc/passwd</span>
+                root /bin/bash
+                bin /sbin/nologin
+                ...
+                vboxadd /bin/false
+                [jicanmeng@andy tmp]$ <span class="cmd">gawk 'BEGIN{FS = ":"; OFS = "--"} {print $1,$7}' /etc/passwd</span>
+                root--/bin/bash
+                bin--/sbin/nologin
+                ...
+                vboxadd--/bin/false
+                [jicanmeng@andy tmp]$ <span class="cmd">gawk 'BEGIN{FS = ":"; OFS = "--"} {print $1 $7}' /etc/passwd</span>
+                root/bin/bash
+                bin/sbin/nologin
+                ...
+                vboxadd/bin/false
+                [jicanmeng@andy tmp]$ </code></pre>
+                这里需要注意的是，如果不指定OFS的值，就用默认值：空格。如果指定，就用指定的值。但是只有用<code>print $1,$7</code>这样的格式才会打印OFS的值，如果使用<code>print $1 $7</code>这样的格式，输出的内容是不会包含OFS的值的。
+            </p>
+
+            <p>
+                2. 有时会碰到数据流中数据字段占了多行的情况。典型的例子是包含地址和电话的数据，其中地址和电话各占一行。这种情况下，就需要把FS设置为换行符，把RS变量设置为空字符串，当然，在数据的各个字段之间需要留一个空白行，这样gawk就会把空白行当作一个空行分隔符。例如：
+                <pre class="terminal"><code>[jicanmeng@andy tmp]$ <span class="cmd">cat data.txt</span>
+                jicanmeng
+                qingdao city
+                15192683301
+
+                changyuechen
+                xingtai city
+                13012589901
+
+                zhangxin
+                shiyan city
+                18015559999
+                [jicanmeng@andy tmp]$ <span class="cmd">gawk 'BEGIN{FS = "\n"; RS = ""} {print $1,$3}' data.txt</span>
+                jicanmeng 15192683301
+                changyuechen 13012589901
+                zhangxin 18015559999
+                [jicanmeng@andy tmp]$ </code></pre>
+            </p>
+
+            <p>
+                3. FILEDWIDTHS允许你读取数据行，但并不用字段分隔符来划分字段。在一些应用程序中，不用字段分隔符，数据是被防止在数据行的某些列中的。这种情况下，你必须设定FIELDWIDTHS变量来匹配数据在数据行中的位置。注意，一旦设定了FILEDWIDTHS变量，gawk就会忽略FS变量，而根据提供的字段宽度大小来计算字段。例如：
+                <pre class="terminal"><code>[jicanmeng@andy tmp]$ <span class="cmd">cat data.txt</span>
+                1005.3247596.37
+                115-2.349194.00
+                05810.1298100.1
+                [jicanmeng@andy tmp]$ <span class="cmd">gawk 'BEGIN{FIELDWIDTHS="3 5 2 5"} {print $1,$2,$3,$4}' data.txt</span>
+                100 5.324 75 96.37
+                115 -2.34 91 94.00
+                058 10.12 98 100.1
+                [jicanmeng@andy tmp]$ </code></pre>
+            </p>
+
+            <p>
+                除了字段和数据行分隔符变量外，gawk还提供了其它一些内置变量来帮助你了解数据发生了什么变化并提取shell环境的信息。例如：
+                <table border>
+	                <tr>
+		                <td align=center>变量</td>
+		                <td align=center>描述</td>
+	                </tr>
+	                <tr>
+		                <td align=left>ARGC</td>
+		                <td align=left>当前命令行参数个数</td>
+	                </tr>
+	                <tr>
+		                <td align=left>ARGV</td>
+		                <td align=left>包含命令行参数的数组</td>
+	                </tr>
+	                <tr>
+		                <td align=left>ARGIND</td>
+		                <td align=left>当前文件在ARGV中的位置(index)</td>
+	                </tr>
+	                <tr>
+		                <td align=left>ENVIRON</td>
+		                <td align=left>当前shell环境变量及其值组成的关联数组</td>
+	                </tr>
+	                <tr>
+		                <td align=left>FILENAME</td>
+		                <td align=left>用作gawk输入数据的数据文件的文件名</td>
+	                </tr>
+	                <tr>
+		                <td align=left>FNR</td>
+		                <td align=left>已处理当前数据文件中的数据行数</td>
+	                </tr>
+	                <tr>
+		                <td align=left>NR</td>
+		                <td align=left>已处理的输入数据行的数目</td>
+	                </tr>
+	                <tr>
+		                <td align=left>NF</td>
+		                <td align=left>当前行中的字段数目</td>
+	                </tr>
+                </table>
+
+                ARGC和ARGV和在一般的C语言程序中的意义是相同的。但有一点不同，gawk不会将程序脚本和选项当作命令行参数的一部分。例如：
+                <pre class="terminal"><code>[jicanmeng@andy tmp]$ <span class="cmd">gawk 'BEGIN{print ARGC,ARGV[1]}' data.txt</span>
+                2 data.txt
+                [jicanmeng@andy tmp]$ </code></pre>
+
+                ENVIRON变量表示一个关联数组。这个数组的index是环境变量的名称，对应的数组的值则是环境变量的值。例如：
+                <pre class="terminal"><code>[jicanmeng@andy tmp]$ <span class="cmd">gawk '</span>
+                > <span class="cmd">BEGIN {</span>
+                > <span class="cmd">print ENVIRON["HOME"]</span>
+                > <span class="cmd">print ENVIRON["PATH"]</span>
+                > <span class="cmd">}'</span>
+                /home/jicanmeng
+                /usr/local/bin:/usr/bin:/bin:/usr/local/sbin:/usr/sbin:/sbin:/home/jicanmeng/bin
+                [jicanmeng@andy tmp]$ </code></pre>
+
+                NF表示number of fileds，表示正在处理的当前行中有几个数据字段。有时你不知道数据行中到底有多少个数据字段。NF变量允许你指定数据行中的最后一个数据字段，而不用知道它的具体位置。例如：
+                <pre class="terminal"><code>[jicanmeng@andy tmp]$ <span class="cmd">gawk 'BEGIN{FS=":"; OFS=":"} {print $1,$NF}' /etc/passwd</span>
+                root:/bin/bash
+                bin:/sbin/nologin
+                ...
+                [jicanmeng@andy tmp]$ </code></pre>
+
+                FNR变量正在处理的数据行位于本文件的第几行，NR表示从目前为止正在处理的数据行是第几行。例如：
+                <pre class="terminal"><code>[jicanmeng@andy tmp]$ <span class="cmd">cat one.txt </span>
+                I install linux on my computer
+                hello world.
+                I like programming
+                [jicanmeng@andy tmp]$ <span class="cmd">cat two.txt </span>
+                this is a test
+                google is a best tool
+                [jicanmeng@andy tmp]$ <span class="cmd">gawk '</span>
+                > <span class="cmd">{print FILENAME,"FNR="FNR,"NR="NR,$0}</span>
+                > <span class="cmd">END{print "There are",NR,"records processed"}</span>
+                > <span class="cmd">}' one.txt two.txt</span>
+                one.txt FNR=1 NR=1 I install linux on my computer
+                one.txt FNR=2 NR=2 hello world.
+                one.txt FNR=3 NR=3 I like programming
+                two.txt FNR=1 NR=4 this is a test
+                two.txt FNR=2 NR=5 google is a best tool
+                There are 5 records processed
+                [jicanmeng@andy tmp]$ </code></pre>
+            </p>
+
+
+
+
+
+
+
+            <h3 id="gawk_advanced_variable_userDefined">gawk进阶1：自定义变量</h3>
+            <p>
+                和任何其它经典的编程语言一样，gawk允许你定义自己的变量来在程序代码中使用。gawk自定义变量名可以是任意数目的字母、数字和下划线，并且不能以数字开头。还有，记住gawk变量名区分大小写。
+            </p>
+            <p>gawk中给变量赋值和在shell脚本中赋值类似，都用赋值语句，但不同的是，并不要求等号前后不得有空格。例如：
+                <pre class="terminal"><code>[jicanmeng@andy tmp]$ <span class="cmd">gawk '</span>
+                > <span class="cmd">BEGIN{</span>
+                > <span class="cmd">testing="This is a test"</span>
+                > <span class="cmd">print testing</span>
+                > <span class="cmd">testing=45</span>
+                > <span class="cmd">print testing</span>
+                > <span class="cmd">}'</span>
+                This is a test
+                45
+                [jicanmeng@andy tmp]$ <span class="cmd">gawk 'BEGIN{x = 4; x = x * 2 + 3; print x}'</span>
+                11
+                [jicanmeng@andy tmp]$ </code></pre>
+                从第一个例子可以看出，和shell脚本变量一样，gawk变量可以保存数值和文本值。从第二个例子可以看出，gawk编程语言包含了用来处理数字值的标准数学操作符。其中包括求余符号(%)和幂运算符号(^或**)。
+            </p>
+
+            <p>你也可以在gawk命令行上给程序中的变量赋值。例如：
+                <pre class="terminal"><code>[jicanmeng@andy tmp]$ <span class="cmd">cat one.txt </span>
+                hello,world
+                I,like,programming
+                [jicanmeng@andy tmp]$ <span class="cmd">gawk 'BEGIN{FS=","} {print $n}' n=2 one.txt</span>
+                world
+                like
+                [jicanmeng@andy tmp]$ </code></pre>
+                这个特性非常重要，它允许你改变脚本的行为而不需要修改实际的脚本代码。不过，使用命令行参数来定义变量有一个问题。在你设置了变量后，这个值在代码的BEGIN部分不可用。要解决这个问题，需要用-v参数。它允许你指定在BEGIN代码部分之前设置的变量。在命令行上，-v命令行参数必须放在脚本代码之前。如下：
+                <pre class="terminal"><code>[jicanmeng@andy tmp]$ <span class="cmd">cat one.txt </span>
+                hello,world
+                I,like,programming
+                [jicanmeng@andy tmp]$ <span class="cmd">gawk 'BEGIN{FS=","; print "n="n} {print $n}' n=2 one.txt</span>
+                n=
+                world
+                like
+                [jicanmeng@andy tmp]$ <span class="cmd">gawk -v n=2 'BEGIN{FS=","; print "n="n} {print $n}' one.txt</span>
+                n=2
+                world
+                like
+                [jicanmeng@andy tmp]$ </code></pre>
+            </p>
+
+
+            <h3 id="gawk_advanced_array">gawk进阶2：数组</h3>
+            <p>
+                和ENVIRON一样，gawk编程语言使用关联数组来提供数组功能。和普通的数字数组的不同之处在于，关联数组的索引值可以是任意的文本字符串。非常类似于java中的hash。
+            </p>
+            <p>1. 可以用标准的赋值语句来定义数组变量。数组变量赋值的格式如下：<br />
+                <code>var[index]=element</code><br />
+                用法如下：
+                <pre class="terminal"><code>[jicanmeng@andy tmp]$ <span class="cmd">gawk '</span>
+                > <span class="cmd">BEGIN{</span>
+                > <span class="cmd">capital["hebei"]="shijiazhuang"</span>
+                > <span class="cmd">print capital["hebei"]</span>
+                > <span class="cmd">}'</span>
+                shijiazhuang
+                [jicanmeng@andy tmp]$ <span class="cmd">gawk '</span>
+                > <span class="cmd">BEGIN{</span>
+                > <span class="cmd">var[1] = 34</span>
+                > <span class="cmd">var[2] = 3</span>
+                > <span class="cmd">total = var[1] + var[2]</span>
+                > <span class="cmd">print total</span>
+                > <span class="cmd">}'</span>
+                37
+                [jicanmeng@andy tmp]$ </code></pre>
+            </p>
+
+            <p>2. 如果要在gawk中遍历一个关联数组，可以用for语句：<br />
+                <code>for (var in array)<br />
+                {<br />
+                statements<br />
+                }</code><br />
+                需要特别注意的是，变量var保存的是数组的索引值而不是数组元素值。你可以将这个变量用作数组的索引值，轻松地取出数据元素值：
+                用法如下：
+                <pre class="terminal"><code>[jicanmeng@andy tmp]$ <span class="cmd">gawk '</span>
+                > <span class="cmd">BEGIN{</span>
+                > <span class="cmd">var["a"] = 1</span>
+                > <span class="cmd">var["g"] = 2</span>
+                > <span class="cmd">var["m"] = 3</span>
+                > <span class="cmd">var["u"] = 4</span>
+                > <span class="cmd">for (test in var)</span>
+                > <span class="cmd">{</span>
+                > <span class="cmd">print "Index:",test," - Value:",var[test]</span>
+                > <span class="cmd">}</span>
+                > <span class="cmd">}'</span>
+                Index: u  - Value: 4
+                Index: m  - Value: 3
+                Index: a  - Value: 1
+                Index: g  - Value: 2
+                [jicanmeng@andy tmp]$ </code></pre>
+                注意，在for语句中，从数组中取出索引值时，索引值不会按任何特定顺序返回。
+            </p>
+
+            <p>3. 从关联数组中删除数组元素需要用delete命令：<br />
+                <code>delete array[index]</code><br />
+                删除命令会从数组中删除关联索引值和相关的数据元素值。
+            </p>
+
+            <h3 id="gawk_advanced_pattern">gawk进阶3：使用模式</h3>
+            <p>gawk程序支持集中类型的匹配模式来过滤数据行。其实，BEGIN和END就是两种在读取数据流之前和之后执行命令的特殊模式。常见的有三种匹配模式：1. 正则表达式，用//包含起来，常用来检查某个数据行是否匹配某个正则表达式；2.匹配操作符～，常用来检查某个数据字段是否匹配某个正则表达式；3.数学表达式<br />
+            </p>
+
+            <p>1. 第一种匹配模式：正则表达式。
+                <pre class="terminal"><code>[jicanmeng@andy tmp]$ <span class="cmd">cat one.txt </span>
+                hello,world
+                I,like,programming
+                [jicanmeng@andy tmp]$ <span class="cmd">gawk 'BEGIN{FS=","} /world/{print $0}' one.txt</span>
+                hello,world
+                [jicanmeng@andy tmp]$ </code></pre>
+            </p>
+
+            <p>2. 第二种匹配模式：匹配操作符～。
+                匹配操作符(matching operator)允许将正则表达式限定在数据行中的特定数据字段。你要一起指定数据字段变量、匹配操作符以及要匹配的正则表达式，例如：<code>$1 ~ /^data/</code>表示第一个数据字段的开头为data的数据行。
+                <pre class="terminal"><code>[jicanmeng@andy tmp]$ <span class="cmd">cat one.txt </span>
+                hello,world
+                I,like,programming
+                [jicanmeng@andy tmp]$ <span class="cmd">gawk 'BEGIN{FS=","} $2 ~ /^wor/{print $0}' one.txt</span>
+                hello,world
+                [jicanmeng@andy tmp]$ <span class="cmd">gawk -F: '$1 ~ /jicanmeng/{print $1,$NF}' /etc/passwd</span>
+                jicanmeng /bin/bash
+                [jicanmeng@andy tmp]$ </code></pre>
+                最后一个例子是个常用的在数据文件中查找特定数据元素的强大工具。
+            </p>
+
+            <p>
+                你也可以用!符号来排除正则表达式的匹配。例如：</code>$1 !~ /expression/</code>表示如果第一个数据字段不匹配expression，那么程序脚本就会作用到数据行的数据。
+                <pre class="terminal"><code>[jicanmeng@andy tmp]$ <span class="cmd">gawk -F: '$1 !~ /root/{print $1,$NF}' /etc/passwd</span>
+                bin /sbin/nologin
+                daemon /sbin/nologin
+                ...
+                [jicanmeng@andy tmp]$ </code></pre>
+            </p>
+
+
+            <p>3. 第三种匹配模式：数学表达式 >, >=, <, <=, ==
+                查看显示所有root用户组(组ID为0)的系统用户及shell：
+                <pre class="terminal"><code>[jicanmeng@andy tmp]$ <span class="cmd">gawk -F: '$4 == 0{print $1,$NF}' /etc/passwd</span>
+                root /bin/bash
+                sync /bin/sync
+                shutdown /sbin/shutdown
+                halt /sbin/halt
+                operator /sbin/nologin
+                [jicanmeng@andy tmp]$ </code></pre>
+                也可以对文本数据使用数学表达式，但必须小心。跟正则表达式不同，表达式必须完全匹配。
+                <pre class="terminal"><code>[jicanmeng@andy tmp]$ <span class="cmd">gawk 'BEGIN{FS=","} $2 == "world"{print $0}' one.txt</span>
+                hello,world
+                [jicanmeng@andy tmp]$ </code></pre>
+            </p>
+
+            <h3 id="gawk_advanced_structure_commands">gawk进阶4：结构化命令</h3>
+            <p>常用的结构化命令有if，while，do-while，for，用法和c语言一模一样。另外，常常用printf命令来代替print命令，printf命令的用法和c语言中的printf用法也一样。只是格式稍微不同：<br />
+                <code>printf "format string", var1, var2...</code><br />
+                只有一点需要注意，我们需要在printf命令的末尾手动添加换行符来生成新行。
+            </p>
+
+            <h3 id="gawk_advanced_functions">gawk进阶5：函数</h3>
+            <p>gawk中有内置函数，如数学函数，字符串函数，时间函数等。也可以自定义函数。要自定义函数，必须用function关键字：<br />
+                <code>function name([variables])<br />
+                {<br />
+                statements<br />
+                }</code><br />
+                在自定义函数时，它必须出现在所有代码块之前(包括BEGIN代码块)。
+            </p>
+
+
+
+			<h2>参考资料</h2>
+				<ol>
+					<li>第十二章、正规表示法与文件格式化处理：<br />
+                        <a href="http://vbird.dic.ksu.edu.tw/linux_basic/0330regularex.php#awk" target="_blank">http://vbird.dic.ksu.edu.tw/linux_basic/0330regularex.php#awk</a>
+					</li>
+					<li>coolshell：awk 简明教程：<br />
+                        <a href="http://coolshell.cn/articles/9070.html" target="_blank">http://coolshell.cn/articles/9070.html</a>
+					</li>
+					<li>Awk：<br />
+                        <a href="http://www.grymoire.com/Unix/Awk.html" target="_blank">http://www.grymoire.com/Unix/Awk.html</a>
+					</li>
+					<li>Awk One-Liners Explained：<br />
+                        <a href="http://www.catonmat.net/series/awk-one-liners-explained" target="_blank">http://www.catonmat.net/series/awk-one-liners-explained</a>
+					</li>
+                </ol>
+
+		</div>
+
+		<div id="footer">
+			<p>jicanmeng@126.com 2013</p>
+			<p>本站文章可随意转载，但请注明转载的本站文章地址，谢谢！</p>
+		</div>
+	</body>
+</html>

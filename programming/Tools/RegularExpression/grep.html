@@ -1,0 +1,378 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<title>regular expression tool: grep</title>
+		<meta http-equiv="content-type" content="text/html; charset=UTF-8">
+		<link rel="stylesheet" type="text/css" href="../../../style.css" />
+	</head>
+	<body>
+
+		<script type="text/javascript" src="../../../style.js"></script>
+
+		<div id="header">
+			<h1>每天进步一点点</h1>
+		</div>
+
+		<div id="navigation">
+			<ul id="navigation">
+				<li><a class="navigation" href="../../../index.html">Home Page</a></li>
+				<li><a class="navigation" href="../../../life/index.html">Life</a></li>
+				<li><a class="navigation" href="../../index.html">Programmig</a></li>
+				<li><a class="navigation" href="../../../projects/index.html">Projects</a></li>
+				<li><a class="navigation" href="../../../aboutme/index.html">About me</a></li>
+			</ul>
+		</div>
+
+		<div id="Article">
+			<h1>正则表达式工具：grep</h1>
+			<p>作者：jicanmeng</p>
+			<p>时间：2015年09月14日</p>
+			<hr />
+
+            <p>
+                grep使用正则表达式搜索文本，并把匹配的行打印出来。
+            </p>
+            <ol>
+                <li><a href="#test1">例题1：搜寻特定字符串</a></li>
+                <li><a href="#test2">例题2：行首字元^和行尾字元$</a></li>
+                <li><a href="#test3">例题3：任意一个字元.与重复字元*</a></li>
+                <li><a href="#test4">例题4：用中括号[]表示一些字符中的任意一个</a></li>
+                <li><a href="#test5">例题5：用\{和\}限定连续RE字符重复次数</a></li>
+                <li><a href="#test6">例题6：用\<和\>匹配整个单词</a></li>
+                <li><a href="#test7">例题7：用\(和\(进行反向引用</a></li>
+                <li><a href="#BRE_ERE">BRE 和 ERE</a></li>
+                <li><a href="#test8">例题8：重复0个或1个前一个字符</a></li>
+                <li><a href="#test9">例题9：重复1个或1个以上前一个字符</a></li>
+                <li><a href="#test10">例题10：搜索多个字符串</a></li>
+            </ol>
+
+            <h3 id="test1">例题1：搜寻特定字符串：</h3>
+            <p>
+                <ol>
+                    <li>搜寻包含字符串the的行，并打印行号：<br /><code>grep -n 'the' regular.txt</code></li>
+                    <li>搜寻不包含字符串the的行，并打印行号：<br /><code>grep -vn 'the' regular.txt</code></li>
+                    <li>搜寻包含字符串the的行，并打印行号，同时忽略大小写：<br /><code>grep -in 'the' regular.txt</code></li>
+                    <li>承上题，将搜索到的关键字显色：<br /><code>grep -in --color=auto 'the' regular.txt</code></li>
+                </ol>
+			</p>
+
+            <h3 id="test2">例题2：行首字元^和行尾字元$：</h3>
+            <p>
+                <ol>
+                    <li>搜寻以the开头的行，并打印行号：<br /><code>grep -n '^the' regular.txt</code></li>
+                    <li>搜寻以the结尾的行，并打印行号：<br /><code>grep -n 'the$' regular.txt</code></li>
+                    <li>搜寻以.结尾的行，并打印行号：<br /><code>grep -n '\.$' regular.txt</code></li>
+                    <li>查找空白行，并打印行号：<br /><code>grep -n '^$' regular.txt</code></li>
+                    <li>去除空白行和开头为#的行，显示剩余行：<br /><code>grep -v '^$' regular.txt | grep -v '^#'</code></li>
+                </ol>
+
+                <p>The Anchor Characters: ^ and $：<br />
+                    The character "^" is the starting anchor, and the character "$" is the end anchor. The regular expression "^A" will match all lines that start with a capital A. The expression "A$" will match all lines that end with the capital A. If the anchor characters are not used at the proper end of the pattern, then they no longer act as anchors. <b>That is, the "^" is only an anchor if it is the first character in a regular expression. The "$" is only an anchor if it is the last character.</b>
+                </p>
+
+                <table border>
+	                <tr>
+		                <td align=center>Pattern</td>
+		                <td>Matches</td>
+	                </tr>
+	                <tr>
+		                <td align=left>^A</td>
+		                <td align=left>"A" at the beginning of a line</td>
+	                </tr>
+	                <tr>
+		                <td align=left>A$</td>
+		                <td align=left>"A" at the end of a line</td>
+	                </tr>
+	                <tr>
+		                <td align=left>A^</td>
+		                <td align=left>"A^" anywhere on a line</td>
+	                </tr>
+	                <tr>
+		                <td align=left>$A</td>
+		                <td align=left>"$A" anywhere on a line</td>
+	                </tr>
+	                <tr>
+		                <td align=left>^^</td>
+		                <td align=left>"^" at the beginning of a line</td>
+	                </tr>
+	                <tr>
+		                <td align=left>$$</td>
+		                <td align=left>"$" at the end of a line</td>
+	                </tr>
+                </table>
+
+			</p>
+
+            <h3 id="test3">例题3：任意一个字元.与重复字元*：</h3>
+            <p>
+                <ol>
+                    <li>搜寻开头为g结尾为d的长度为4的字串所在的行，并打印行号：<br /><code>grep -n 'g..d' regular.txt</code></li>
+                    <li>搜寻两个和两个以上的字母o所在的行，并打印行号：<br /><code>grep -n 'ooo*' regular.txt</code></li>
+                    <li>搜寻g开头和g结尾的字符串所在的行，并打印行号：<br /><code>grep -n 'g.*g' regular.txt</code></li>
+                </ol>
+                注释：*表示重复前一个字符0到无穷多次。
+                <p>Match any character with .：<br />
+                    The character "." is one of those special meta-characters. By itself it will match any character, except the end-of-line character. The pattern that will match a line with a single characters is<br />
+                    <code>^.$</code>
+                </p>
+			</p>
+
+            <h3 id="test4">例题4：用中括号[]表示一些字符中的任意一个：</h3>
+            <p>
+                <ol>
+                    <li>搜寻test或tast字串所在的行，并打印行号：<br /><code>grep -n 't[ea]st' regular.txt</code></li>
+                    <li>搜寻a开头b结尾的长度为3的字串所在的行，中间的那个字符可以是大写字母、小写字母、数字和下划线，并打印行号：<br /><code>grep -n 'a[A-Za-z0-9_]b' regular.txt</code></li>
+                    注意：不管[]中有几个字符，它仅能代表其中的一个字符。
+                    <li>搜寻字母oo字符串所在的行，另外oo前面不能为字符g和b：<br /><code>grep -n '[^gb]oo' regular.txt</code></li>
+                    <b>注意：^用在[]中表示反向选择，而且必须放在[]中的开头才表示反向选择。[a^g]表示这三个字符中的任意一个。</b><br />
+                    上面的命令可能会输出如下结果：
+<pre>
+    18: google is best tool for search keyword.
+    19: gooooogle yes!
+</pre>
+                    因为18行的tool和19行的oooo都满足oo前面不是g和b的条件，所以就被输出了。所以修改为：<br />
+                    <code>grep -n 'oo' regular.txt | grep -v '[gb]oo'</code>
+                </ol>
+            </p>
+
+			<h3 id="test5">例题5：用\{和\}限定连续RE字符重复次数：</h3>
+            <p>
+                <ol>
+                    <li>搜寻oo字串所在的行，并打印行号：<br />
+                        <code>grep -n 'oo' regular.txt</code><br />
+                        或者<code>grep -n 'o\{2\}' regular.txt</code></li>
+                    <li>搜寻g开头,后接2到5个字母o,再接一个g的字串所在的行，并打印行号：<br /><code>grep -n 'go\{2,5\}g' regular.txt</code></li>
+                    <li>搜寻g开头,后接2个或2个以上字母o,再接一个g的字串所在的行，并打印行号：<br /><code>grep -n 'go\{2,\}g' regular.txt</code><br />
+                    或者<code>grep -n 'gooo*g' regular.txt</code></li>
+                </ol>
+
+                <p>Matching a specific number of sets with \{ and \}：</p>
+                <p>
+                    There is a special pattern you can use to specify the minimum and maximum number of repeats. This is done by putting those two numbers between "\{" and "\}". <b>The backslashes deserve a special discussion. Normally a backslash turns off the special meaning for a character. A period is matched by a "\." and an asterisk is matched by a "\*".</b> 
+                </p>
+                <p>
+                    <b>If a backslash is placed before a "<", ">", "{", "}", "(", ")", or before a digit, the backslash turns on a special meaning. </b>This was done because these special functions were added late in the life of regular expressions. Changing the meaning of "{" would have broken old expressions. This is a horrible crime punishable by a year of hard labor writing COBOL programs. Instead, adding a backslash added functionality without breaking old programs. Rather than complain about the unsymmetry, view it as evolution. 
+                </p>
+                <p>
+                    You must remember that <b>modifiers like "*" and "\{1,5\}" only act as modifiers if they follow a character set.</b> If they were at the beginning of a pattern, they would not be a modifier. Here is a list of examples, and the exceptions: 
+                </p>
+
+                <table border>
+	                <tr>
+		                <td align=center>Regular Expression</td>
+		                <td>Matches</td>
+	                </tr>
+	                <tr>
+		                <td align=left>_</td>
+	                </tr>
+	                <tr>
+		                <td align=left>*</td>
+		                <td align=left>Any line with an asterisk</td>
+	                </tr>
+	                <tr>
+		                <td align=left>\*</td>
+		                <td align=left>Any line with an asterisk</td>
+	                </tr>
+	                <tr>
+		                <td align=left>\\</td>
+		                <td align=left>Any line with a backslash</td>
+	                </tr>
+	                <tr>
+		                <td align=left>^*</td>
+		                <td align=left>Any line starting with an asterisk</td>
+	                </tr>
+	                <tr>
+		                <td align=left>^A*</td>
+		                <td align=left>Any line</td>
+	                </tr>
+	                <tr>
+		                <td align=left>^A\*</td>
+		                <td align=left>Any line starting with an "A*"</td>
+	                </tr>
+	                <tr>
+		                <td align=left>^AA*</td>
+		                <td align=left>Any line if it starts with one "A"</td>
+	                </tr>
+	                <tr>
+		                <td align=left>^AA*B</td>
+		                <td align=left>Any line with one or more "A"'s followed by a "B"</td>
+	                </tr>
+	                <tr>
+		                <td align=left>^A\{4,8\}B</td>
+		                <td align=left>Any line starting with 4, 5, 6, 7 or 8 "A"'s </td>
+	                </tr>
+	                <tr>
+		                <td align=left></td>
+		                <td align=left>followed by a "B"</td>
+	                </tr>
+	                <tr>
+		                <td align=left>^A\{4,\}B</td>
+		                <td align=left>Any line starting with 4 or more "A"'s </td>
+	                </tr>
+	                <tr>
+		                <td align=left></td>
+		                <td align=left>followed by a "B"</td>
+	                </tr>
+	                <tr>
+		                <td align=left>^A\{4\}B</td>
+		                <td align=left>Any line starting with "AAAAB"</td>
+	                </tr>
+	                <tr>
+		                <td align=left>\{4,8\}</td>
+		                <td align=left>Any line with "{4,8}"</td>
+	                </tr>
+	                <tr>
+		                <td align=left>A{4,8}</td>
+		                <td align=left>Any line with "A{4,8}"</td>
+	                </tr>
+                </table>
+            </p>
+
+
+            <h3 id="test6">例题6：用\<和\>匹配整个单词：</h3>
+            <p>
+                <ol>
+                    <li>搜寻the单词所在的行，并打印行号：<br />
+                        <code>grep -n '\&lt;the\&gt;' regular.txt</code></li>
+                </ol>
+                <p>
+                    Matching words with \< and \>：
+                </p>
+                <p>
+                    Searching for a word isn't quite as simple as it at first appears. The string "the" will match the word "other". You can put spaces before and after the letters and use this regular expression: " the ". However, this does not match words at the beginning or end of the line. And it does not match the case where there is a punctuation mark after the word. 
+                </p>
+                <p>
+                    There is an easy solution. The characters "\<" and "\>" are similar to the "^" and "$" anchors, as they don't occupy a position of a character. They do "anchor" the expression between to only match if it is on a word boundary. The pattern to search for the word "the" would be "\&lt;the\&gt;". The character before the "t" must be either a new line character, or anything except a letter, number, or underscore. The character after the "e" must also be a character other than a number, letter, or underscore or it could be the end of line character. 
+                </p>
+            </p>
+
+
+            <h3 id="test7">例题7：用\(和\(进行反向引用：</h3>
+            <p>
+                <p>
+                    Backreferences - Remembering patterns with \(, \) and \1：
+                </p>
+
+                <p>Another pattern that requires a special mechanism is searching for repeated words. The expression "[a-z][a-z]" will match any two lower case letters. If you wanted to search for lines that had two adjoining identical letters, the above pattern wouldn't help. <b>You need a way of remembering what you found, and seeing if the same pattern occurred again.</b> You can mark part of a pattern using "\(" and "\)". You can recall the remembered pattern with "\" followed by a single digit. Therefore, to search for two identical letters, use<br />
+                    <code>\([a-z]\)\1</code>
+                </p>
+                <p>You can have 9 different remembered patterns. Each occurrence of "\(" starts a new pattern. The regular expression that would match a 5 letter palindrome, (e.g. "radar"), would be<br />
+                    <code>\([a-z]\)\([a-z]\)[a-z]\2\1</code>
+                </p>
+            </p>
+
+
+
+            <h3 id="BRE_ERE">BRE 和 ERE：</h3>
+            <p>
+                从例题1到例题7说的是基础的正则表达式（Basic Regulra Expression），另外还有一种扩展的正则表达式（Extended Regular Expression）。
+            </p>
+
+            <p>
+                <b>BRE和ERE都遵循POSIX规范</b>：<br />
+                POSIX的全称是Portable Operating System Interface for uniX，它由一系列规范构成，定义了UNIX操作系统应当支持的功能，所以“POSIX规范的正则表达式”其实只是“关于正则表达式的POSIX规范”，它定义了BRE和ERE两种类型的规范。
+            </p>
+
+
+
+            <p>
+                <b>BRE</b>：<br />
+                在Linux/Unix常用工具中，grep、vi、sed都属于BRE这一派，它的语法看起来比较奇怪，元字符(、)、{、}必须转义之后才具有特殊含义，所以正则表达式(a)b只能匹配字符串 (a)b而不是字符串ab；正则表达式a{1,2}只能匹配字符串a{1,2}，正则表达式a\{1,2\}才能匹配字符串a或者aa。
+            </p>
+
+            <p>
+                之所以这么麻烦，是因为这些工具的诞生时间很早，正则表达式的许多功能却是逐步发展演化出来的，之前这些元字符可能并没有特殊的含义；为保证向后兼容，就只能使用转义。而且有些功能甚至根本就不支持，比如BRE就不支持+和?量词，也不支持多选结构|和反向引用\1、\2 …。            
+            </p>
+
+
+            <p>
+                不过今天，纯粹的BRE已经很少见了，毕竟大家已经认为正则表达式“理所应当”支持多选结构和反向引用等功能，没有确实太不方便。所以虽然vi属于BRE流派，但提供了这些功能。<b>GNU也对BRE做了扩展，支持+、?、|，只是使用时必须写成\+、\?、\|，而且也支持\1、\2之类反向引用。</b>这样，GNU的grep等工具虽然名义上属于BRE流，但更确切的名称是GNU BRE。
+            </p>
+
+
+            <p>
+                <b>ERE</b>：<br />
+                在Linux/Unix常用工具中，egrep、awk则属于ERE这一派，。虽然BRE名为“基本”而ERE名为“扩展”，但ERE并不要求兼容BRE的语法，而是自成一体。因此其中的元字符不用转义（在元字符之前添加反斜线会取消其特殊含义），所以(ab|cd)就可以匹配字符串ab或者cd，量词+、?、{n,m}可以直接使用。ERE并没有明确规定支持反向引用，但是不少工具都支持\1、\2之类的反向引用。
+            </p>
+
+
+            <p>
+                <b>总结一下POSIX规范中BRE和ERE的差异：</b><br />
+                相对于BRE，ERE的改动有：
+                <ol>
+                    <li>增加了三个元字符：+、? 和 | 。</li>
+                    <li>使用{、}、(、)的时候，前面不用添加转义字符\了。</li>
+                    <li>不再支持back reference的功能。</li>
+                    <li>对于anchor characters，即^和$，永远表示开头和结尾。如果要作为普通字符搜索，前面要添加转义字符\。</li>
+                        例如某文件text.txt文件中有ab^cd5个字符。搜索时，BRE语法为<code>grep 'ab^cd' text.txt</code>，ERE语法则为<code>egrep ‘ab\^cd' test.txt</code>.
+                </ol>
+            </p>
+
+            <p>
+                但是在GNU工具对这些规范的实现中，又作了一些修改：
+                <ol>
+                    <li>GNU BRE中也可以使用+、? 和 | 这三个字符了。</li>
+                    <li>GNU ERE中仍然支持back reference。
+                </ol>
+            </p>
+
+            <p>
+                所以在我们平时使用的linux系统中，GNU BRE和GNU EREd 区别只有两点：
+                <ol>
+                    <li>在BRE中，7个字符(, ), {, }, ?, + 和 | 必须要转义使用才能表示特殊字符，在ERE中则不需要转义。</li>
+                    <li>在BRE中，^和$如果放在正则表达式的中间，表示特殊字符；在ERE中，^和$如果放在正则表达式的中间，必须使用转义字符才表示普通字符。</li>
+                </ol>
+            </p>
+
+
+            <h3 id="test8">例题8：重复0个或1个前一个字符：</h3>
+            <p>
+                <ol>
+                    <li>搜寻gd字串或god字串所在的行，并打印行号：<br />
+                        <code>grep -n 'go\?d' regular.txt</code><br />
+                        或者<code>egrep -n 'go?d' regular.txt</code></li>
+                </ol>
+            </p>
+
+            <h3 id="test9">例题9：重复1个或1个以上前一个字符：</h3>
+            <p>
+                <ol>
+                    <li>搜寻god、good、goood...等字串所在的行，并打印行号：<br />
+                        <code>grep -n 'go\+d' regular.txt</code><br />
+                        或者<code>egrep -n 'go+d' regular.txt</code></li>
+                </ol>
+            </p>
+
+            <h3 id="test10">例题10：搜索多个字符串：</h3>
+            <p>
+                <ol>
+                    <li>搜寻gd或者good或者dog字串所在的行，并打印行号：<br />
+                        <code>grep -n 'gd\|good\|dog' regular.txt</code><br />
+                        或者<code>egrep -n 'gd|good|dog' regular.txt</code></li>
+                </ol>
+            </p>
+
+
+
+
+			<h2>参考资料</h2>
+				<ol>
+					<li>第十二章、正规表示法与文件格式化处理：<br />
+                        <a href="http://vbird.dic.ksu.edu.tw/linux_basic/0330regularex.php#grep" target="_blank">http://vbird.dic.ksu.edu.tw/linux_basic/0330regularex.php#grep</a>
+					</li>
+					<li>Regular Expressions and Extended Pattern Matching：(written by Bruce Barnett)<br />
+                        <a href="http://www.grymoire.com/Unix/Regular.html" target="_blank">http://www.grymoire.com/Unix/Regular.html</a>
+					</li>
+					<li>Linux/Unix工具与正则表达式的POSIX规范：<br />
+                        <a href="http://www.infoq.com/cn/news/2011/07/regular-expressions-6-POSIX" target="_blank">http://www.infoq.com/cn/news/2011/07/regular-expressions-6-POSIX</a>
+					</li>
+                </ol>
+
+		</div>
+
+		<div id="footer">
+			<p>jicanmeng@126.com 2013</p>
+			<p>本站文章可随意转载，但请注明转载的本站文章地址，谢谢！</p>
+		</div>
+	</body>
+</html>
