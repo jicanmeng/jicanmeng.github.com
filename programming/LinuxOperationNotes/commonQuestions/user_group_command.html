@@ -1,0 +1,135 @@
+﻿<!DOCTYPE html>
+<html>
+	<head>
+		<title>commands about user and group</title>
+		<meta http-equiv="content-type" content="text/html; charset=UTF-8">
+		<link rel="stylesheet" type="text/css" href="../../../style.css" />
+	</head>
+	<body>
+
+		<script type="text/javascript" src="../../../style.js"></script>
+
+		<div id="header">
+			<h1>每天进步一点点</h1>
+		</div>
+
+		<div id="navigation">
+			<ul id="navigation">
+				<li><a class="navigation" href="../../../index.html">Home Page</a></li>
+				<li><a class="navigation" href="../../../life/index.html">Life</a></li>
+				<li><a class="navigation" href="../../index.html">Programmig</a></li>
+				<li><a class="navigation" href="../../../projects/index.html">Projects</a></li>
+				<li><a class="navigation" href="../../../aboutme/index.html">About me</a></li>
+			</ul>
+		</div>
+
+		<div id="Article">
+			<h1>用户和组的概念和命令: useradd,userdel,groupadd,groupdel,groups,newgrp</h1>
+			<p>作者：jicanmeng</p>
+			<p>时间：2016年06月05日</p>
+			<hr />
+
+            <ol>
+                <li><a href="#useradd_command">useradd: 新建一个帐号</a></li>
+                <li><a href="#userdel_command">userdel: 删除一个帐号</a></li>
+                <li><a href="#groupadd_command">groupadd: 新建一个群组</a></li>
+                <li><a href="#groupdel_command">groupdel: 删除一个群组</a></li>
+                <li><a href="#groups_command">groups: 查看本帐号所属群组</a></li>
+                <li><a href="#newgrp_command">newgrp: 有效群组的切换</a></li>
+            </ol>
+
+			<h2 id="useradd_command">
+				1. useradd: 新建一个帐号
+			</h2>
+                <pre class="terminal"><code>[jicanmeng@andy tmp]$ <span class="cmd">useradd -m -d /home/abc -s /bin/bash abc</span>
+                    bash: /usr/sbin/useradd: Permission denied
+                [jicanmeng@andy tmp]$ <span class="cmd">su root</span>
+                    Password:
+                [root@andy tmp]# <span class="cmd">useradd -m -d /home/abc -s /bin/bash abc</span>
+                [root@andy tmp]# <span class="cmd">cat /etc/passwd | grep abc</span>
+                    abc:x:501:501::/home/abc:/bin/bash
+                [root@andy tmp]#</code></pre>
+                <p>-m表示强制建立家目录；-d指定家目录；-s表示次帐号使用的shell。</p>
+
+
+			<h2 id="userdel_command">
+				2. userdel: 删除一个帐号
+			</h2>
+                <pre class="terminal"><code>[root@andy tmp]# <span class="cmd">userdel -r abc</span>
+                [root@andy tmp]# <span class="cmd">cat /etc/passwd | grep abc</span>
+                [root@andy tmp]#</code></pre>
+                <p>-r表示连家目录一起删除。</p>
+
+			<h2 id="groupadd_command">
+				3. groupadd: 新建一个群组
+			</h2>
+                <pre class="terminal"><code>[root@andy tmp]# <span class="cmd">groupadd abcd</span>
+                [root@andy tmp]# <span class="cmd">cat /etc/group | grep abcd</span>
+                    abcd:x:501:
+                [root@andy tmp]#</code></pre>
+			    <p>有一点需要注意，<font color="red">新建一个帐号的时候，往往也会新建一个群组，名称和帐号的名称相同</font>。</p>
+
+			<h2 id="groupdel_command">
+				4. groupdel: 删除一个群组
+			</h2>
+                <pre class="terminal"><code>[jicanmeng@andy tmp]$ <span class="cmd">groupdel abcd</span>
+                [jicanmeng@andy tmp]$ <span class="cmd">cat /etc/group | grep abcd</span>
+                [jicanmeng@andy tmp]#</code></pre>
+                <p>上面提到，新建一个帐号的时候，往往也会新建一个群组，名称和帐号的名称相同。在删除这个帐号的时候，也往往会同时删除对应的群组。如果我们不删除这个帐号，只是删除这个帐号对应的群组，是不会成功的。例子如下：</p>
+                <pre class="terminal"><code>[root@andy tmp]# <span class="cmd">useradd -m -d /home/abc -s /bin/bash abc</span>
+                [root@andy tmp]# <span class="cmd">groupdel abc</span>
+                    groupdel: cannot remove the primary group of user 'abc'
+                [root@andy tmp]# <span class="cmd">userdel -r abc</span>
+                [root@andy tmp]# <span class="cmd">groupdel abc</span>
+                    groupdel: group 'abc' does not exist
+                [root@andy tmp]#</code></pre>
+
+			<h2 id="groups_command">
+				5. groups: 查看本帐号所属群组
+			</h2>
+                <pre class="terminal"><code>[jicanmeng@andy tmp]$ <span class="cmd">groups</span>
+                    jicanmeng vboxusers
+                [jicanmeng@andy tmp]$ <span class="cmd">groupdel jicanmeng</span>
+                    jicanmeng : jicanmeng vboxusers
+                [jicanmeng@andy tmp]$ <span class="cmd">groups jicanmeng bin</span>
+                    jicanmeng : jicanmeng vboxusers
+                    bin : bin daemon sys
+                [jicanmeng@andy tmp]$</code></pre>
+                <p><code>groups</code>命令不接参数时，输出的是当前用户所属的全部群组。其中第一个群组是有效群组。在创建文件时，文件的群组就是有效群组。<code>groups</code>命令接参数时，输出的是参数中指定的用户所属的全部群组。
+
+			<h2 id="newgrp_command">
+				6. newgrp: 有效群组的切换
+			</h2>
+                <pre class="terminal"><code>[jicanmeng@andy tmp]$ <span class="cmd">groups</span>
+                    jicanmeng vboxusers
+                [jicanmeng@andy tmp]$ <span class="cmd">echo $$</span>
+                    3279
+                [jicanmeng@andy tmp]$ <span class="cmd">newgrp vboxusers</span>
+                [jicanmeng@andy tmp]$ <span class="cmd">groups</span>
+                    vboxusers jicanmeng
+                [jicanmeng@andy tmp]$ <span class="cmd">echo $$</span>
+                    4101
+                [jicanmeng@andy tmp]$ <span class="cmd">exit</span>
+                [jicanmeng@andy tmp]$ <span class="cmd">echo $$</span>
+                    3279
+                [jicanmeng@andy tmp]$</code></pre>
+                <ul>两点需要注意：
+                    <li><code>$$</code>表示当前shell的PID。</li>
+                    <li><code>newgrp</code>会切换当前用户的有效群组，<font color="red"><b>而且是以另外一个 shell 来提供这个功能的</b></font>。需要使用exit才能回到原来的shell环境。</li>
+                </ul>
+
+            <h2>参考资料</h2>
+                <ol>
+                    <li>鸟哥的linux私房菜<br />
+                        <a href="http://vbird.dic.ksu.edu.tw/linux_basic/0410accountmanager.php">http://vbird.dic.ksu.edu.tw/linux_basic/0410accountmanager.php</a>
+                    </li>
+                </ol>
+
+		</div>
+
+		<div id="footer">
+			<p>jicanmeng@126.com 2013</p>
+			<p>本站文章可随意转载，但请注明转载的本站文章地址，谢谢！</p>
+		</div>
+	</body>
+</html>

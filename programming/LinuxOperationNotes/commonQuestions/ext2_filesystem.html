@@ -1,0 +1,64 @@
+﻿<!DOCTYPE html>
+<html>
+	<head>
+		<title>ext2 filesystem</title>
+		<meta http-equiv="content-type" content="text/html; charset=UTF-8">
+		<link rel="stylesheet" type="text/css" href="../../../style.css" />
+	</head>
+	<body>
+
+		<script type="text/javascript" src="../../../style.js"></script>
+
+		<div id="header">
+			<h1>每天进步一点点</h1>
+		</div>
+
+		<div id="navigation">
+			<ul id="navigation">
+				<li><a class="navigation" href="../../../index.html">Home Page</a></li>
+				<li><a class="navigation" href="../../../life/index.html">Life</a></li>
+				<li><a class="navigation" href="../../index.html">Programmig</a></li>
+				<li><a class="navigation" href="../../../projects/index.html">Projects</a></li>
+				<li><a class="navigation" href="../../../aboutme/index.html">About me</a></li>
+			</ul>
+		</div>
+
+		<div id="Article">
+			<h1>ext2文件系统是如何存储文件的?</h1>
+			<p>作者：jicanmeng</p>
+			<p>时间：2016年06月03日</p>
+			<hr />
+
+            <p>最新版本的linux中早就不用 ext2 文件系统了，那么为什么还要学习它呢? 我认为它就类似于 intel 的8086处理器，虽然很老旧，但是我们学习汇编语言还必须要从它学起。有了基础，后面再学 80386 等等处理器就简单一些了。同样，学习了 ext2 文件系统，后面再学习 ext4 等文件系统就更容易一些。</p>
+
+            <p>《鸟哥的linux私房菜》中已经说的非常详细了，这里只记录几点我认为重要的：</p>
+
+            <p>
+                <ul>
+                    <li><font color="red">inode 的内容在记录文件的权限与相关属性，至于 block 区块则是在记录文件的实际内容</font>。 而且文件系统一开始就将 inode 与 block 规划好了，除非重新格式化(或者利用 resize2fs 等命令变更文件系统大小)，否则 inode 与 block 固定后就不再变动。</li>
+                    <li><font color="red">在整体的规划当中，文件系统最前面有一个启动扇区(boot sector)</font>，这个启动扇区可以安装启动管理程序， 这是个非常重要的设计，因为如此一来我们就能够将不同的启动管理程序安装到个别的文件系统最前端，而不用覆盖整颗硬盘唯一的 MBR， 这样也才能够制作出多重引导的环境啊！</li>
+                    <li>由于目录树是由根目录开始读起，因此系统透过挂载的信息可以找到挂载点的 inode 号码(通常一个 filesystem 的最顶层 inode 号码会由 2 号开始喔！)，此时就能够得到根目录的 inode 内容，并依据该 inode 读取根目录的 block 内的文件名数据，再一层一层的往下读到正确的档名。<font color="red"><b>如果我想要读取 /etc/passwd 这个文件时，系统是如何读取的呢?</b></font></li>
+                </ul>
+            </p>
+
+
+
+
+            <h2>参考资料</h2>
+                <ol>
+                    <li>鸟哥的linux私房菜<br />
+                        <a href="http://vbird.dic.ksu.edu.tw/linux_basic/0230filesystem.php" target="_blank">http://vbird.dic.ksu.edu.tw/linux_basic/0230filesystem.php</a>
+                    </li>
+                    <li>阮一峰：理解inode<br />
+                        <a href="http://www.ruanyifeng.com/blog/2011/12/inode.html" target="_blank">http://www.ruanyifeng.com/blog/2011/12/inode.html</a>
+                    </li>
+                </ol>
+
+		</div>
+
+		<div id="footer">
+			<p>jicanmeng@126.com 2013</p>
+			<p>本站文章可随意转载，但请注明转载的本站文章地址，谢谢！</p>
+		</div>
+	</body>
+</html>

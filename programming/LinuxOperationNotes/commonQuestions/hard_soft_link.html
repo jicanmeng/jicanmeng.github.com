@@ -1,0 +1,67 @@
+﻿<!DOCTYPE html>
+<html>
+	<head>
+		<title>commands about hard link and soft link</title>
+		<meta http-equiv="content-type" content="text/html; charset=UTF-8">
+		<link rel="stylesheet" type="text/css" href="../../../style.css" />
+	</head>
+	<body>
+
+		<script type="text/javascript" src="../../../style.js"></script>
+
+		<div id="header">
+			<h1>每天进步一点点</h1>
+		</div>
+
+		<div id="navigation">
+			<ul id="navigation">
+				<li><a class="navigation" href="../../../index.html">Home Page</a></li>
+				<li><a class="navigation" href="../../../life/index.html">Life</a></li>
+				<li><a class="navigation" href="../../index.html">Programmig</a></li>
+				<li><a class="navigation" href="../../../projects/index.html">Projects</a></li>
+				<li><a class="navigation" href="../../../aboutme/index.html">About me</a></li>
+			</ul>
+		</div>
+
+		<div id="Article">
+			<h1>hard link 和 soft link的区别?</h1>
+			<p>作者：jicanmeng</p>
+			<p>时间：2016年06月03日</p>
+			<hr />
+
+            <p>明白hard link和soft link的前提是需要明白ext2档案系统是如何存储文件的。无论是目录文件还是普通文件，都在档案系统中有一个对应的inode，和至少一个block。</p>
+
+            <p>创建一个文件的hard link的命令格式如下：<code>ln srcFile destFile</code>。它只是在某个目录的block内多一笔记录，记录中包含destFile文件名称，至于inode号码则和源文件的inode号码相同。hard link的限制如下：</p>
+                <ul>
+                    <li>不能跨 Filesystem。
+                    </li>
+                    <li>只能对普通文件创建hard link，不能对目录创建hard link。
+                    </li>
+                </ul>
+            <p>创建一个文件的symbolic link的命令格式如下：<code>ln -s srcFile destFile</code>。会为destFile单独创建一个inode，再创建一个单独的block，block内容指向了srcFile。symbolic link非常类似于windows下的快捷方式。需要注意有如下几点：</p>
+                <ul>
+                    <li>可以给普通文件创建一个symbolic link，也可以给目录文件创建一个symbolic link。
+                    </li>
+                </ul>
+
+
+
+
+            <h2>参考资料</h2>
+                <ol>
+                    <li>鸟哥的linux私房菜<br />
+                        <a href="http://vbird.dic.ksu.edu.tw/linux_basic/0230filesystem.php">http://vbird.dic.ksu.edu.tw/linux_basic/0230filesystem.php</a>
+                    </li>
+                    <li>阮一峰：理解inode<br />
+                        <a href="http://www.ruanyifeng.com/blog/2011/12/inode.html" target="_blank">http://www.ruanyifeng.com/blog/2011/12/inode.html</a>
+                    </li>
+                </ol>
+
+		</div>
+
+		<div id="footer">
+			<p>jicanmeng@126.com 2013</p>
+			<p>本站文章可随意转载，但请注明转载的本站文章地址，谢谢！</p>
+		</div>
+	</body>
+</html>

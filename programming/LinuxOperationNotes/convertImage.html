@@ -1,0 +1,117 @@
+﻿<!DOCTYPE html>
+<html>
+	<head>
+		<title>linux convert command</title>
+		<meta http-equiv="content-type" content="text/html; charset=UTF-8">
+		<link rel="stylesheet" type="text/css" href="../../style.css" />
+	</head>
+	<body>
+
+		<script type="text/javascript" src="../../style.js"></script>
+
+		<div id="header">
+			<h1>每天进步一点点</h1>
+		</div>
+
+		<div id="navigation">
+			<ul id="navigation">
+				<li><a class="navigation" href="../../index.html">Home Page</a></li>
+				<li><a class="navigation" href="../../life/index.html">Life</a></li>
+				<li><a class="navigation" href="../index.html">Programmig</a></li>
+				<li><a class="navigation" href="../../projects/index.html">Projects</a></li>
+				<li><a class="navigation" href="../../aboutme/index.html">About me</a></li>
+			</ul>
+		</div>
+
+		<div id="Article">
+			<h1>通过convert命令管理图片</h1>
+			<p>作者：jicanmeng</p>
+			<p>时间：2014年11月2日</p>
+			<hr />
+
+			<p>
+				看陈皓大牛的<a href="http://coolshell.cn/articles/355.html" target="_blank">20本最好的Linux免费书籍</a>文章，其中提到一本书&lt;Put Yourself In Command&gt;，这本书中开篇调用了一个命令<code>convert -resize 300 profile.jpg profile_small.jpg</code>。将一个图片进行了转化，非常酷！
+			</p>
+
+			<p>
+				使用convert命令首先要安装ImageMagick。假设我有一个qianziwen.jpg文件，width为600，height为523，使用<code>convert -resize 300 qianziwen.jpg qianziwen_300.jpg后，生成一个qianziwen_300.jpg文件，width为300，height为262。看如下命令：</code>
+			</p>
+
+			<pre class="terminal"><code>[jicanmeng@andy tmp]$ <span class="cmd">sudo yum install ImageMagick</span>
+				[jicanmeng@andy Desktop]$ <span class="cmd">identify qianziwen.jpg</span>
+				qianziwen.jpg JPEG 600x523 600x523+0+0 8-bit DirectClass 83.1kb
+				[jicanmeng@andy Desktop]$ <span class="cmd">convert -resize 300 qianziwen.jpg qianziwen_300.jpg</span>
+				[jicanmeng@andy Desktop]$ <span class="cmd">identify qianziwen_300.jpg</span>
+				qianziwen_300.jpg JPEG 300x262 300x262+0+0 8-bit DirectClass 48.8kb
+				[jicanmeng@andy Desktop]$ </code></pre>
+
+			<p>
+				使用convert命令后，缩放后图像保持原来图像的width和height的比例。如果我们希望可以改变图片的比例，那么可以指定宽度和高度来实现。
+			</p>
+
+			<pre class="terminal"><code>[jicanmeng@andy tmp]$ <span class="cmd">identify wenwen.jpg</span>
+				wenwen.jpg JPEG 600x450 600x450+0+0 8-bit DirectClass 80.8kb
+				[jicanmeng@andy Desktop]$ <span class="cmd">convert -resize 100x100 wenwen.jpg wenwen_100.jpg</span>
+				[jicanmeng@andy Desktop]$ <span class="cmd">identify wenwen.jpg wenwen_100.jpg</span>
+				wenwen.jpg JPEG 600x450 600x450+0+0 8-bit DirectClass 80.8kb
+				wenwen_100.jpg[1] JPEG 100x75 100x75+0+0 8-bit DirectClass 3.71kb
+				[jicanmeng@andy Desktop]$ <span class="cmd">convert -resize 100x100! wenwen.jpg wenwen_100.jpg</span>
+				[jicanmeng@andy Desktop]$ <span class="cmd">identify wenwen.jpg wenwen_100.jpg</span>
+				wenwen.jpg JPEG 600x450 600x450+0+0 8-bit DirectClass 80.8kb
+				wenwen_100.jpg[1] JPEG 100x100 100x100+0+0 8-bit DirectClass 4.71kb
+				[jicanmeng@andy Desktop]$ </code></pre>
+
+			<p>
+				这里需要注意的是：1. 宽度和高度之间使用的是字母x。2. 使用！可以强制转化成对应的宽度和高度。
+			</p>
+
+
+            <p>
+                <b>额外的一个知识点：怎么增加照片的KB大小</b><br />
+                扩展一个jpg文件的大小，使用copy命令即可：
+                <pre class="terminal"><code>E:\make> <span class="cmd">copy wenwen.jpg /B + abc.txt wenwen2.jpg</span>
+				    wenwen.jpg
+                    abc.txt
+                    已复制         1 个文件。
+				E:\make> </code></pre>
+            </p>
+            这样，wenwen2.jpg文件就是wenwen.jpg和abc.txt的大小。
+
+
+			<h2>参考资料</h2>
+				<ol>
+					<li>
+						我的ImageMagick使用心得：<br />
+						<a href="http://www.charry.org/docs/linux/ImageMagick/ImageMagick.html" target="_blank">http://www.charry.org/docs/linux/ImageMagick/ImageMagick.html</a>
+					</li>
+
+					<li>
+						Linux下用批量convert管理图片：<br />
+						<a href="http://www.linuxbyte.org/linux-convert-mini-howto.html" target="_blank">http://www.linuxbyte.org/linux-convert-mini-howto.html</a>
+					</li>
+
+					<li>
+						[软件设置] convert 命令详解 | ImageMagick 图片处理 缩放、剪切、模糊、...：<br />
+						<a href="http://bbs.konotes.org/thread-3669-1-1.html" target="_blank">http://bbs.konotes.org/thread-3669-1-1.html</a>
+					</li>
+
+					<li>
+						通过命令行处理图形：<br />
+						<a href="http://www.ibm.com/developerworks/cn/linux/l-graf/" target="_blank">http://www.ibm.com/developerworks/cn/linux/l-graf/</a>
+					</li>
+
+					<li>
+						怎么增加照片的KB大小：<br />
+						<a href="http://www.cnblogs.com/goodbeypeterpan/p/3919866.html" target="_blank">http://www.cnblogs.com/goodbeypeterpan/p/3919866.html</a>
+					</li>
+
+				</ol>
+
+		</div>
+
+		<div id="footer">
+			<p>jicanmeng@126.com 2013</p>
+			<p>本站文章可随意转载，但请注明转载的本站文章地址，谢谢！</p>
+		</div>
+	</body>
+</html>

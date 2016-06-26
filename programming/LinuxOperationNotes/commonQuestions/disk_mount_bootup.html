@@ -1,0 +1,62 @@
+﻿<!DOCTYPE html>
+<html>
+	<head>
+		<title>how to mount filesystem when booting</title>
+		<meta http-equiv="content-type" content="text/html; charset=UTF-8">
+		<link rel="stylesheet" type="text/css" href="../../../style.css" />
+	</head>
+	<body>
+
+		<script type="text/javascript" src="../../../style.js"></script>
+
+		<div id="header">
+			<h1>每天进步一点点</h1>
+		</div>
+
+		<div id="navigation">
+			<ul id="navigation">
+				<li><a class="navigation" href="../../../index.html">Home Page</a></li>
+				<li><a class="navigation" href="../../../life/index.html">Life</a></li>
+				<li><a class="navigation" href="../../index.html">Programmig</a></li>
+				<li><a class="navigation" href="../../../projects/index.html">Projects</a></li>
+				<li><a class="navigation" href="../../../aboutme/index.html">About me</a></li>
+			</ul>
+		</div>
+
+		<div id="Article">
+			<h1>如何开机挂载某个档案系统: /etc/fstab</h1>
+			<p>作者：jicanmeng</p>
+			<p>时间：2016年06月10日</p>
+			<hr />
+
+            <p>通过修改/etc/fstab文件。这个文件中保存了开机时挂载的设备和对应的目录。共有六个栏位：</p>
+                <ul>
+                    <li>第一个栏位，是装置档名或该装置的 Label(类似于<code>LABEL=/home</code>这样的格式)或UUID(类似于<code>UUID=de89b69b-b177-43d2-b5e5-9f4d70d22258</code>这样的格式)。
+                    </li>
+                    <li>第二个栏位，是挂载到的目录。
+                    </li>
+                    <li>第三个栏位，是装置的文件系统类型，例如ext4，vfat等。
+                    </li>
+                    <li>第四个栏位，是档案系统参数。即mount命令中使用-o指定的参数。
+                    </li>
+                    <li>第五个栏位，能否被 dump 备份指令作用。
+                    </li>
+                    <li>第六个栏位，是否以 fsck 检验磁区。
+                    </li>
+                </ul>
+
+            <h2>参考资料</h2>
+                <ol>
+                    <li>鸟哥的linux私房菜<br />
+                        <a href="http://vbird.dic.ksu.edu.tw/linux_basic/0230filesystem.php#fstab" target="_blank">http://vbird.dic.ksu.edu.tw/linux_basic/0230filesystem.php#fstab</a>
+                    </li>
+                </ol>
+
+		</div>
+
+		<div id="footer">
+			<p>jicanmeng@126.com 2013</p>
+			<p>本站文章可随意转载，但请注明转载的本站文章地址，谢谢！</p>
+		</div>
+	</body>
+</html>

@@ -1,0 +1,180 @@
+﻿<!DOCTYPE html>
+<html>
+	<head>
+		<title>how to install and uninstall a software?</title>
+		<meta http-equiv="content-type" content="text/html; charset=UTF-8">
+		<link rel="stylesheet" type="text/css" href="../../../style.css" />
+	</head>
+	<body>
+
+		<script type="text/javascript" src="../../../style.js"></script>
+
+		<div id="header">
+			<h1>每天进步一点点</h1>
+		</div>
+
+		<div id="navigation">
+			<ul id="navigation">
+				<li><a class="navigation" href="../../../index.html">Home Page</a></li>
+				<li><a class="navigation" href="../../../life/index.html">Life</a></li>
+				<li><a class="navigation" href="../../index.html">Programmig</a></li>
+				<li><a class="navigation" href="../../../projects/index.html">Projects</a></li>
+				<li><a class="navigation" href="../../../aboutme/index.html">About me</a></li>
+			</ul>
+		</div>
+
+		<div id="Article">
+			<h1>如何安装、查询和卸载一个软件: tarball,rpm,yum,dpkg,apt-get</h1>
+			<p>作者：jicanmeng</p>
+			<p>时间：2016年06月10日</p>
+			<hr />
+
+            <ol>
+                <li><a href="#tar_type">tarball的方式</a></li>
+                <li><a href="#rpm_type">rpm的方式</a></li>
+                <li><a href="#yum_type">yum的方式</a></li>
+                <li><a href="#dpkg_type">dpkg的方式</a></li>
+                <li><a href="#apt_type">apg-get的方式</a></li>
+            </ol>
+
+			<h2 id="tar_type">
+				1. tarball的方式
+			</h2>
+                <p>使用tarball来安装软件一般使用标准步骤：1.<code>configure</code>; 2.<code>make</code>; 3.<code>make install</code>。所有的安装文件的路径一般是通过在执行configure命令时使用--prefix=path指定的。</p>
+                <p>但是卸载的时候就很麻烦。因为我们需要知道在安装的时候都安装了哪些文件。鉴于这个原因，《鸟哥的linux私房菜》中对使用tarball方式安装软件有如下建议：</p>
+                <ul>
+                    <li>最好将 tarball 的原始资料解压缩到 /usr/local/src 当中；</li>
+                    <li>安装时，最好安装到 /usr/local 这个预设路径下；</li>
+                    <li>考虑未来的反安装步骤，最好可以将每个软体单独的安装在 /usr/local 底下；</li>
+                    <li>为安装到单独目录的软体之 man page 加入 man path 搜寻：举例来说，如果你安装的软体放置到 /usr/local/software/ ，那么 man page 搜寻的设定中，可能就得要在 /etc/man.config 内的 40~50 行左右处，写入如下的一行：<br />
+                        <code>MANPATH /usr/local/software/man</code><br />
+                    这样才可以使用 man 来查询该软体的线上文件啰！</li>
+                </ul>
+
+			<h2 id="rpm_type">
+				2. rpm的方式
+			</h2>
+                <p>使用rpm安装软件较为简单。命令格式如下：</p>
+                <pre><code>rpm -ivh abc.rpm</code></pre>
+                <p>常用选项有：</p>
+                <ul>
+                    <li><code>-i</code>：install。</li>
+                    <li><code>-v</code>：察看更细部的安装资讯画面。</li>
+                    <li><code>-h</code>：以安装资讯列显示安装进度。</li>
+                </ul>
+                <p>使用rpm的方式，安装文件一般安装到如下目录：</p>
+<table bgcolor="lightyellow" border="1" cellpadding="3" cellspacing="0" width="95%">
+<tbody><tr><td style="font-family: '细明体'; color: rgb(0, 0, 102);" width="120">/etc</td>
+	<td style="font-family: '细明体'; color: rgb(0, 0, 102);">一些配置档放置的目录，例如 /etc/crontab</td></tr>
+<tr><td style="font-family: '细明体'; color: rgb(0, 0, 102);">/usr/bin</td>
+	<td style="font-family: '细明体'; color: rgb(0, 0, 102);">一些可运行文件</td></tr>
+<tr><td style="font-family: '细明体'; color: rgb(0, 0, 102);">/usr/lib</td>
+	<td style="font-family: '细明体'; color: rgb(0, 0, 102);">一些程序使用的动态函式库</td></tr>
+<tr><td style="font-family: '细明体'; color: rgb(0, 0, 102);">/usr/share/doc</td>
+	<td style="font-family: '细明体'; color: rgb(0, 0, 102);">一些基本的软件使用手册与说明档</td></tr>
+<tr><td style="font-family: '细明体'; color: rgb(0, 0, 102);">/usr/share/man</td>
+	<td style="font-family: '细明体'; color: rgb(0, 0, 102);">一些 man page 文件</td></tr>
+</tbody></table>
+
+                <p>安装完后，我们也常常使用rpm命令来查询安装文件的路径和具体名称。也可以使用rpm查看某个文件属于哪个安装包。和查询相关的选项如下：</p>
+                <ul>
+                    <li><code>-qa</code>：列出所有的，已经安装在本机 Linux 系统上面的所有软件名称；</li>
+                    <li><code>-ql</code>：列出该软件所有的文件与目录所在完整档名 (list)；</li>
+                    <li><code>-qi</code>：列出该软件的详细资讯 (information)，包含开发商、版本与说明等；</li>
+                    <li><code>-qc</code>：列出该软件的所有配置档 (找出在 /etc/ 底下的档名而已);</li>
+                    <li><code>-qd</code>：列出该软件的所有说明档 (找出与 man 有关的文件而已);</li>
+                    <li><code>-qR</code>：列出与该软件有关的相依软件所含的文件 (Required 的意思)</li>
+                    <li><code>-qf</code>：由后面接的文件名称，找出该文件属於哪一个已安装的软件；</li>
+                </ul>
+                <p>举例如下：</p>
+                <pre class="terminal"><code>[root@andy tmp]# <span class="cmd">rpm -qa | grep vim</span>
+                    vim-enhanced-7.2.411-1.8.el6.x86_64
+                    vim-common-7.2.411-1.8.el6.x86_64
+                [root@andy tmp]# <span class="cmd">rpm -ql vim-enhanced</span>
+                    /etc/profile.d/vim.csh
+                    /etc/profile.d/vim.sh
+                    /usr/bin/ex
+                    /usr/bin/rvim
+                    /usr/bin/vim
+                    /usr/bin/vimdiff
+                    /usr/bin/vimtutor
+                    /usr/share/man/man1/rvim.1.gz
+                    /usr/share/man/man1/vimdiff.1.gz
+                    /usr/share/man/man1/vimtutor.1.gz
+                [root@andy tmp]#</code></pre>
+                <p>RPM 在查询的时候，其实查询的地方是在 /var/lib/rpm/ 这个目录下的数据库文件啦！</p>
+
+                <p>卸载比较简单，使用-e选项即可。例如：</p>
+                <pre class="terminal"><code>[root@andy tmp]# <span class="cmd">rpm -qa | grep vim</span>
+                    vim-enhanced-7.2.411-1.8.el6.x86_64
+                    vim-common-7.2.411-1.8.el6.x86_64
+                [root@andy tmp]# <span class="cmd">rpm -e vim-enhanced</span>
+                [root@andy tmp]#</code></pre>
+
+			<h2 id="yum_type">
+				3. yum的方式
+			</h2>
+			<p>使用yum的方式安装，要求必须有网络可以连接到yum server才可以。使用<code>yum install software</p>来安装软件包，使用<code>yum remove software</code>命令来卸载软件。</code></p>
+
+			<h2 id="dpkg_type">
+				4. dpkg的方式
+			</h2>
+                <p>在centos上面使用rpm命令，在ubuntu上面使用dpkg命令。安装软件命令如下：<p>
+                <pre><code>dpkg -i package-file-name</code></pre>
+
+                <p>安装完后，使用-l和-L选项来查询软件相关信息：</p>
+                <ul>
+                    <li><code>-l</code>：列出所有的，已经安装在本机 Linux 系统上面的所有软件名称；</li>
+                    <li><code>-L</code>：列出该软件所有的文件与目录所在完整档名 (list)；</li>
+                </ul>
+                <p>举例如下：</p>
+                <pre class="terminal"><code>[root@andy tmp]# <span class="cmd">dpkg -l | grep vim</span>
+                ii  vim            2:7.2.330-1ubuntu3.1    Vi IMproved - enhanced vi editor
+                ii  vim-common     2:7.2.330-1ubuntu3.1    Vi IMproved - Common files
+                ii  vim-runtime    2:7.2.330-1ubuntu3.1    Vi IMproved - Runtime files
+                ii  vim-tiny       2:7.2.330-1ubuntu3.1    Vi IMproved - enhanced vi editor - compact v
+                [root@andy tmp]# <span class="cmd">dpkg -L vim-tiny</span>
+                    /.
+                    /usr
+                    /usr/bin
+                    /usr/bin/vim.basic
+                    /usr/share
+                    /usr/share/bug
+                    /usr/share/bug/vim
+                    /usr/share/bug/vim/presubj
+                    /usr/share/lintian
+                    /usr/share/lintian/overrides
+                    /usr/share/lintian/overrides/vim
+                    /usr/share/doc
+                    /usr/share/doc/vim
+                [root@andy tmp]#</code></pre>
+
+                <p>卸载比较简单，使用-r选项即可。例如：</p>
+                <pre class="terminal"><code>[root@andy tmp]# <span class="cmd">dpkg -r vim-tiny</span>
+                [root@andy tmp]#</code></pre>
+
+			<h2 id="apt_type">
+				5. apt-get的方式
+			</h2>
+			<p>使用apt-get的方式安装，要求必须有网络可以连接到apt server才可以。使用<code>apt-get install software</p>来安装软件包，使用<code>apt-get --purge remove software</code>命令来卸载软件。</code></p>
+
+            <h2>参考资料</h2>
+                <ol>
+                    <li>鸟哥的linux私房菜<br />
+                        <a href="http://vbird.dic.ksu.edu.tw/linux_basic/0520source_code_and_tarball.php" target="_blank">http://vbird.dic.ksu.edu.tw/linux_basic/0520source_code_and_tarball.php</a>
+                    </li>
+                    <li>Debian: How to Install or Remove DEB Packages Using dpkg<br />
+                        <a href="http://www.thegeekstuff.com/2010/06/install-remove-deb-package/" target="_blank">http://www.thegeekstuff.com/2010/06/install-remove-deb-package/</a>
+                    </li>
+
+
+                </ol>
+
+		</div>
+
+		<div id="footer">
+			<p>jicanmeng@126.com 2013</p>
+			<p>本站文章可随意转载，但请注明转载的本站文章地址，谢谢！</p>
+		</div>
+	</body>
+</html>

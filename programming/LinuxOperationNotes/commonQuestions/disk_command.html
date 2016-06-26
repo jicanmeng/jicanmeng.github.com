@@ -1,0 +1,273 @@
+﻿<!DOCTYPE html>
+<html>
+	<head>
+		<title>commands about disk/filesystem</title>
+		<meta http-equiv="content-type" content="text/html; charset=UTF-8">
+		<link rel="stylesheet" type="text/css" href="../../../style.css" />
+	</head>
+	<body>
+
+		<script type="text/javascript" src="../../../style.js"></script>
+
+		<div id="header">
+			<h1>每天进步一点点</h1>
+		</div>
+
+		<div id="navigation">
+			<ul id="navigation">
+				<li><a class="navigation" href="../../../index.html">Home Page</a></li>
+				<li><a class="navigation" href="../../../life/index.html">Life</a></li>
+				<li><a class="navigation" href="../../index.html">Programmig</a></li>
+				<li><a class="navigation" href="../../../projects/index.html">Projects</a></li>
+				<li><a class="navigation" href="../../../aboutme/index.html">About me</a></li>
+			</ul>
+		</div>
+
+		<div id="Article">
+			<h1>磁盘操作命令: fdisk,parted,mkfs,dumpe2fs,df,du,mount,umount</h1>
+			<p>作者：jicanmeng</p>
+			<p>时间：2016年06月01日</p>
+			<hr />
+
+            <ol>
+                <li><a href="#fdisk_command">fdisk: 对磁盘进行分区</a></li>
+                <li><a href="#mkfs_command">mkfs: 对分区进行格式化</a></li>
+                <li><a href="#parted_command">parted: 对磁盘进行分区</a></li>
+                <li><a href="#dumpe2fs_command">dumpe2fs: 查看分区的情况</a></li>
+                <li><a href="#df_command">df: 查看磁盘空间使用情况</a></li>
+                <li><a href="#du_command">du: 查看某个目录的大小</a></li>
+                <li><a href="#mount_command">mount: 挂载分区到某个目录</a></li>
+                <li><a href="#umount_command">umount: 卸载分区</a></li>
+            </ol>
+
+			<h2 id="fdisk_command">
+				1. fdisk: 对磁盘进行分区
+			</h2>
+                <p>fdisk命令的用法在《鸟哥的linux私房菜》中有详细描述。这里只提三点：</p>
+                <ul>
+                    <li><code>fdisk -l</code>命令用于查看系统中所有的磁盘和磁盘的分区情况。</li>
+                    <li><code>fdisk</code>命令后面接的参数是磁碟名称，而不是分区命令。例如：<code>fdisk /dev/sda</code>，而不能写为<code>fdisk /dev/sda1</code>。</li>
+                    <li>如果我们手动在电脑上接了一个磁盘，那么执行<code>fdisk -l</code>是找不到这个磁盘的。必须重启才可以，因为磁盘是冷启动的，linux系统只会在开机的时候侦测一次。</li>
+                </ul>
+
+			<h2 id="mkfs_command">
+				2. mkfs: 对分区进行格式化
+			</h2>
+                <p>对磁盘进行分割后，都会对各个partition进行格式化，常常使用mkfs命令。格式为：<code>mkfs -t type partition</code>，常用的type有ext2，ext3，ext4，vfat等。例如<code>mkfs -t ext4 /dev/sda1</code>。</p>
+                <p>mkfs其实是个综合指令，你在调用mkfs -t ext3时，其实系统调用了mkfs.ext3这个指令。</p>
+
+			<h2 id="parted_command">
+				3. parted: 对磁盘进行分区
+			</h2>
+			<p>fdisk命令对于大于2T的分区无法划分，所以用fdisk无法看到parted划分的GPT格式的分区。parted命令可以划分单个分区大于2T的GPT格式的分区，也可以划分普通的MBR分区。这里并不讨论parted的各种详细用法，只会说一种用法：使用parted命令查看磁盘中各个分区的格式。下面是例子：</p>
+<pre>[root@andy ~]# parted /dev/sda print
+Model: ATA HGST HTS545050A7 (scsi)
+Disk /dev/sda: 500GB
+Sector size (logical/physical): 512B/4096B
+Partition Table: gpt
+
+Number  Start   End    Size   File system  Name  Flags
+ 1      1049kB  211MB  210MB  fat16              boot
+ 2      211MB   525MB  315MB  ext4
+ 3      525MB   269GB  268GB  ext4
+
+[root@andy ~]#</pre>
+
+
+            <h2 id="dumpe2fs_command">
+                4. dumpe2fs: 查看分区的情况
+            </h2>
+                <p>dumpe2fs命令用于查看分区中inode和block的情况。一般情况下我们会关注inode和block的个数和所占的空间大小。<p>
+                <p>下面是例子:</p>
+<pre>root@jicanmeng-desktop:~/Desktop# dumpe2fs /dev/sda1 -h
+dumpe2fs 1.41.11 (14-Mar-2010)
+...
+Inode count:              700384
+Block count:              2800896
+Reserved block count:     140044
+Free blocks:              2205655
+Free inodes:              560483
+First block:              0
+Block size:               4096
+...
+Inode size:	          256
+...
+root@jicanmeng-desktop:~/Desktop#</pre>
+                <p>可以看到，inode的大小是256个字节，block的大小是4096个字节，/dev/sda1这个partition中共有700384个inode，2800894个block。</p>
+
+			<h2 id="df_command">
+				5. df: 查看磁盘空间使用情况
+			</h2>
+                <p>df命令的语法是：</p>
+                <ul>
+                    <li><code>df options file</code>: 用于显示 file 所在的 partition的空间占用情况。</li>
+                    <li><code>df options directory</code>: 用于显示 directory 所对应的partition的空间占用大小。</li>
+                </ul>
+                <p>
+                一般情况下，一个partition都会格式化为一种档案系统。默认情况下，df命令会显示已经挂载的所有partition的空间占用情况。准确的说，df命令会显示所有的档案系统所在的partition的空间占用情况。同时我们也知道，linux系统有一些虚拟的基于内存的档案系统，例如sysfs，procfs等，df命令加上-a选项也会显示这些档案系统的情况。</p>
+                <p>
+                常用选项有：</p>
+                <ul>
+                <li><code>-a</code>：列出所有的档案系统，包括系统特有的 /proc 等档案系统。</li>
+                <li><code>-k</code>：显示占用空间大小的单位是KB，这也是默认情况。</li>
+                <li><code>-m</code>：显示占用空间大小的单位是MB。</li>
+                <li><code>-h</code>：print sizes in human readable format (e.g., 1K 234M 2G)。</li>
+                <li><code>-T</code>：连同该 partition 的 filesystem 名称 (例如 ext3) 也列出。</li>
+                <li><code>-i</code>：不用硬碟容量，而以 inode 的数量来显示。</li>
+                </ul>
+                <p>其中，-s和-h是最常用的选项。</p>
+
+                <p>下面是例子：</p>
+<pre>root@jicanmeng-desktop:~/Desktop# df
+Filesystem           1K-blocks      Used Available Use% Mounted on
+/dev/sda1             11027720   2205380   8262164  22% /
+none                   1803092       268   1802824   1% /dev
+none                   1807312         0   1807312   0% /dev/shm
+none                   1807312        80   1807232   1% /var/run
+none                   1807312         0   1807312   0% /var/lock
+none                   1807312         0   1807312   0% /lib/init/rw
+shared               304065532  68244556 235820976  23% /media/sf_shared
+root@jicanmeng-desktop:~/Desktop# df -a
+Filesystem           1K-blocks      Used Available Use% Mounted on
+/dev/sda1             11027720   2205380   8262164  22% /
+proc                         0         0         0   -  /proc
+none                         0         0         0   -  /sys
+none                         0         0         0   -  /sys/fs/fuse/connections
+none                         0         0         0   -  /sys/kernel/debug
+none                         0         0         0   -  /sys/kernel/security
+none                   1803092       268   1802824   1% /dev
+none                         0         0         0   -  /dev/pts
+none                   1807312         0   1807312   0% /dev/shm
+none                   1807312        80   1807232   1% /var/run
+none                   1807312         0   1807312   0% /var/lock
+none                   1807312         0   1807312   0% /lib/init/rw
+shared               304065532  68244556 235820976  23% /media/sf_shared
+binfmt_misc                  0         0         0   -  /proc/sys/fs/binfmt_misc
+root@jicanmeng-desktop:~/Desktop# df -h
+Filesystem            Size  Used Avail Use% Mounted on
+/dev/sda1              11G  2.2G  7.9G  22% /
+none                  1.8G  268K  1.8G   1% /dev
+none                  1.8G     0  1.8G   0% /dev/shm
+none                  1.8G   80K  1.8G   1% /var/run
+none                  1.8G     0  1.8G   0% /var/lock
+none                  1.8G     0  1.8G   0% /lib/init/rw
+shared                290G   66G  225G  23% /media/sf_shared
+root@jicanmeng-desktop:~/Desktop# df -h .
+Filesystem            Size  Used Avail Use% Mounted on
+/dev/sda1              11G  2.2G  7.9G  22% /
+root@jicanmeng-desktop:~/Desktop# df -iT /etc
+Filesystem    Type    Inodes   IUsed   IFree IUse% Mounted on
+/dev/sda1     ext4    700384  139906  560478   20% /
+root@jicanmeng-desktop:~/Desktop#</pre>
+
+说明：那个 /dev/shm/ 目录，其实是利用记忆体虚拟出来的磁碟空间！
+
+			<h2 id="du_command">
+				6. du: 查看某个目录的大小
+			</h2>
+			    <p>du命令的语法是：</p>
+			    <ul>
+			        <li><code>du options file</code>: 用于显示 file 占用的空间大小。</li>
+			        <li><code>du options directory</code>: 用于显示 directory 占用的空间大小。这种情况下，如果不加任何选项，du只会显示 directory 下面各个目录和子目录占用的空间大小。</li>
+			    </ul>
+                <p>
+                常用选项有：</p>
+                <ul>
+                <li><code>-a</code>：除了显示目录占用多少空间，还显示文件占用的空间大小。</li>
+                <li><code>-k</code>：显示占用空间大小的单位是KB，这也是默认情况。</li>
+                <li><code>-m</code>：显示占用空间大小的单位是MB，当小于1MB时，显示1MB。</li>
+                <li><code>-s</code>：只显示directory占用多少空间。</li>
+                <li><code>-h</code>：print sizes in human readable format (e.g., 1K 234M 2G)</li>
+                <li><code>-S</code>：显示 directory 占用的空间大小时，并不会包含 directory 中各个目录的大小，但会包含 directory 中普通文件的大小。</li>
+                </ul>
+                <p>其中，-sh是最常用的选项。</p>
+                <p>如下是例子：</p>
+<pre>root@jicanmeng-desktop:/media/sf_shared/shell/duTestDir# tree
+.
+├── a.c
+├── a.out
+├── dir1
+│   ├── a.out
+│   └── dir11
+│       └── a.out
+└── dir2
+    └── a.out
+
+3 directories, 5 files
+root@jicanmeng-desktop:/media/sf_shared/shell/duTestDir# du
+8	./dir1/dir11
+15	./dir1
+8	./dir2
+31	.
+root@jicanmeng-desktop:/media/sf_shared/shell/duTestDir# du -a
+1	./a.c
+8	./a.out
+8	./dir1/a.out
+8	./dir1/dir11/a.out
+8	./dir1/dir11
+15	./dir1
+8	./dir2/a.out
+8	./dir2
+31	.
+root@jicanmeng-desktop:/media/sf_shared/shell/duTestDir# du -sh
+31K	.
+root@jicanmeng-desktop:/media/sf_shared/shell/duTestDir# du -Sh
+7.5K	./dir1/dir11
+7.5K	./dir1
+7.5K	./dir2
+8.0K	.
+root@jicanmeng-desktop:/media/sf_shared/shell/duTestDir# du -sh dir1/
+15K	dir1/
+root@jicanmeng-desktop:/media/sf_shared/shell/duTestDir# du -sh a.out
+7.5K	a.out
+root@jicanmeng-desktop:/media/sf_shared/shell/duTestDir# ll a.out
+-rwxrwx--- 1 root vboxsf 7211 2016-05-31 16:37 a.out*
+root@jicanmeng-desktop:/media/sf_shared/shell/duTestDir#</pre>
+                <p><code>du -sh a.out</code>命令显示是a.out文件占用的空间大小。<code>ll a.out</code>命令显示的a.out文件自身的大小。一般情况下，文件占用的空间大小都会大于文件自身大小。</p>
+
+			<h2 id="mount_command">
+				7. mount: 挂载分区到某个目录
+			</h2>
+                <p>命令格式简单来说，就是<code>mount -t type device dir</code>。常用的格式有ext2，ext3，ext4，vfat，iso9660(光碟格式)。有下面几点需要注意：</p>
+                <ul>
+                    <li>挂载之前，要挂载的目录必须要存在。
+                    </li>
+                    <li>如果你要用来挂载的目录里面并不是空的，那么挂载了档案系统之后，原目录下的东西就会暂时的消失。卸载了档案系统后，原目录下的东西才会复原。
+                    </li>
+                    <li>常常将一个iso文件挂载到一个目录下面。例如要挂载一个名称为 textlive.iso 的文件到 /home/jicanmeng/cdrom 目录下面：<code>mount -t iso9660 -o loop textlive.iso /home/jicanmeng/cdrom</code>。其中-o loop表示把一个文件当成硬盘分区挂接上系统。
+                    </li>
+                    <li>有时，也会把某个目录挂载到另外一个目录。这并不是挂载档案系统，而是额外挂载某个目录的方法！ 虽然也可以使用 symbolic link 来连结，不过在某些不支援符号连结的程式运作中，还是得要透过这样的方法才行。例如：<code>mount --bind /home/jicanmeng/cdrom /home/jicanmeng/cdrom-bak</code>。
+                    </li>
+                    <li>可以通过-L选项，通过label的方式挂载一个设备。
+                    </li>
+                </ul>
+
+			<h2 id="umount_command">
+				8. umount: 卸载分区
+			</h2>
+                <p>格式为:<code>umount device</code>或者<code>umount dir</code>都可以。有几点需要注意一下：</p>
+                <ul>
+                    <li>如果你在挂载的目录内，那么执行umount命令是不成功的。必须要退出这个挂载目录才能执行成功。
+                    </li>
+                    <li>对于将文件挂载到一个目录的情况，和一个目录挂载到另一个目录的情况，要使用<code>umount dir</code>的格式。
+                    </li>
+                    <li>如果卸载不成功，可以使用<code>lsof</code>命令查看有哪些进程在使用本文件系统。
+                    </li>
+                </ul>
+
+
+            <h2>参考资料</h2>
+                <ol>
+                    <li>鸟哥的linux私房菜<br />
+                        <a href="http://vbird.dic.ksu.edu.tw/linux_basic/0230filesystem.php" target="_blank">http://vbird.dic.ksu.edu.tw/linux_basic/0230filesystem.php</a>
+                    </li>
+                </ol>
+
+		</div>
+
+		<div id="footer">
+			<p>jicanmeng@126.com 2013</p>
+			<p>本站文章可随意转载，但请注明转载的本站文章地址，谢谢！</p>
+		</div>
+	</body>
+</html>

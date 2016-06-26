@@ -1,0 +1,154 @@
+﻿<!DOCTYPE html>
+<html>
+	<head>
+		<title>something about ubuntu</title>
+		<meta http-equiv="content-type" content="text/html; charset=UTF-8">
+		<link rel="stylesheet" type="text/css" href="../../../style.css" />
+	</head>
+	<body>
+
+		<script type="text/javascript" src="../../../style.js"></script>
+
+		<div id="header">
+			<h1>每天进步一点点</h1>
+		</div>
+
+		<div id="navigation">
+			<ul id="navigation">
+				<li><a class="navigation" href="../../../index.html">Home Page</a></li>
+				<li><a class="navigation" href="../../../life/index.html">Life</a></li>
+				<li><a class="navigation" href="../../index.html">Programmig</a></li>
+				<li><a class="navigation" href="../../../projects/index.html">Projects</a></li>
+				<li><a class="navigation" href="../../../aboutme/index.html">About me</a></li>
+			</ul>
+		</div>
+
+		<div id="Article">
+			<h1>ubuntu使用过程中的一些问题</h1>
+			<p>作者：jicanmeng</p>
+			<p>时间：2016年03月07日</p>
+			<hr />
+
+            <ol>
+                <li><a href="#forget_password">ubuntu忘记密码后，如何进入系统?</a></li>
+                <li><a href="#autoLogin_with_root">如何使用root并且不用输入密码登录系统?</a></li>
+                <li><a href="#make_apt_get_source">如何为ubuntu制作apt-get本地源?</a></li>
+            </ol>
+
+			<h2 id="forget_password">
+				1. ubuntu忘记密码后，如何进入系统?
+			</h2>
+			    <ol>
+				    <li>ubuntu开机的时候，按住shift键进入grub菜单界面。</li>
+				    <li>按"e"进入grub某菜单项对应的命令中，找到如下行：</li>
+				        <code>linux /vmlinuz-2.6.32-38-generic root=UUID=... ro find_preseed=/preseed.cfg noprompt quiet splash</code>
+				    <li>将这一行修改如下：</li>
+				        <code>linux /vmlinuz-2.6.32-38-generic root=UUID=... rw init=/bin/bash</code>
+				    <li>修改完成后，按 ctrl_x 启动系统，就可以直接进入系统了。修改密码后，按ctrl_alt_del重启即可。</li>
+			    </ol>
+
+			    <p>
+			        说明:<br />
+			        <ul>
+			            <li>有的ubuntu系统可能看不到grub菜单，开机时按住shift就可以看见了。网上有人说在/etc/init.d/gdm文件中可以看到shift的定义，但我没找到。</li>
+			            <li>网上有人说也可以通过recovery模式、使用liveCD、使用usb这三种方法来重设密码。</li>
+			            <li>centos是通过进入single模式来重设密码的。</li>
+			        </ul>
+			    </p>
+
+
+			<h2 id="autoLogin_with_root">
+				2. 如何使用root并且不用输入密码登录系统?
+			</h2>
+			    <p>1. 如果ubuntu版本是11.04或12.04，则比较简单。使用root用户编辑/etc/lightdm/lightdm.conf文件，添加一行：<br />
+			        <code>autologin-user=root</code><br />
+			        然后重启电脑，就会以root身份自动登录了。
+			    </p>
+
+			    <p>2. 如果ubuntu版本是10.04，那就麻烦一点儿。ubuntu10.04中没有/etc/lightdm/lightdm.conf文件，我们要在/etc/gdm/目录下创建一个custom.conf文件，输入如下内容：
+<pre>[daemon]
+TimedLoginEnable=true
+AutomaticLoginEnable=true
+TimedLogin=root
+AutomaticLogin=root
+TimedLoginDelay=30
+</pre>
+                然后重启电脑即可。
+			    </p>
+
+			<h2 id="make_apt_get_source">
+				3. 如何为ubuntu制作apt-get本地源?
+			</h2>
+			<p>
+				环境：
+				<ul>
+					<li>使用ubuntu10.04</li>
+					<li>使用root用户</li>
+				</ul>
+			</p>
+
+			<p>
+				具体步骤如下：
+				<ol>
+					首先在一台可以联网的ubuntu10.04机器上面，执行如下操作：
+					<li>首先选择一个正确的更新源。修改/etc/apt/sources.list文件的内容如下：</li>
+<pre>deb http://old-releases.ubuntu.com/ubuntu/ oneiric main restricted
+deb-src http://old-releases.ubuntu.com/ubuntu/ oneiric main restricted
+
+deb http://old-releases.ubuntu.com/ubuntu/ oneiric-updates main restricted
+deb-src http://old-releases.ubuntu.com/ubuntu/ oneiric-updates main restricted
+
+deb http://old-releases.ubuntu.com/ubuntu/ oneiric universe
+deb-src http://old-releases.ubuntu.com/ubuntu/ oneiric universe
+deb http://old-releases.ubuntu.com/ubuntu/ oneiric-updates universe
+deb-src http://old-releases.ubuntu.com/ubuntu/ oneiric-updates universe
+
+deb http://old-releases.ubuntu.com/ubuntu/ oneiric multiverse
+deb-src http://old-releases.ubuntu.com/ubuntu/ oneiric multiverse
+deb http://old-releases.ubuntu.com/ubuntu/ oneiric-updates multiverse
+deb-src http://old-releases.ubuntu.com/ubuntu/ oneiric-updates multiverse
+
+deb http://old-releases.ubuntu.com/ubuntu/ oneiric-backports main restricted universe multiverse
+deb-src http://old-releases.ubuntu.com/ubuntu/ oneiric-backports main restricted universe multiverse</pre>
+					<li><code>apt-get update</code>，更新软件包列表，保证和old-release.ubuntu.com保持一致。</li>
+					<li><code>apt-get install dpkg-dev</code>，这是为了成功执行第4步操作而必须安装的软件。</li>
+					<li>使用<code>apt-get install</code>命令下载所有的软件，下载后的软件保存在/var/cache/apt/archives/目录中。</li>
+					<li><code>mkdir /root/Desktop/software</code>，然后将下载的所有软件拷贝到这个目录下面。</li>
+					<li><code>cd /root/Desktop/</code></li>
+					<li><code>dpkg-scanpackages software /dev/null | gzip > software/Packages.gz</code></li>
+					<li>将software目录拷贝到一个不联网的ubuntu10.04机器上面，假设拷贝到/root/Desktop/目录下面。</li>
+
+					<br />
+					下面的操作在不能联网的ubuntu10.04机器上面：
+					<li><code>vi /etc/apt/sources.list</code>,</li>
+						修改为如下内容： <code>deb file:///root/Desktop/ software/</code><br />
+						上一步中，如果我们将software拷贝到了根目录下面，那么sources.list文件的内容修改为： <code>deb file:/// software/</code><br />
+						要注意的是：software前面有一个空格，后面有一个/。
+					<li><code>apt-get update</code></li>
+					<li>下面就可以使用apt-get install 命令安装软件了。</li>
+				</ol>
+			</p>
+
+
+
+            <h2>参考资料</h2>
+                <ol>
+                    <li>Ubuntu10.04设置开机自动登入root帐户 <br />
+                        <a href="http://blog.csdn.net/cyblueboy83/article/details/7394929">http://blog.csdn.net/cyblueboy83/article/details/7394929</a>
+                    </li>
+                    <li>ubuntu制作本地源<br />
+                        <a href="http://www.cnblogs.com/xwdreamer/p/3875857.html" target="_blank">http://www.cnblogs.com/xwdreamer/p/3875857.html</a>
+                    </li>
+                    <li>ubuntu apt-get用法<br />
+                        <a href="http://www.cnblogs.com/linjiqin/p/3627628.html" target="_blank">http://www.cnblogs.com/linjiqin/p/3627628.html</a>
+                    </li>
+                </ol>
+
+		</div>
+
+		<div id="footer">
+			<p>jicanmeng@126.com 2013</p>
+			<p>本站文章可随意转载，但请注明转载的本站文章地址，谢谢！</p>
+		</div>
+	</body>
+</html>

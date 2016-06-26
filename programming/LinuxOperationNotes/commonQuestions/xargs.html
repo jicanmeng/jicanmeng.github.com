@@ -1,0 +1,94 @@
+﻿<!DOCTYPE html>
+<html>
+	<head>
+		<title>xargs command</title>
+		<meta http-equiv="content-type" content="text/html; charset=UTF-8">
+		<link rel="stylesheet" type="text/css" href="../../../style.css" />
+	</head>
+	<body>
+
+		<script type="text/javascript" src="../../../style.js"></script>
+
+		<div id="header">
+			<h1>每天进步一点点</h1>
+		</div>
+
+		<div id="navigation">
+			<ul id="navigation">
+				<li><a class="navigation" href="../../../index.html">Home Page</a></li>
+				<li><a class="navigation" href="../../../life/index.html">Life</a></li>
+				<li><a class="navigation" href="../../index.html">Programmig</a></li>
+				<li><a class="navigation" href="../../../projects/index.html">Projects</a></li>
+				<li><a class="navigation" href="../../../aboutme/index.html">About me</a></li>
+			</ul>
+		</div>
+
+		<div id="Article">
+			<h1>xargs命令</h1>
+			<p>作者：jicanmeng</p>
+			<p>时间：2016年06月10日</p>
+			<hr />
+
+            <p>xargs 可以读入 stdin 的数据，并且以空格符或断行字符作为分辨，将 stdin 的数据分隔成为 arguments 。 因为是以空格符作为分隔，所以，如果有一些档名或者是其他意义的名词内含有空格符的时候， xargs 可能就会误判了～他的用法其实也还满简单的！命令格式如下：</p>
+            <pre><code>xargs [-e] command</code></pre>
+            <ul>
+                <li><code>-e</code>: 这个是 EOF (end of file) 的意思。后面可以接一个字符串，当 xargs 分析到这个字符串时，就会停止继续工作！</li>
+            </ul>
+            <p>xargs命令通常和管道命令|一起使用，xargs读取数据后，进行处理后作为command的参数来运行command。示例如下：
+            </p>
+
+            <pre class="terminal"><code>[root@andy tmp]# <span class="cmd">cut -d':' -f1 /etc/passwd |head -n 3| xargs finger</span>
+Login: root        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;   Name: root
+Directory: /root   &nbsp;&nbsp;&nbsp;&nbsp;   Shell: /bin/bash
+Last login Sun Jan 11 00:41 2015 (CST) on pts/1 from 192.168.56.101
+New mail received Sun May 29 00:12 2016 (CST)
+&nbsp;&nbsp;&nbsp;&nbsp;Unread since Thu May 26 23:14 2016 (CST)
+No Plan.
+...
+            [root@andy tmp]# <span class="cmd">cut -d':' -f1 /etc/passwd |head -n 3| xargs -e'daemon' finger</span>
+Login: root        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;   Name: root
+Directory: /root   &nbsp;&nbsp;&nbsp;&nbsp;   Shell: /bin/bash
+Last login Sun Jan 11 00:41 2015 (CST) on pts/1 from 192.168.56.101
+New mail received Sun May 29 00:12 2016 (CST)
+&nbsp;&nbsp;&nbsp;&nbsp;Unread since Thu May 26 23:14 2016 (CST)
+No Plan.
+
+Login: bin          &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;  			Name: bin
+Directory: /bin      &nbsp;&nbsp;&nbsp;&nbsp;               	Shell: /sbin/nologin
+Never logged in.
+No mail.
+No Plan.
+            [root@andy tmp]#</code></pre>
+
+            <p><font color="red"><b>会使用 xargs 的原因是， 很多命令其实并不支持管线命令，因此我们可以透过 xargs 来提供该命令引用 standard input 之用</b></font>！例如，ls命令就不支持管线命令，我们就可以使用xargs命令来产生ls命令的参数了：</p>
+            <pre class="terminal"><code>[root@andy tmp]# <span class="cmd">ls -l</span>
+                -rw-rw-r--. 1 jicanmeng jicanmeng  2682 Oct  9  2009 find_time.gif
+            [root@andy tmp]# <span class="cmd">find /sbin -perm +7000</span>
+                /sbin/unix_chkpwd
+                /sbin/netreport
+                /sbin/pam_timestamp_check
+                /sbin/mount.nfs
+            [root@andy tmp]# <span class="cmd">find /sbin -perm +7000 | ls -l</span>
+                -rw-rw-r--. 1 jicanmeng jicanmeng  2682 Oct  9  2009 find_time.gif
+            [root@andy tmp]# <span class="cmd">find /sbin -perm +7000 | xargs ls -l</span>
+                -rwsr-xr-x. 1 root root 123776 Nov 22  2013 /sbin/mount.nfs
+                -rwxr-sr-x. 1 root root &nbsp;8792 Nov 23  2013 /sbin/netreport
+                -rwsr-xr-x. 1 root root  10272 Nov 22  2013 /sbin/pam_timestamp_check
+                -rwsr-xr-x. 1 root root  34840 Nov 22  2013 /sbin/unix_chkpwd
+            [root@andy tmp]#</code></pre>
+
+            <h2>参考资料</h2>
+                <ol>
+                    <li>鸟哥的linux私房菜<br />
+                        <a href="http://vbird.dic.ksu.edu.tw/linux_basic/0320bash.php#xargs" target="_blank">http://vbird.dic.ksu.edu.tw/linux_basic/0320bash.php#xargs</a>
+                    </li>
+                </ol>
+
+		</div>
+
+		<div id="footer">
+			<p>jicanmeng@126.com 2013</p>
+			<p>本站文章可随意转载，但请注明转载的本站文章地址，谢谢！</p>
+		</div>
+	</body>
+</html>

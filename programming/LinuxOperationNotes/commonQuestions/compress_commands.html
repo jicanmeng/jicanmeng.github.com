@@ -1,0 +1,214 @@
+﻿<!DOCTYPE html>
+<html>
+	<head>
+		<title>commands about compressing and uncompressing</title>
+		<meta http-equiv="content-type" content="text/html; charset=UTF-8">
+		<link rel="stylesheet" type="text/css" href="../../../style.css" />
+	</head>
+	<body>
+
+		<script type="text/javascript" src="../../../style.js"></script>
+
+		<div id="header">
+			<h1>每天进步一点点</h1>
+		</div>
+
+		<div id="navigation">
+			<ul id="navigation">
+				<li><a class="navigation" href="../../../index.html">Home Page</a></li>
+				<li><a class="navigation" href="../../../life/index.html">Life</a></li>
+				<li><a class="navigation" href="../../index.html">Programmig</a></li>
+				<li><a class="navigation" href="../../../projects/index.html">Projects</a></li>
+				<li><a class="navigation" href="../../../aboutme/index.html">About me</a></li>
+			</ul>
+		</div>
+
+		<div id="Article">
+			<h1>压缩命令: gzip,bzip2,xz,tar</h1>
+			<p>作者：jicanmeng</p>
+			<p>时间：2016年06月07日</p>
+			<hr />
+
+            <ol>
+                <li><a href="#gzip_command">gzip</a></li>
+                <li><a href="#bzip2_command">bzip2</a></li>
+                <li><a href="#tar_command">tar</a></li>
+                <li><a href="#xz_command">xz</a></li>
+            </ol>
+
+			<h2 id="gzip_command">
+				1. gzip 和 zcat
+			</h2>
+			    <p>gzip用于压缩和解压文件，命令格式如下：</p>
+<pre><code>gzip [-cdt] file</code></pre>
+                    <ul>
+	                   <li><code>-c</code> : Compress or decompress to standard output,并不会删除原来的文件。常常和输出重定向一起使用。</li>
+	                   <li><code>-d</code> : 解压缩某个文件。</li>
+	                   <li><code>-t</code> : 查看压缩文件是否损坏。</li>
+	                   <li><code>-v</code> : 显示压缩比等信息。单独使用时，会压缩文件，并且显示压缩比信息。</li>
+	                   <li><code>-l</code> : 查看某个压缩文件的压缩比信息。</li>
+                    </ul>
+                <p>默认情况下，使用gzip压缩文件后，原来的文件会删除。</p>
+
+                <p>示例如下：</p>
+                <pre class="terminal"><code>[jicanmeng@andy tmp]$ <span class="cmd">ls</span>
+                    a.txt
+                [jicanmeng@andy tmp]$ <span class="cmd">gzip -v a.txt</span>
+                    a.txt:	 20.4% -- replaced with a.txt.gz
+                [jicanmeng@andy tmp]$ <span class="cmd">ls</span>
+                    a.txt.gz
+                [jicanmeng@andy tmp]$ <span class="cmd">gzip -l a.txt.gz</span>
+                    compressed        uncompressed  ratio uncompressed_name
+                    &nbsp; &nbsp; &nbsp; &nbsp;114 &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;103  20.4% a.txt
+                [jicanmeng@andy tmp]$ <span class="cmd">file a.txt.gz</span>
+                    a.txt.gz: gzip compressed data, was "a.txt", from Unix, last modified: Tue Jun  7 22:34:18 2016
+                [jicanmeng@andy tmp]$ <span class="cmd">gzip -d a.txt.gz</span>
+                [jicanmeng@andy tmp]$ <span class="cmd">ls</span>
+                    a.txt
+                [jicanmeng@andy tmp]$</code></pre>
+
+
+			    <p>zcat命令用于查看gzip格式的压缩文件的内容，命令格式如下：</p>
+<pre><code>zcat file</code></pre>
+                <p>示例如下：</p>
+                <pre class="terminal"><code>[jicanmeng@andy tmp]$ <span class="cmd">zcat a.txt.gz</span>
+                    http://stackoverflow.com/questions/12779026/unix-v6-source-code
+                    https://pdos.csail.mit.edu/6.828/2012/
+                [jicanmeng@andy tmp]$ <span class="cmd">gzip -d a.txt.gz</span>
+                [jicanmeng@andy tmp]$ <span class="cmd">zcat a.txt</span>
+                    gzip: a.txt: not in gzip format
+                [jicanmeng@andy tmp]$</code></pre>
+
+
+			<h2 id="bzip2_command">
+				2. bzip2和bzcat
+			</h2>
+			    <p>bzip2用于压缩和解压文件，命令格式如下：</p>
+<pre><code>bzip2 [-cdzkv] file</code></pre>
+                    <ul>
+                       <li><code>-c</code> : Compress or decompress to standard output,并不会删除原来的文件。常常和输出重定向一起使用。</li>
+                       <li><code>-d</code> : 解压缩某个文件</li>
+                       <li><code>-z</code> : 压缩某个文件。(如果不指定-d，都会进行压缩，感觉这个选项没有什么用。)</li>
+                       <li><code>-k</code> : Keep (don't delete) input files during compression or decompression.</li>
+                       <li><code>-v</code> : 显示压缩比等信息。单独使用时，会压缩文件，并且显示压缩比信息。</li>
+	                   <li><code>-t</code> : 检查压缩文件是否损坏。</li>
+                    </ul>
+                <p>默认情况下，压缩文件后会删除原来的文件，-k会指定保留原来的文件。</p>
+                <p>单独指定-v或-c选项时，都会压缩文件。</p>
+
+                <p>示例如下：</p>
+                <pre class="terminal"><code>[jicanmeng@andy tmp]$ <span class="cmd">ls</span>
+                    a.txt
+                [jicanmeng@andy tmp]$ <span class="cmd">bzip2 -vk a.txt</span>
+                      a.txt:    0.811:1,  9.864 bits/byte, -23.30% saved, 103 in, 127 out.
+                [jicanmeng@andy tmp]$ <span class="cmd">ls</span>
+                    a.txt  a.txt.bz2
+                [jicanmeng@andy tmp]$ <span class="cmd">file a.txt.bz2</span>
+                    a.txt.bz2: bzip2 compressed data, block size = 900k
+                [jicanmeng@andy tmp]$</code></pre>
+
+			    <p>bzcat命令用于查看bzip2格式的压缩文件的内容，命令格式如下：</p>
+<pre><code>bzcat file</code></pre>
+                <p>示例如下：</p>
+                <pre class="terminal"><code>[jicanmeng@andy tmp]$ <span class="cmd">bzcat a.txt.bz2</span>
+                    http://stackoverflow.com/questions/12779026/unix-v6-source-code
+                    https://pdos.csail.mit.edu/6.828/2012/
+                [jicanmeng@andy tmp]$ <span class="cmd">bzcat a.txt.bz2</span>
+                [jicanmeng@andy tmp]$ <span class="cmd">zcat a.txt</span>
+                    gzip: a.txt: not in gzip format
+                [jicanmeng@andy tmp]$</code></pre>
+
+			<h2 id="tar_command">
+				3. tar
+			</h2>
+			    <p>gzip和bzip2命令只能压缩文件，不能压缩目录。linux中常用的方法是首先将目录用tar命令打包为一个后缀名为.tar的文件，再使用gzip或bzip2命令进行压缩为一个后缀名为.tar.gz或.tar.bz2的文件。</p>
+
+			    <p>压缩的命令格式如下：</p>
+<pre><code>tar -zcv -f /root/etc.tar.gz /etc</code></pre>
+<pre><code>tar -jcv -f /root/etc.tar.bz2 /etc</code></pre>
+
+			    <p>解压缩的命令格式如下：</p>
+<pre><code>tar -zxv -f /root/etc.tar.gz</code></pre>
+<pre><code>tar -jxv -f /root/etc.tar.bz2</code></pre>
+
+			    <p>查看压缩包中有什么文件的命令格式如下：</p>
+<pre><code>tar -ztv -f /root/etc.tar.gz</code></pre>
+<pre><code>tar -jtv -f /root/etc.tar.bz2</code></pre>
+
+
+                    <ul>
+                       <li><code>-z</code> : 使用gzip进行压缩/解压缩。</li>
+                       <li><code>-j</code> : 使用bzip2进行压缩/解压缩。</li>
+                       <li><code>-c</code> : 打包。</li>
+                       <li><code>-x</code> : 解包。</li>
+                       <li><code>-v</code> : 在压缩/解压缩的过程中，将正在处理的档名显示出来！</li>
+	                   <li><code>-f</code> : 后面要立刻接要被处理的档名！建议 -f 单独写一个选项啰！</li>
+	                   <li><code>-t</code> : 查看打包档案中有哪些档名！</li>
+                    </ul>
+			    <p>另外，还有几个比较重要的选项：</p>
+                    <ul>
+                       <li><code>-p</code> : 保留备份资料的原本权限和属性，常用于备份重要的设定档。</li>
+                       <li><code>-P</code> : 保留绝对路径，也就是允许备份资料中包含根目录(可以通过-t选项查看)</li>
+                       <li><code>-C</code> : 这个选项用在解压缩，若要在特定目录解压缩，可以使用这个选项。</li>
+                    </ul>
+
+                <p>示例如下：</p>
+                <pre class="terminal"><code>[root@andy tmp]# <span class="cmd">tar -zcv -f /root/etc.tar.gz /etc/</span>
+                    tar: Removing leading `/' from member names
+                    /etc/
+                    /etc/drirc
+                    /etc/idmapd.conf
+                    /etc/auto.net
+                    ...
+                [root@andy tmp]# <span class="cmd">tar -ztv -f /root/etc.tar.gz</span>
+                    drwxr-xr-x root/root       &nbsp;&nbsp;  0 2016-06-07 22:05 etc/
+                    -rw-r--r-- root/root      3095 2014-10-17 21:20 etc/drirc
+                    -rw-r--r-- root/root      3581 2013-02-22 09:53 etc/idmapd.conf
+                    -rwxr-xr-x root/root      1260 2013-11-23 22:07 etc/auto.net
+                    drwxr-xr-x root/root       &nbsp;&nbsp;  0 2014-04-17 07:36 etc/gtk-2.0/
+                    ...
+                [root@andy tmp]# <span class="cmd">tar -zxv -f etc.tar.gz -C /home/</span>
+                    ...
+                [root@andy tmp]# <span class="cmd">ll /home/</span>
+                    total 16
+                    drwxr-xr-x. 115 root      root      12288 Jun  7 22:05 etc
+                    drwx------.  35 jicanmeng jicanmeng  4096 Jun  7 23:29 jicanmeng
+                [root@andy tmp]#
+                [root@andy tmp]# <span class="cmd">tar -zcvP -f /root/etc.tar.gz /etc/</span>
+                    /etc/
+                    /etc/drirc
+                    /etc/idmapd.conf
+                    /etc/auto.net
+                    ...
+                [root@andy tmp]# <span class="cmd">tar -ztv -f /root/etc.tar.gz</span>
+                    drwxr-xr-x root/root       &nbsp;&nbsp;  0 2016-06-07 22:05 /etc/
+                    -rw-r--r-- root/root      3095 2014-10-17 21:20 /etc/drirc
+                    -rw-r--r-- root/root      3581 2013-02-22 09:53 /etc/idmapd.conf
+                    -rwxr-xr-x root/root      1260 2013-11-23 22:07 /etc/auto.net
+                    drwxr-xr-x root/root       &nbsp;&nbsp;  0 2014-04-17 07:36 /etc/gtk-2.0/
+                    ...
+                [root@andy tmp]#</code></pre>
+                <p>
+                    通过上面的例子，可以看到-P选项的作用。如果指定了-P选项，那么解压的文件的路径就是使用-t选项看到的，在/etc/目录下，这会覆盖/etc/目录下的文件。所以，一般情况下，我们都不会添加-P选项。
+                </p>
+
+			<h2 id="xz_command">
+				4. xz
+			</h2>
+			    <p>xz和gzip、bzip2一样，也是一种压缩算法。和tar一起使用时，z表示gzip，j表示bzip2，J表示xz。使用tar和xz压缩的文件的后缀名为.tar.xz。</p>
+
+            <h2>参考资料</h2>
+                <ol>
+                    <li>鸟哥的linux私房菜<br />
+                        <a href="http://vbird.dic.ksu.edu.tw/linux_basic/0240tarcompress.php" target="_blank">http://vbird.dic.ksu.edu.tw/linux_basic/0240tarcompress.php</a><br />
+                    </li>
+                </ol>
+
+		</div>
+
+		<div id="footer">
+			<p>jicanmeng@126.com 2013</p>
+			<p>本站文章可随意转载，但请注明转载的本站文章地址，谢谢！</p>
+		</div>
+	</body>
+</html>

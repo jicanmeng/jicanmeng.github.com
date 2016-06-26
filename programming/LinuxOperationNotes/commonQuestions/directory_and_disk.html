@@ -1,0 +1,59 @@
+﻿<!DOCTYPE html>
+<html>
+	<head>
+		<title>directory and disk</title>
+		<meta http-equiv="content-type" content="text/html; charset=UTF-8">
+		<link rel="stylesheet" type="text/css" href="../../../style.css" />
+	</head>
+	<body>
+
+		<script type="text/javascript" src="../../../style.js"></script>
+
+		<div id="header">
+			<h1>每天进步一点点</h1>
+		</div>
+
+		<div id="navigation">
+			<ul id="navigation">
+				<li><a class="navigation" href="../../../index.html">Home Page</a></li>
+				<li><a class="navigation" href="../../../life/index.html">Life</a></li>
+				<li><a class="navigation" href="../../index.html">Programmig</a></li>
+				<li><a class="navigation" href="../../../projects/index.html">Projects</a></li>
+				<li><a class="navigation" href="../../../aboutme/index.html">About me</a></li>
+			</ul>
+		</div>
+
+		<div id="Article">
+			<h1>在windows中，在c盘创建一个目录，进入这个目录一定还在c盘，而linux上则不同，为什么?</h1>
+			<p>作者：jicanmeng</p>
+			<p>时间：2016年06月03日</p>
+			<hr />
+
+            <p>这个问题可以详细描述一下：</p>
+
+            <p>假设我有一个磁碟/dev/sda, 划分为3个主分区: <code>/dev/sda1</code>, <code>/dev/sda2</code>, <code>/dev/sda3</code>。 假设主分区<code>/dev/sda1</code>挂载到了根目录<code>/</code>上面，主分区<code>/dev/sda2</code>挂载到了<code>/home</code>目录下面。</p>
+            <p>既然主分区<code>/dev/sda1</code>挂载到了根目录<code>/</code>上面，那么在根目录</code>/</code>及子目录和孙目录以及孙孙目录下面创建的目录和文件都应该在主分区<code>/dev/sda1</code>上面，但为什么实际情况不是这样呢？实际情况是，只要进入了<code>/home</code>目录，就进入了<code>/dev/sda2</code>主分区。</p>
+            <p>在windows系统上面，<code>/dev/sda1</code>相当于C盘，<code>/dev/sda2</code>相当于D盘，<code>/dev/sda3</code>相当于E盘。我们在C盘上面创建一个home目录<code>C:\home</code>。进入这个目录，肯定还是在C盘嘛。为什么在linux上面就不是这样呢？</p>
+
+            <p>在我最初学习linux的时候，被这个问题困扰了很久。是在某一天看书的时候，才突然想明白这个问题。<font color="red">linux使用目录树的方法来管理整个系统，linux只认识目录，进入目录才能操作对应的磁盘</font>。windows使用磁盘的方式来管理整个系统，进入磁盘后再管理各个目录。</p>
+            <p>《linux入门很简单》中第一章是这样描述的：
+            <blockquote>
+                刚才我说了我们 Linux 的目录结构,就是一个 / 目录,下面有一些次级目录,每个次级目录下面再有子目录以及子子目录......无论分区情况如何,这个目录结构是不会变的。那分区怎么跟目录联系起来呢? 就是,你可以指定任意一个目录里的东西存在某个分区里,如果不指定,则这个目录里的东西存在上一级目录所在分区中,如果上一级目录也没有特殊指定分区,则再上溯一级目录,以此类推。这么一直上溯,那就一定会上溯到根目录”/”,所以,一定要指定根目录存放在哪个分区。
+            </blockquote>
+            </p>
+
+            <h2>参考资料</h2>
+                <ol>
+                    <li>linux入门很简单<br />
+                        <a href="https://book.douban.com/subject/10583161/">https://book.douban.com/subject/10583161/</a>
+                    </li>
+                </ol>
+
+		</div>
+
+		<div id="footer">
+			<p>jicanmeng@126.com 2013</p>
+			<p>本站文章可随意转载，但请注明转载的本站文章地址，谢谢！</p>
+		</div>
+	</body>
+</html>

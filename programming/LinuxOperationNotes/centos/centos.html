@@ -1,0 +1,102 @@
+﻿<!DOCTYPE html>
+<html>
+	<head>
+		<title>something about centos</title>
+		<meta http-equiv="content-type" content="text/html; charset=UTF-8">
+		<link rel="stylesheet" type="text/css" href="../../../style.css" />
+	</head>
+	<body>
+
+		<script type="text/javascript" src="../../../style.js"></script>
+
+		<div id="header">
+			<h1>每天进步一点点</h1>
+		</div>
+
+		<div id="navigation">
+			<ul id="navigation">
+				<li><a class="navigation" href="../../../index.html">Home Page</a></li>
+				<li><a class="navigation" href="../../../life/index.html">Life</a></li>
+				<li><a class="navigation" href="../../index.html">Programmig</a></li>
+				<li><a class="navigation" href="../../../projects/index.html">Projects</a></li>
+				<li><a class="navigation" href="../../../aboutme/index.html">About me</a></li>
+			</ul>
+		</div>
+
+		<div id="Article">
+			<h1>centos的一些问题</h1>
+			<p>作者：jicanmeng</p>
+			<p>时间：2014年11月2日</p>
+			<hr />
+
+            <ol>
+                <li><a href="#centosVersion">如何查询你电脑上的centOS的版本</a></li>
+                <li><a href="#kernelVersion">如何查询linux的版本</a></li>
+                <li><a href="#centosSource">从哪里可以下载对应centOS对应版本的linux kernel代码</a></li>
+                <li><a href="#centosInputMethod">centos下如何切换拼音输入法</a></li>
+                <li><a href="#anotherDirectory">centos每次进入一个目录但同时打开一个新的窗口的问题的解决</a></li>
+            </ol>
+
+			<h2 id="centosVersion">
+				1. 如何查询你电脑上的centOS的版本？
+			</h2>
+			<p>
+				通过 /etc/issue 文件，这个文件是控制台界面，用来登录时的提示信息的，而这个提示信息就有CentOS的版本。
+			</p>
+
+			<h2 id="kernelVersion">
+				2. 如何查询linux的版本？
+			</h2>
+			<p>
+				通过<code>uname -r</code>命令。
+			</p>
+
+			<h2 id="centosSource">
+				3. 从哪里可以下载对应centOS对应版本的linux kernel代码?
+			</h2>
+			<p>
+				经过<code>cat /etc/issue</code>和<code>uname -r</code>，我知道我的 CentOS的发布版本是 6.5，内核版本是2.6.32-431.3.1。源代码的官网：http://vault.centos.org/。进入官网后，依次是进入 6.5/，进入os/，进入Source/，进入SPackages/，找到kernel-2.6.32-431.el6.src.rpm，下载就行了。
+			</p>
+			<p>
+				在官网上也可以下载对应版本的iso镜像文件。
+			</p>
+
+
+			<h2 id="centosInputMethod">
+				4. centos下如何切换拼音输入法?
+			</h2>
+			<p>
+				centos6.5自带有拼音输入法，但是默认情况下是不打开的。通过下面的方式打开：
+			</p>
+
+			<ol>
+				<li>System->Preferences->Input Method，跳出一个对话框。</li>
+				<li>勾选上“Enable input method feature”。</li>
+				<li>点击“Input Method Preferences”，跳出一个“IBus Preferences”对话框。</li>
+				<li>切换到“Input Method”标签。</li>
+				<li>点击“Select an input method”下拉框，选择“Chinese->pinyin”后，点击“Add”按钮，再点击“Close”按钮。返回到刚才到对话框，点击“Close”按钮退出。</li>
+				<li>打开浏览器，按“ctrl+空格键”，就可以输入中文了。</li>
+			</ol>
+
+			<h2 id="anotherDirectory">
+				5. centos每次进入一个目录但同时打开一个新的窗口的问题的解决?
+			</h2>
+			<p>
+				勾选 Edit -&gt; Preferences -&gt; Behavior -&gt; Always open in browser windows 即可解决。
+			</p>
+
+            <h2>参考资料</h2>
+                <ol>
+                    <li>何处下载CentOS的Linux内核的源代码？<br />
+                        <a href="http://www.bitscn.com/os/linux/201410/337658.html">http://www.bitscn.com/os/linux/201410/337658.html</a>
+                    </li>
+                </ol>
+
+		</div>
+
+		<div id="footer">
+			<p>jicanmeng@126.com 2013</p>
+			<p>本站文章可随意转载，但请注明转载的本站文章地址，谢谢！</p>
+		</div>
+	</body>
+</html>

@@ -1,0 +1,84 @@
+﻿<!DOCTYPE html>
+<html>
+	<head>
+		<title>what is execution permission of directory?</title>
+		<meta http-equiv="content-type" content="text/html; charset=UTF-8">
+		<link rel="stylesheet" type="text/css" href="../../../style.css" />
+	</head>
+	<body>
+
+		<script type="text/javascript" src="../../../style.js"></script>
+
+		<div id="header">
+			<h1>每天进步一点点</h1>
+		</div>
+
+		<div id="navigation">
+			<ul id="navigation">
+				<li><a class="navigation" href="../../../index.html">Home Page</a></li>
+				<li><a class="navigation" href="../../../life/index.html">Life</a></li>
+				<li><a class="navigation" href="../../index.html">Programmig</a></li>
+				<li><a class="navigation" href="../../../projects/index.html">Projects</a></li>
+				<li><a class="navigation" href="../../../aboutme/index.html">About me</a></li>
+			</ul>
+		</div>
+
+		<div id="Article">
+			<h1>目录的可执行权限表示什么意思?为什么取消某个目录的x权限后，查看该目录下的文件的属性看不到呢?</h1>
+			<p>作者：jicanmeng</p>
+			<p>时间：2016年06月03日</p>
+			<hr />
+
+            <p>在&lt;&lt;鸟哥的linux私房菜&gt;&gt;中提到：
+                <blockquote>
+                    目录的x代表的是使用者能否进入该目录成为工作目录的用途！
+                </blockquote>
+                除此之外，x权限还有其它的意思吗? 我们先看一个例子：
+                <pre class="terminal"><code>[jicanmeng@andy Desktop]$ <span class="cmd">ll -d xTest/</span>
+                    11427843 drwxrwxr-x. 2 jicanmeng jicanmeng 4096 May 21 22:32 xTest/
+                [jicanmeng@andy Desktop]$ <span class="cmd">ls -li xTest/</span>
+                    total 0
+                    11403590 -rw-rw-r--. 1 jicanmeng jicanmeng 0 May 21 22:32 a.txt
+                    11403914 -rw-rw-r--. 1 jicanmeng jicanmeng 0 May 21 22:45 b.txt
+                [jicanmeng@andy Desktop]$ <span class="cmd">chmod u-x xTest/</span>
+                [jicanmeng@andy Desktop]$ <span class="cmd">ll -d xTest/</span>
+                    11427843 drwxrwxr-x. 2 jicanmeng jicanmeng 4096 May 21 22:32 xTest/
+                [jicanmeng@andy Desktop]$ <span class="cmd">ls -li xTest/</span>
+                    ls: cannot access rootTest/a.txt: Permission denied
+                    total 0
+                    ? -????????? ? ? ? ?  &nbsp; &nbsp; &nbsp; &nbsp; ? a.txt
+                    ? -????????? ? ? ? ?  &nbsp; &nbsp; &nbsp; &nbsp; ? b.txt
+                [jicanmeng@andy Desktop]$ </code></pre>
+                好，问题来了，为什么取消某个目录的x权限后，查看该目录下的文件的属性看不到呢？
+            </p>
+            <p>为了回答这个问题，先看一张图。<br />
+                <img class="imgCenter" src="xTest.PNG" alt="x permission of diretory" />
+            </p>
+            <p>对于一个文件，不管是普通文件还是目录文件，都会在文件系统中对应一个inode，和一个或多个block。inode中保存这个文件的相关的权限和属性等信息，而block中则包含了文件的内容。对于目录文件，对应的block中只包含了两项：目录中文件的名称和文件对应的inode的号码。上面操作中，目录的x权限禁止后，目录中a.txt和b.txt文件的属性都查看不了，这属性保存在编号为11403590和11403914的inode中，而且两个文件的inode的号码也显示不出来了。这下目录的x权限的作用应该清楚了，就是建立起目录文件对应的block到目录中各个文件的inode的映射关系。
+            </p>
+            <p>再举个例子说明一下目录的x权限的意义。假设有一个/home/jicanmeng/Desktop/tmp/test/test.sh文件，如果执行的时候提示"Permisson denied"，你除了查看这个文件本身的权限是否设置正确之外，还要看一看这个文件的上级目录和上上级目录是否有x权限。举例如下：
+                <pre class="terminal"><code>[jicanmeng@andy Desktop]$ <span class="cmd">/home/jicanmeng/Desktop/tmp/test/test.sh /</span>
+                    hello, xTest
+                [jicanmeng@andy Desktop]$ <span class="cmd">chmod u-x tmp/</span>
+                [jicanmeng@andy Desktop]$ <span class="cmd">/home/jicanmeng/Desktop/tmp/test/test.sh</span>
+                    bash: /home/jicanmeng/Desktop/tmp/test/test.sh: Permission denied
+                [jicanmeng@andy Desktop]$ </code></pre>
+            </p>
+            <p>如果将tmp目录的x权限取消，那么tmp目录下面的所有文件的权限和属性信息都获取不了，test目录的的inode相关信息获取不了，就不能找到test目录对应的block，就不能找到test.sh对应的inode，就不能获得test.sh对应的block，从而无法执行这个文件。
+            </p>
+
+            <h2>参考资料</h2>
+                <ol>
+                    <li>鸟哥的linux私房菜<br />
+                        <a href="http://vbird.dic.ksu.edu.tw/linux_basic/0210filepermission.php#filepermission_dir" target="_blank">http://vbird.dic.ksu.edu.tw/linux_basic/0210filepermission.php#filepermission_dir</a>
+                    </li>
+                </ol>
+
+		</div>
+
+		<div id="footer">
+			<p>jicanmeng@126.com 2013</p>
+			<p>本站文章可随意转载，但请注明转载的本站文章地址，谢谢！</p>
+		</div>
+	</body>
+</html>

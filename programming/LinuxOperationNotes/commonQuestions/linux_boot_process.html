@@ -1,0 +1,68 @@
+﻿<!DOCTYPE html>
+<html>
+	<head>
+		<title>linux boot process</title>
+		<meta http-equiv="content-type" content="text/html; charset=UTF-8">
+		<link rel="stylesheet" type="text/css" href="../../../style.css" />
+	</head>
+	<body>
+
+		<script type="text/javascript" src="../../../style.js"></script>
+
+		<div id="header">
+			<h1>每天进步一点点</h1>
+		</div>
+
+		<div id="navigation">
+			<ul id="navigation">
+				<li><a class="navigation" href="../../../index.html">Home Page</a></li>
+				<li><a class="navigation" href="../../../life/index.html">Life</a></li>
+				<li><a class="navigation" href="../../index.html">Programmig</a></li>
+				<li><a class="navigation" href="../../../projects/index.html">Projects</a></li>
+				<li><a class="navigation" href="../../../aboutme/index.html">About me</a></li>
+			</ul>
+		</div>
+
+		<div id="Article">
+			<h1>linux的开机流程是怎样的?</h1>
+			<p>作者：jicanmeng</p>
+			<p>时间：2016年06月10日</p>
+			<hr />
+
+            <ol>Linux 的启动流程可以概括为以下几个主要步骤：
+                <li>加载 BIOS 的硬件信息与硬件自检，并依据设置取得第一个可启动的设备；</li>
+                <li>读取并执行第一个启动设备内的MBR的 boot loader；</li>
+                <li>依据 boot loader 的设置加载内核，内核会开始检测硬件与加载驱动程序；</li>
+                <li>在内核 Kernel 加载完毕后，Kernel 会主动调用 init 进程，而 init 会取得 run-level 信息；</li>
+                <li>init 执行 rc.sysinit 初始化系统的操作环境（网络、时区等）；</li>
+                <li>init 启动 run-level 的各个服务；</li>
+                <li>用户登录</li>
+            </ol>
+
+            <h2>参考资料</h2>
+                <ol>
+                    <li>linux的开机流程是怎样的?<br />
+                        <a href="https://chegva.com/270.html" target="_blank">https://chegva.com/270.html</a>
+                    </li>
+                    <li>Linux基础：启动流程<br />
+                        <a href="http://wuchong.me/blog/2014/07/14/linux-boot-process/" target="_blank">http://wuchong.me/blog/2014/07/14/linux-boot-process/</a>
+                    </li>
+                    <li>计算机是如何启动的?<br />
+                        <a href="http://www.ruanyifeng.com/blog/2013/02/booting.html" target="_blank">http://www.ruanyifeng.com/blog/2013/02/booting.html</a>
+                    </li>
+                    <li>Linux的启动流程<br />
+                        <a href="http://www.ruanyifeng.com/blog/2013/08/linux_boot_process.html" target="_blank">http://www.ruanyifeng.com/blog/2013/08/linux_boot_process.html</a>
+                    </li>
+                    <li>第二十章、启动流程、模块管理与 Loader<br />
+                        <a href="http://vbird.dic.ksu.edu.tw/linux_basic/0510osloader.php" target="_blank">http://vbird.dic.ksu.edu.tw/linux_basic/0510osloader.php</a>
+                    </li>
+                </ol>
+
+		</div>
+
+		<div id="footer">
+			<p>jicanmeng@126.com 2013</p>
+			<p>本站文章可随意转载，但请注明转载的本站文章地址，谢谢！</p>
+		</div>
+	</body>
+</html>

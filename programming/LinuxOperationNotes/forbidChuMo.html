@@ -1,0 +1,68 @@
+﻿<!DOCTYPE html>
+<html>
+	<head>
+		<title>centos forbid chu mo ban</title>
+		<meta http-equiv="content-type" content="text/html; charset=UTF-8">
+		<link rel="stylesheet" type="text/css" href="../../style.css" />
+	</head>
+	<body>
+
+		<script type="text/javascript" src="../../style.js"></script>
+
+		<div id="header">
+			<h1>每天进步一点点</h1>
+		</div>
+
+		<div id="navigation">
+			<ul id="navigation">
+				<li><a class="navigation" href="../../index.html">Home Page</a></li>
+				<li><a class="navigation" href="../../life/index.html">Life</a></li>
+				<li><a class="navigation" href="../index.html">Programmig</a></li>
+				<li><a class="navigation" href="../../projects/index.html">Projects</a></li>
+				<li><a class="navigation" href="../../aboutme/index.html">About me</a></li>
+			</ul>
+		</div>
+
+		<div id="Article">
+			<h1>笔记本禁止触摸板操作</h1>
+			<p>作者：jicanmeng</p>
+			<p>时间：2014年11月2日</p>
+			<hr />
+
+			<p>
+				baidu "centos 禁止触摸"：
+			</p>
+
+			<pre class="terminal"><code>[jicanmeng@andy tmp]$ <span class="cmd">xinput list</span>
+				⎡ Virtual core pointer                    	id=2	[master pointer  (3)]
+				⎜   ↳ Virtual core XTEST pointer              	id=4	[slave  pointer  (2)]
+				⎜   ↳ PS/2 Generic Mouse                      	id=13	[slave  pointer  (2)]
+				⎜   ↳ Macintosh mouse button emulation        	id=14	[slave  pointer  (2)]
+				⎜   ↳ SIGMACHIP Usb Mouse                     	id=15	[slave  pointer  (2)]
+				⎣ Virtual core keyboard                   	id=3	[master keyboard (2)]
+				&nbsp;&nbsp;↳ Virtual core XTEST keyboard             	id=5	[slave  keyboard (3)]
+				&nbsp;&nbsp;↳ Lid Switch                              	id=6	[slave  keyboard (3)]
+				&nbsp;&nbsp;↳ AT Translated Set 2 keyboard            	id=7	[slave  keyboard (3)]
+				&nbsp;&nbsp;↳ USB2.0 HD UVC WebCam                    	id=8	[slave  keyboard (3)]
+				&nbsp;&nbsp;↳ Sleep Button                            	id=9	[slave  keyboard (3)]
+				&nbsp;&nbsp;↳ Video Bus                               	id=10	[slave  keyboard (3)]
+				&nbsp;&nbsp;↳ Video Bus                               	id=11	[slave  keyboard (3)]
+				&nbsp;&nbsp;↳ Power Button                            	id=12	[slave  keyboard (3)]
+				[jicanmeng@andy tmp]$ <span class="cmd">xinput --set-prop  "PS/2 Generic Mouse" "Device Enabled" 0</span>
+				[jicanmeng@andy tmp]$ </code></pre>
+
+			<h2>参考资料</h2>
+				<ol>
+					<li>
+						CentOS 6禁用触摸板：<br />
+						<a href="http://hi.baidu.com/zbpdsz/item/e934f4017b630d72bfe97e10" target="_blank">http://hi.baidu.com/zbpdsz/item/e934f4017b630d72bfe97e10</a>
+					</li>
+				</ol>
+		</div>
+
+		<div id="footer">
+			<p>jicanmeng@126.com 2013</p>
+			<p>本站文章可随意转载，但请注明转载的本站文章地址，谢谢！</p>
+		</div>
+	</body>
+</html>
