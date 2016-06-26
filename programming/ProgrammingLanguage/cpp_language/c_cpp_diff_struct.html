@@ -1,0 +1,70 @@
+﻿<!DOCTYPE html>
+<html>
+	<head>
+		<title>c c++ difference: struct definition</title>
+		<meta http-equiv="content-type" content="text/html; charset=UTF-8">
+		<link rel="stylesheet" type="text/css" href="../../../style.css" />
+	</head>
+	<body>
+
+		<script type="text/javascript" src="../../../style.js"></script>
+
+		<div id="header">
+			<h1>每天进步一点点</h1>
+		</div>
+
+		<div id="navigation">
+			<ul id="navigation">
+				<li><a class="navigation" href="../../../index.html">Home Page</a></li>
+				<li><a class="navigation" href="../../../life/index.html">Life</a></li>
+				<li><a class="navigation" href="../../index.html">Programmig</a></li>
+				<li><a class="navigation" href="../../../projects/index.html">Projects</a></li>
+				<li><a class="navigation" href="../../../aboutme/index.html">About me</a></li>
+			</ul>
+		</div>
+
+		<div id="Article">
+			<h1>使用结构体定义变量时</h1>
+			<p>作者：jicanmeng</p>
+			<p>时间：2014年11月26日</p>
+			<hr />
+
+			<p>
+                c语言中，定义一个结构体变量时，需要带上struct关键字。而在c++中，可以带有struct，也可以省略。
+            </p>
+
+			<p>
+				看一个示例程序：
+			</p>
+<pre class="sourceCode">#include &lt;iostream&gt;
+
+struct MyStruct
+{
+    int a;
+    int b;
+};
+
+int main()
+{
+    struct MyStruct struct_one;
+    std::cout &lt;&lt;"sizeof(struct_one) is " &lt;&lt; sizeof(struct MyStruct) &lt;&lt; std::endl;
+
+    MyStruct struct_two;
+    std::cout &lt;&lt;"sizeof(struct_two) is " &lt;&lt; sizeof(MyStruct) &lt;&lt;std::endl;
+
+    return 0;
+}</pre>
+
+
+			<h2>参考资料</h2>
+				<ol>
+
+				</ol>
+		</div>
+
+		<div id="footer">
+			<p>jicanmeng@126.com 2013</p>
+			<p>本站文章可随意转载，但请注明转载的本站文章地址，谢谢！</p>
+		</div>
+	</body>
+</html>

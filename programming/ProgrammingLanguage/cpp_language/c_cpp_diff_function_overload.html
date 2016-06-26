@@ -1,0 +1,118 @@
+﻿<!DOCTYPE html>
+<html>
+	<head>
+		<title>functions overloading in C++</title>
+		<meta http-equiv="content-type" content="text/html; charset=UTF-8">
+		<link rel="stylesheet" type="text/css" href="../../../style.css" />
+	</head>
+	<body>
+
+		<script type="text/javascript" src="../../../style.js"></script>
+
+		<div id="header">
+			<h1>每天进步一点点</h1>
+		</div>
+
+		<div id="navigation">
+			<ul id="navigation">
+				<li><a class="navigation" href="../../../index.html">Home Page</a></li>
+				<li><a class="navigation" href="../../../life/index.html">Life</a></li>
+				<li><a class="navigation" href="../../index.html">Programmig</a></li>
+				<li><a class="navigation" href="../../../projects/index.html">Projects</a></li>
+				<li><a class="navigation" href="../../../aboutme/index.html">About me</a></li>
+			</ul>
+		</div>
+
+		<div id="Article">
+			<h1>函数重载</h1>
+			<p>作者：jicanmeng</p>
+			<p>时间：2014年11月27日</p>
+			<hr />
+
+			<p>
+				在C++中，函数重载指的是多个同名的函数共同存在，但各个函数的参数个数或参数类型不同。
+			</p>
+
+			<p>示例程序如下:</p>
+
+<pre class="sourceCode">#include &lt;iostream&gt;
+
+int bigger(int a, int b)
+{
+    std::cout &lt;&lt; "bigger(int a, int b) called" &lt;&lt; std::endl;
+    return a >= b ? a : b;
+}
+
+char bigger(char a, char b)
+{
+    std::cout &lt;&lt; "bigger(char a, char b) called" &lt;&lt; std::endl;
+    return a>= b ? a : b;
+}
+
+void print(int a)
+{
+    std::cout &lt;&lt; "print(int a) called" &lt;&lt; std::endl;
+}
+
+void print(int a, int b)
+{
+    std::cout &lt;&lt; "print(int a, int b) called" &lt;&lt; std::endl;
+}
+
+int main()
+{
+    int a = bigger(3,4);
+    char b = bigger('x','z');
+
+    print(3);
+    print(3,4);
+
+    return 0;
+}</pre>
+
+			<p>程序运行结果如下:</p>
+
+			<pre class="terminal"><code>[jicanmeng@andy tmp]$ <span class="cmd">g++ functionOverload.cpp</span>
+				[jicanmeng@andy tmp]$ <span class="cmd">./a.out</span>
+				bigger(int a, int b) called
+				bigger(char a, char b) called
+				print(int a) called
+				print(int a, int b) called
+				[jicanmeng@andy tmp]$</code></pre>
+
+			<p>
+				程序调用重载的函数时，会根据实参的类型自动寻找到对应的函数。
+			</p>
+
+			<p>
+				需要说明两点：
+				<ol>
+				<li>
+					<b>重载函数必须具有不同的参数个数或者不同的参数类型，只有返回值的类型不同是不行的。</b>例如<code>void fun(int a, int b); int fun(int a, int b);</code>就是错误的。当程序调用fun(3,4)函数时，编译器无法确定调用哪一个函数。
+				</li>
+
+				<li>
+					<b>当某个重载的函数带有默认参数时，应该注意不要和其它的重载函数冲突。</b>例如<code>int func(int a, int b=0); int func(int a);</code>就是错误的。 和上面一样，当程序调用fun(5)函数时，编译器无法确定调用哪一个函数。
+				</li>
+
+				</ol>
+			</p>
+
+			<h2>参考资料</h2>
+				<ol>
+					<li>
+						&lt;&lt;C++实用教程&gt;&gt; 电子工业出版社 郑阿奇 主编 丁有和 编著 P97
+					</li>
+					<li>
+						The C++ Tutorial:<br />
+						<a href="http://www.learncpp.com/cpp-tutorial/76-function-overloading/" target="_blank">http://www.learncpp.com/cpp-tutorial/76-function-overloading/</a><br />
+					</li>
+				</ol>
+		</div>
+
+		<div id="footer">
+			<p>jicanmeng@126.com 2013</p>
+			<p>本站文章可随意转载，但请注明转载的本站文章地址，谢谢！</p>
+		</div>
+	</body>
+</html>

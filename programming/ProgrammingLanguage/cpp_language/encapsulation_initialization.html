@@ -1,0 +1,191 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<title>类中成员的初始化</title>
+		<meta http-equiv="content-type" content="text/html; charset=UTF-8">
+		<link rel="stylesheet" type="text/css" href="../../../style.css" />
+	</head>
+	<body>
+
+		<script type="text/javascript" src="../../../style.js"></script>
+
+		<div id="header">
+			<h1>每天进步一点点</h1>
+		</div>
+
+		<div id="navigation">
+			<ul id="navigation">
+				<li><a class="navigation" href="../../../index.html">Home Page</a></li>
+				<li><a class="navigation" href="../../../life/index.html">Life</a></li>
+				<li><a class="navigation" href="../../index.html">Programmig</a></li>
+				<li><a class="navigation" href="../../../projects/index.html">Projects</a></li>
+				<li><a class="navigation" href="../../../aboutme/index.html">About me</a></li>
+			</ul>
+		</div>
+
+		<div id="Article">
+			<h1>类中成员的初始化</h1>
+			<p>作者：jicanmeng</p>
+			<p>时间：2014年11月25日</p>
+			<hr />
+
+			<p>
+				一个类的数据成员可以有普通数据类型的变量，也可以有class类型的变量。我们称class类型的变量为对象成员，它是一种特殊的数据成员，所以独立出来进行说明。
+			</p>
+
+			<p>
+				定义一个class类型的变量常常称为定义一个对象。为了提高对象初始化的效率，增强程序的可读性，c++允许在类的构造函数头后面跟由冒号":"引导的对象成员初始化列表，列表中包含类中对象成员或其它数据成员的初始化代码，各个成员初始化列表项之间使用逗号分隔。如下面的格式：
+			</p>
+			<p>
+				<类名>::<构造函数名>(形参表):对象1(参数表),对象2(参数表),对象3(参数表),...,对象n(参数表)<br />
+				{<br />
+					...<br />
+				}
+			</p>
+			<p>
+				类的对象成员的初始化有两种方式：1. 在类的构造函数中进行初始化，称为函数构造方式；2. 在类的构造函数头后面使用列表的方式进行初始化，称为对象成员列表方式。
+			</p>
+			<p>
+				先看看第一种方式：
+			</p>
+
+<pre class="sourceCode">#include &lt;iostream&gt;
+using namespace std;
+
+class CPoint
+{
+    public:
+        CPoint(int x, int y)
+        {
+            xPos = x;
+            yPos = y;
+            cout &lt;&lt;"CPoint 重载构造函数! xPos=" &lt;&lt; xPos &lt;&lt; ",yPos=" &lt;&lt; yPos &lt;&lt; endl;
+        }
+//      CPoint()
+//      {
+//          cout &lt;&lt; "CPoint 显式的默认构造函数!" &lt;&lt; endl;
+//      }
+    private:
+        int xPos, yPos;
+};
+
+class CRect
+{
+    public:
+        CRect(int x1, int y1, int x2, int y2)
+        {
+            m_ptLT = CPoint(x1, y1);
+            m_ptRB = CPoint(x2, y2);
+            cout &lt;&lt; "CRect 重载构造函数!" &lt;&lt; endl;
+        }
+    private:
+        CPoint m_ptLT, m_ptRB;
+};
+
+int main()
+{
+    CRect rc(10, 100, 80, 250);
+    return 0;
+}</pre>
+
+			<p>编译代码会提示错误:</p>
+
+			<pre class="terminal"><code>[jicanmeng@andy tmp]$ <span class="cmd">g++ init-before.cpp</span>
+				init-before.cpp: In constructor ‘CRect::CRect(int, int, int, int)’:
+				init-before.cpp:25: error: no matching function for call to ‘CPoint::CPoint()’
+				init-before.cpp:7: note: candidates are: CPoint::CPoint(int, int)
+				init-before.cpp:5: note:                 CPoint::CPoint(const CPoint&)
+				init-before.cpp:25: error: no matching function for call to ‘CPoint::CPoint()’
+				init-before.cpp:7: note: candidates are: CPoint::CPoint(int, int)
+				init-before.cpp:5: note:                 CPoint::CPoint(const CPoint&)
+				[jicanmeng@andy tmp]$ <span class="cmd">vim init-before.cpp</span>
+				[jicanmeng@andy tmp]$ <span class="cmd">./a.out </span>
+				CPoint 显式的默认构造函数!
+				CPoint 显式的默认构造函数!
+				CPoint 重载构造函数! xPos=10,yPos=100
+				CPoint 重载构造函数! xPos=80,yPos=250
+				CRect 重载构造函数!
+				[jicanmeng@andy tmp]$ </code></pre>
+
+			<p>
+				如果将代码中的注释去掉，那么编译就不会有问题了。这是因为在我们创建一个CRect对象时，首先会构建对象内部的数据成员，发现有两个对象成员：m_ptLT和m_ptRB。那么会首先构建这两个对象成员，但是没有对应的构造函数，所以编译器会报错了。去掉注释后，就没有问题了。
+			</p>
+
+			<p>
+				可以看出，在函数构造方式中，会首先调用一次显示的默认构造函数，再调用一次重载构造函数。
+			</p>
+
+			<p>
+				现在看一看对象成员列表方式：
+			</p>
+<pre class="sourceCode">#include &lt;iostream&gt;
+using namespace std;
+
+class CPoint
+{
+    public:
+        CPoint(int x, int y)
+        {
+            xPos = x;
+            yPos = y;
+            cout &lt;&lt;"CPoint 重载构造函数! xPos=" &lt;&lt; xPos &lt;&lt; ",yPos=" &lt;&lt; yPos &lt;&lt; endl;
+        }
+        CPoint()
+        {
+            xPos = 0;
+            yPos = 0;
+            cout &lt;&lt;"CPoint 显式的构造函数! xPos=" &lt;&lt; xPos &lt;&lt; ",yPos=" &lt;&lt; yPos &lt;&lt; endl;
+        }
+    private:
+        int xPos, yPos;
+};
+
+class CRect
+{
+    public:
+        CRect(int x1, int y1, int x2, int y2):m_ptLT(x1, y1),m_ptRB(x2, y2)
+        {
+            cout &lt;&lt; "CRect 重载构造函数!" &lt;&lt; endl;
+        }
+    private:
+        CPoint m_ptRB, m_ptLT;
+};
+
+int main()
+{
+    CRect rc(10, 100, 80, 250);
+    return 0;
+}</pre>
+
+			<pre class="terminal"><code>[jicanmeng@andy tmp]$ <span class="cmd">g++ init-after.cpp</span>
+				[jicanmeng@andy tmp]$ <span class="cmd">./a.out </span>
+				CPoint 重载构造函数! xPos=80,yPos=250
+				CPoint 重载构造函数! xPos=10,yPos=100
+				CRect 重载构造函数!
+				[jicanmeng@andy tmp]$ </code></pre>
+			<p>
+				和前面的方式相比，只是在CRect的构造函数头后面添加了m_ptLT和m_ptRB的初始化代码。在运行的时候，直接调用了CPoint的重载构造函数，而没有运行CPoint的默认构造函数。这是因为在对象成员列表方式时，对象成员的定义和初始化是同事进行的。
+			</p>
+			<p>	当main函数中定义CRect对象rc时，编译时首先根据类中声明的数据成员的次序，为成员分配内容，然后从对象初始化列表中寻找其初始化代码。若查找到，则根据对象成员的初始化形式调用相应的构造函数进行初始化；若查找不到，则调用相应的构造函数进行初始化。显然，在对象成员初始化列表中由于存在m_ptLT(x1,y1)和m_ptRB(x2,y2)对象初始化代码，因此成员m_ptLT和m_ptRB构造时调用的是CPoint(int,int)形式的构造函数，而类CPoint刚好有此形式的构造函数定义。
+			</p>
+
+			<p>
+				这两种成员初始化的方式可归纳为三点：
+			</p>
+			<ol>
+				<li>函数构造方式实际上是将类中的对象成员进行了两次初始化：第一次是在对象成员声明的同时自动调用默认构造函数；第二次是在构造函数体中执行初始化代码。</li>
+				<li>对象成员列表方式虽然将类中的对象成员的定义和初始化代码放到两个地方书写，但却是同时运行。对比函数构造方式可以看出，由冒号":"引导的对象成员初始化列表的方式能简化对象初始化操作，提高对象初始化效率。</li>
+				<li>在对象成员初始化列表方式下，成员初始化的顺序是按照类中成员的声明次序进行的，而与成员在由冒号":"引导的对象初始化列表中的次序无关。</li>
+			</ol>
+			<h2>参考资料</h2>
+				<ol>
+					<li>C++实用教程   电子工业出版社  郑阿奇，丁有和编著</li>
+				</ol>
+		</div>
+
+		<div id="footer">
+			<p>jicanmeng@126.com 2013</p>
+			<p>本站文章可随意转载，但请注明转载的本站文章地址，谢谢！</p>
+		</div>
+	</body>
+</html>

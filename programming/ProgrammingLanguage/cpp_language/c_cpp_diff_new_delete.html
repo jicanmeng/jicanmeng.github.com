@@ -1,0 +1,83 @@
+﻿<!DOCTYPE html>
+<html>
+	<head>
+		<title>new and delete in C++</title>
+		<meta http-equiv="content-type" content="text/html; charset=UTF-8">
+		<link rel="stylesheet" type="text/css" href="../../../style.css" />
+	</head>
+	<body>
+
+		<script type="text/javascript" src="../../../style.js"></script>
+
+		<div id="header">
+			<h1>每天进步一点点</h1>
+		</div>
+
+		<div id="navigation">
+			<ul id="navigation">
+				<li><a class="navigation" href="../../../index.html">Home Page</a></li>
+				<li><a class="navigation" href="../../../life/index.html">Life</a></li>
+				<li><a class="navigation" href="../../index.html">Programmig</a></li>
+				<li><a class="navigation" href="../../../projects/index.html">Projects</a></li>
+				<li><a class="navigation" href="../../../aboutme/index.html">About me</a></li>
+			</ul>
+		</div>
+
+		<div id="Article">
+			<h1>new和delete运算符</h1>
+			<p>作者：jicanmeng</p>
+			<p>时间：2014年11月27日</p>
+			<hr />
+
+			<p>
+				在C语言中，动态分配内存使用malloc()函数，释放动态分配的内存用free()函数。在C++中，malloc/free被替换成了new/delete。
+			</p>
+
+			<p>示例程序如下:</p>
+
+<pre class="sourceCode">#include &lt;iostream&gt;
+
+int main()
+{
+    // dynamically allocate an integer
+    int *pnValue = new int;
+    *pnValue = 7;
+    // unallocate memory assigned to pnValue
+    delete pnValue;
+    pnValue = 0;
+
+    int nSize = 12;
+    int *pnArray = new int[nSize]; // note: nSize does not need to be constant!
+    pnArray[4] = 7;
+    delete[] pnArray;
+
+    return 0;
+}</pre>
+
+			<p>
+				new和delete有两个版本：new/delete和new[]/delete[]。前者用于分配和释放一个变量的内存，后者用于分配和释放一个数组的内存。在程序中，我们虽然在分配数组内存的时候使用了<code>new int[nSize]</code>，但其实编译器调用的是new[]。
+			</p>
+
+			<h2>参考资料</h2>
+				<ol>
+					<li>
+						&lt;&lt;C++实用教程&gt;&gt; 电子工业出版社 郑阿奇 主编 丁有和 编著 P240
+					</li>
+					<li>
+						The C++ Tutorial:<br />
+						<a href="http://www.learncpp.com/cpp-tutorial/69-dynamic-memory-allocation-with-new-and-delete/" target="_blank">http://www.learncpp.com/cpp-tutorial/69-dynamic-memory-allocation-with-new-and-delete/</a>
+					</li>
+					<li>
+						编写高质量代码：改善C++程序的150个建议:<br />
+						<a href="http://book.51cto.com/art/201202/317620.htm" target=_blank">http://book.51cto.com/art/201202/317620.htm</a>
+
+					</li>
+				</ol>
+		</div>
+
+		<div id="footer">
+			<p>jicanmeng@126.com 2013</p>
+			<p>本站文章可随意转载，但请注明转载的本站文章地址，谢谢！</p>
+		</div>
+	</body>
+</html>

@@ -1,0 +1,182 @@
+﻿<!DOCTYPE html>
+<html>
+	<head>
+		<title>C++特性一：封装</title>
+		<meta http-equiv="content-type" content="text/html; charset=UTF-8">
+		<link rel="stylesheet" type="text/css" href="../../../style.css" />
+	</head>
+	<body>
+
+		<script type="text/javascript" src="../../../style.js"></script>
+
+		<div id="header">
+			<h1>每天进步一点点</h1>
+		</div>
+
+		<div id="navigation">
+			<ul id="navigation">
+				<li><a class="navigation" href="../../../index.html">Home Page</a></li>
+				<li><a class="navigation" href="../../../life/index.html">Life</a></li>
+				<li><a class="navigation" href="../../index.html">Programmig</a></li>
+				<li><a class="navigation" href="../../../projects/index.html">Projects</a></li>
+				<li><a class="navigation" href="../../../aboutme/index.html">About me</a></li>
+			</ul>
+		</div>
+
+		<div id="Article">
+			<h1>C++特性一：封装</h1>
+			<p>作者：jicanmeng</p>
+			<p>时间：2014年08月12日</p>
+			<hr />
+
+			<p>
+				封装(encapsulation)是面向对象程序设计语言的第一个特性，是通过类(class)来实现的。为了说明什么是封装，先看一个程序。
+			</p>
+
+<pre class="sourceCode">#include &lt;iostream&gt;
+using namespace std;
+
+class Point
+{
+private:
+    int x;
+    int y;
+public:
+    void setAxis(int a, int b){
+        x = a;
+        y = b;
+    }
+    void getAxis(){
+        cout &lt;&lt; "value of x is " &lt;&lt; x &lt;&lt; endl;
+        cout &lt;&lt; "value of y is " &lt;&lt; y &lt;&lt; endl;
+    }
+};
+
+int main()
+{
+    Point var;
+
+    var.setAxis(5,6);
+    var.getAxis();
+    return 0;
+}</pre>
+
+			<p>
+				封装是通过类(class)来实现的。一个类中包含了数据和操作这些数据的函数。所谓的封装，就是将数据和操作数据的函数封装在一起。我们先看一个使用类的c++程序。
+			</p>
+
+			<p>
+				在c++中，声明一个类的一般格式如下：
+			</p>
+<pre class="sourceCode">class &lt;类名&gt;	//声明部分
+{
+private:
+    [<私有型数据和函数>]
+public:
+    [<公有型数据和函数>]
+protected:
+    [<保护型数据和函数>]
+}；
+<各个成员函数的实现> //实现部分</pre>
+
+			<p>
+				其中，class是类声明的关键字，class后面是要声明的类名。类中的数据和函数都是类的成员，分别称为类的数据成员(member variable)和成员函数(member function)。其中数据成员又称为类的属性，成员函数又称为类的方法。<b>在定义一个类时，要注意类体中最后一个花括号后面的分号";"不能省略。</b>
+			</p>
+			<p>
+				在c++语言中，常常将类定义的变量称为一个对象，对象的数据成员称为这个对象的属性，对象的成员函数称为这个对象的方法。
+			</p>
+
+			<p>
+				类体中的关键字public，private和protected声明了类中的成员和类外代码的关系，称为访问权限(access specifiers)。对于public类型的成员来说，可以在类外访问，当然也可以在类内访问。对于private成员来说，不能在类外访问，数据成员只能由类中的函数使用，成员函数只允许在类中调用。对于protected成员来说，不能在类外访问，只能在类中或子类中访问。
+			</p>
+
+			<p>
+				从类的声明格式可以看出，类的声明分为声明部分和定义部分。通常情况下，我们会将类的声明部分放到一个头文件中，实现部分放到一个cpp文件中。一般情况下，各个成员函数的实现都是放在cpp文件中的。不过，我们也可以将成员函数的实现直接放到类体中，比如上面的示例程序。
+			</p>
+			<p>
+				如果成员函数的实现是在类体外部完成，那么必须使用作用域运算符"::"来告知编译系统改函数所属的类。此时，成员函数的定义格式如下：
+			</p>
+
+<pre class="sourceCode">&lt;函数类型&gt; &lt;类名&gt;::&lt;函数名&gt;(&lt;形参表&gt;)
+{
+	……
+}</pre>
+
+			<p>
+				我们再修改一下上面的程序：
+			</p>
+<pre class="sourceCode">#include &lt;iostream&gt;
+using namespace std;
+
+class Point
+{
+private:
+    int x;
+    int y;
+public:
+    void setAxis(int a, int b){
+        x = a;
+        y = b;
+    }
+    void displayAxis();
+};
+
+void Point::getAxis()
+{
+    cout &lt;&lt; "value of x is " &lt;&lt; x &lt;&lt; endl;
+    cout &lt;&lt; "value of y is " &lt;&lt; y &lt;&lt; endl;
+}
+
+int main()
+{
+    Point var;
+
+    var.setAxis(5,6);
+    var.getAxis();
+    return 0;
+}</pre>
+
+			<p>
+				几点说明:
+			</p>
+			<ol>
+				<li>类中的数据成员的数据类型可以是任意的，如整型，字符型，指针类型，class类型等</li>
+				<li>由于类是一种数据类型，系统并不会为其分配内存空间，所以在定义类的数据成员时，不能对其初始化，也不能指定除static之外的任何存储类型。</li>
+
+				<li>
+				In order to use a class, a variable of that class type must be declared.
+				</li>
+
+				<li>	访问权限关键字public，private和protected在类中使用时先后次序无关紧要，而且可以使用多次。每个访问权限关键字为类成员确定的访问权限是从该关键字开始到下一个关键字为止。另外要注意的是，这三个关键字表示的是类的成员与类外的关系，类内部成员之间互相访问不受这三个关键字的限制。
+				</li>
+				<li>类体内如果没有指定成员的访问权限，则默认为private的。</li>
+				<li>在类外，对某个对象的数据成员的访问方式为："对象名.数据成员名称"；对某个对象的成员函数的访问方式为："对象名.成员函数名称(形参表)"。</li>
+				<li>
+					在类中使用成员时，成员声明的前后不会影响该成员在类中的使用。
+				</li>
+
+				<li>
+					声明一个class类型的变量时，我们称为实例化这个类。这个变量称为类的一个实例，一个class类型的变量常常称为一个对象。
+				</li>
+
+				<li>
+					类的成员函数和数据成员加上"m_"前缀比较好，表示member of class的意思。这样容易和类外部定义的变量和函数区分。
+				</li>
+			</ol>
+
+			<h2>参考资料</h2>
+				<ol>
+					<li>C++实用教程   电子工业出版社  郑阿奇，丁有和编著</li>
+					<li>
+						The C++ Tutorial:<br />
+						<a href="http://www.learncpp.com/cpp-tutorial/82-classes-and-class-members/" target="_blank">http://www.learncpp.com/cpp-tutorial/82-classes-and-class-members/</a>
+					</li>
+				</ol>
+		</div>
+
+		<div id="footer">
+			<p>jicanmeng@126.com 2013</p>
+			<p>本站文章可随意转载，但请注明转载的本站文章地址，谢谢！</p>
+		</div>
+	</body>
+</html>

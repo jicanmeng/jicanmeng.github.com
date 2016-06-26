@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<title>Operator Overloading</title>
+		<meta http-equiv="content-type" content="text/html; charset=UTF-8">
+		<link rel="stylesheet" type="text/css" href="../../../../style.css" />
+	</head>
+	<body>
+
+		<script type="text/javascript" src="../../../../style.js"></script>
+
+		<div id="header">
+			<h1>每天进步一点点</h1>
+		</div>
+
+		<div id="navigation">
+			<ul id="navigation">
+				<li><a class="navigation" href="../../../../index.html">Home Page</a></li>
+				<li><a class="navigation" href="../../../../life/index.html">Life</a></li>
+				<li><a class="navigation" href="../../../index.html">Programmig</a></li>
+				<li><a class="navigation" href="../../../../projects/index.html">Projects</a></li>
+				<li><a class="navigation" href="../../../../aboutme/index.html">About me</a></li>
+			</ul>
+		</div>
+
+		<div id="Article">
+			<h1>运算符重载</h1>
+			<p>作者：jicanmeng</p>
+			<p>时间：2014年11月17日</p>
+			<hr />
+
+			<p>
+				本文完全来自于learncpp.com，作者已经写的极其简单明了，我觉得不能写的更好了。只摘抄了一部分，如下：
+			</p>
+			<p>
+				1. operators in C++ are implemented as functions.
+			</p>
+
+			<p>
+				2. Almost any operator in C++ can be overloaded. The exceptions are: arithmetic if (?:), sizeof, scope (::), member selector (.), and member pointer selector (.*). 
+			</p>
+
+			<p>
+				重载运算符时，需要注意的几个地方是:
+			</p>
+			<p>
+				First, at least one of the operands in any overloaded operator must be a user-defined type. This means you can not overload the plus operator to work with one integer and one double. However, you could overload the plus operator to work with an integer and a Mystring.
+			</p>
+			<p>
+				Second, you can only overload the operators that exist. You can not create new operators. For example, you could not create an operator ** to do exponents.
+			</p>
+			<p>
+				Third, all operators keep their current precedence and associativity, regardless of what they're used for.
+			</p>
+
+			<p>
+				上面提到，运算符重载是通过函数来实现的。是通过什么函数呢？如果重载的运算符是+，那么函数名为operator+。learncpp.com上面是这么说的：
+			</p>
+			<p>
+				When you see the expression nX + nY, you can translate this in your head to operator+(nX, nY) (where operator+ is the name of the function). Similarly dX + dY becomes operator+(dX, dY).
+			</p>
+
+			<h2>参考资料</h2>
+				<ol>
+					<li>
+						The C++ Tutorial：<br />
+						<a href="http://www.learncpp.com/cpp-tutorial/91-introduction-to-operator-overloading/" target="_blank">http://www.learncpp.com/cpp-tutorial/91-introduction-to-operator-overloading/</a>
+					</li>
+				</ol>
+		</div>
+
+		<div id="footer">
+			<p>jicanmeng@126.com 2013</p>
+			<p>本站文章可随意转载，但请注明转载的本站文章地址，谢谢！</p>
+		</div>
+	</body>
+</html>

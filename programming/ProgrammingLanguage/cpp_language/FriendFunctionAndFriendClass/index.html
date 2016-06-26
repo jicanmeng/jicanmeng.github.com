@@ -1,0 +1,255 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<title>c++: the friend function and friend class</title>
+		<meta http-equiv="content-type" content="text/html; charset=UTF-8">
+		<link rel="stylesheet" type="text/css" href="../../../../style.css" />
+	</head>
+	<body>
+
+		<script type="text/javascript" src="../../../../style.js"></script>
+
+		<div id="header">
+			<h1>每天进步一点点</h1>
+		</div>
+
+		<div id="navigation">
+			<ul id="navigation">
+				<li><a class="navigation" href="../../../../index.html">Home Page</a></li>
+				<li><a class="navigation" href="../../../../life/index.html">Life</a></li>
+				<li><a class="navigation" href="../../../index.html">Programmig</a></li>
+				<li><a class="navigation" href="../../../../projects/index.html">Projects</a></li>
+				<li><a class="navigation" href="../../../../aboutme/index.html">About me</a></li>
+			</ul>
+		</div>
+
+		<div id="Article">
+			<h1>友元函数，友元类</h1>
+			<p>作者：jicanmeng</p>
+			<p>时间：2014年11月30日</p>
+			<hr />
+
+			<ol class="content">
+				<li><a href="#friendFunctionDefinition">友元函数的定义</a></li>
+				<li><a href="#friendFunction2">一个函数可以同时是多个类的友元函数</a></li>
+				<li><a href="#friendFunction3">一个类的友元函数可以是其它类的成员函数</a></li>
+				<li><a href="#friendClass">友元类</a></li>
+			</ol>
+
+			<h2 id="friendFunctionDefinition">1. 友元函数的定义</h2>
+			<p>
+				通常，类的私有成员和保护成员只能由类的成员函数来访问，类的对象和外部函数只能访问类的public成员。但是我们有时会有这样的需求：直接在类的某个外部函数funcA()中访问类的私有数据。如果我们在类中定义一个public类型的成员函数，那么funcA()就可以调用这个成员函数访问类的私有数据了，但同时别的外部函数如funcB()也能调用这个类的成员函数。我们的要求是只有funcA()能访问类的私有数据，别的函数则不可以。这种情况下，我们可以将funcA()函数声明为这个类的友元函数(friend function)。
+			</p>
+
+			<p>
+				一个类的友元函数在这个类中进行声明，前面需要添加C++关键字"friend"。从字面意义来看，一个类的友元函数就是这个类的朋友，可以访问类的public、protected和private类型的成员。
+			</p>
+
+			<p>
+				learncpp.com上面是这样描述的：
+			</p>
+			<blockquote>
+				<p>
+					A friend function is a function that can access the private members of a class as though it were a member of that class. In all other regards, the friend function is just like a normal function. A friend function may or may not be a member of another class. To declare a friend function, simply use the friend keyword in front of the prototype of the function you wish to be a friend of the class. It does not matter whether you declare the friend function in the private or public section of the class.
+				</p>
+			</blockquote>
+			<p>
+				看一个示例程序：
+			</p>
+<pre class="sourceCode">#include &lt;iostream&gt;
+
+class Value
+{
+private:
+    int m_nValue;
+public:
+    Value(int nValue) { m_nValue = nValue; }
+    friend bool IsEqual(const Value &amp;cValue1, const Value &amp;cValue2);
+};
+
+bool IsEqual(const Value &amp;cValue1, const Value &amp;cValue2)
+{
+    return (cValue1.m_nValue == cValue2.m_nValue);
+}
+
+int main()
+{
+    Value cValue1(1);
+    Value cValue2(2);
+    std::cout &lt;&lt; (IsEqual(cValue1, cValue2)?"equal":"not equal") &lt;&lt; std::endl;
+    return 0;
+}</pre>
+
+			<p>
+				几点说明：
+				<ol>
+					<li>
+						友元函数的定义可以在类中进行，也可以将友元函数在类中声明，而将其实现放在类外。但在类外定义时，不能像成员函数那样指明它所属的类。
+					</li>
+					<li>
+						由于友元函数是一个外部函数，因此它对类中的成员访问只能通过类对象进行，而不能直接访问。这里的对象可以通过形参来指定，也可以在友元函数中定义。
+					</li>
+					<li>
+						由于友元函数是类中声明的外部函数，因此它和成员的访问权限private、protected和public没有任何关系，它的声明可以出现在类的任何部分，包括在private和public部分。但为了程序的可读性，常将友元函数声明放在类体的开头或最后。
+					</li>
+					<li>
+						大多数外部函数对类中的数据操作都采用形参对象的方式，通过对象的"引用"传递，达到修改对象数据的目的。对于友元函数，也应该采用这种方式，只是友元函数还能修改对象的私有和保护数据。
+					</li>
+				</ol>
+			</p>
+
+			<h2 id="friendFunction2">2. 一个函数可以同时是多个类的友元函数</h2>
+			<p>
+				一个函数可以同时是多个类的友元函数。如下面的程序：
+			</p>
+
+<pre class="sourceCode">#include &lt;iostream&gt;
+
+class Humidity;
+
+class Temperature
+{
+private:
+    int m_nTemp;
+public:
+    Temperature(int nTemp) { m_nTemp = nTemp; }
+
+    friend void PrintWeather(Temperature &cTemperature, Humidity &cHumidity);
+};
+
+class Humidity
+{
+private:
+    int m_nHumidity;
+public:
+    Humidity(int nHumidity) { m_nHumidity = nHumidity; }
+
+    friend void PrintWeather(Temperature &cTemperature, Humidity &cHumidity);
+};
+
+void PrintWeather(Temperature &cTemperature, Humidity &cHumidity)
+{
+    std::cout &lt;&lt; "The temperature is " &lt;&lt; cTemperature.m_nTemp &lt;&lt;
+        " and the humidity is " &lt;&lt; cHumidity.m_nHumidity &lt;&lt; std::endl;
+}
+
+int main()
+{
+    Temperature cTemperature(25);
+    Humidity cHumidity(30);
+    PrintWeather(cTemperature, cHumidity);
+    return 0;
+}</pre>
+
+			<h2 id="friendFunction3">3. 一个类的友元函数可以是其它类的成员函数</h2>
+			<p>
+				一个类的友元函数可以是其它类的成员函数。将上面的程序修改一下：
+			</p>
+<pre class="sourceCode">#include &lt;iostream&gt;
+
+class Humidity;
+
+class Temperature
+{
+private:
+    int m_nTemp;
+public:
+    Temperature(int nTemp) { m_nTemp = nTemp; }
+    void PrintWeather(Humidity &amp;cHumidity);
+};
+
+class Humidity
+{
+private:
+    int m_nHumidity;
+public:
+    Humidity(int nHumidity) { m_nHumidity = nHumidity; }
+    friend void Temperature::PrintWeather(Humidity &amp;cHumidity);
+};
+
+void Temperature::PrintWeather(Humidity &amp;cHumidity)
+{
+    std::cout &lt;&lt; "The temperature is " &lt;&lt; m_nTemp &lt;&lt;
+        " and the humidity is " &lt;&lt; cHumidity.m_nHumidity &lt;&lt; std::endl;
+}
+
+int main()
+{
+    Temperature cTemperature(25);
+    Humidity cHumidity(30);
+    cTemperature.PrintWeather(cHumidity);
+    return 0;
+}</pre>
+
+			<h2 id="friendClass">4. 友元类</h2>
+			<p>
+				更进一步，我们可以将一个类声明为另外一个类的友元类。假设类ClassA为ClassB的友元类，那么ClassA中的所有成员函数都是ClassB的友元函数(这句话的意思是，ClassA的所有成员函数的参数中如果有<code>Class &amp;</code>类型的变量，那么该成员函数就是ClassB的友元函数。)
+			</p>
+			<p>
+				示例程序如下：
+			</p>
+<pre class="sourceCode">#include &lt;iostream&gt;
+
+class Storage
+{
+private:
+    int m_nValue;
+    double m_dValue;
+public:
+    Storage(int nValue, double dValue)
+    {
+        m_nValue = nValue;
+        m_dValue = dValue;
+    }
+
+    // Make the Display class a friend of Storage
+    friend class Display;
+};
+
+class Display
+{
+private:
+    bool m_bDisplayIntFirst;
+
+public:
+    Display(bool bDisplayIntFirst) { m_bDisplayIntFirst = bDisplayIntFirst; }
+
+    void DisplayItem(Storage &amp;cStorage)
+    {
+        if (m_bDisplayIntFirst)
+            std::cout &lt;&lt; cStorage.m_nValue &lt;&lt; " " &lt;&lt; cStorage.m_dValue &lt;&lt; std::endl;
+        else // display double first
+            std::cout &lt;&lt; cStorage.m_dValue &lt;&lt; " " &lt;&lt; cStorage.m_nValue &lt;&lt; std::endl;
+    }
+};
+
+int main()
+{
+    Storage cStorage(5, 6.7);
+    Display cDisplay(false);
+
+    cDisplay.DisplayItem(cStorage);
+
+    return 0;
+}
+</pre>
+
+			<h2>参考资料</h2>
+				<ol>
+					<li>
+						&lt;&lt;C++实用教程&gt;&gt; 电子工业出版社 郑阿奇 主编 丁有和 编著 P268
+					</li>
+					<li>
+						The C++ Tutorial:<br />
+						<a href="http://www.learncpp.com/cpp-tutorial/813-friend-functions-and-classes/" target="_blank">http://www.learncpp.com/cpp-tutorial/813-friend-functions-and-classes/</a><br />
+
+					</li>
+				</ol>
+		</div>
+
+		<div id="footer">
+			<p>jicanmeng@126.com 2013</p>
+			<p>本站文章可随意转载，但请注明转载的本站文章地址，谢谢！</p>
+		</div>
+	</body>
+</html>

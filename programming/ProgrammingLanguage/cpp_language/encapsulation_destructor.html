@@ -1,0 +1,148 @@
+﻿<!DOCTYPE html>
+<html>
+	<head>
+		<title>destructor in c++</title>
+		<meta http-equiv="content-type" content="text/html; charset=UTF-8">
+		<link rel="stylesheet" type="text/css" href="../../../style.css" />
+	</head>
+	<body>
+
+		<script type="text/javascript" src="../../../style.js"></script>
+
+		<div id="header">
+			<h1>每天进步一点点</h1>
+		</div>
+
+		<div id="navigation">
+			<ul id="navigation">
+				<li><a class="navigation" href="../../../index.html">Home Page</a></li>
+				<li><a class="navigation" href="../../../life/index.html">Life</a></li>
+				<li><a class="navigation" href="../../index.html">Programmig</a></li>
+				<li><a class="navigation" href="../../../projects/index.html">Projects</a></li>
+				<li><a class="navigation" href="../../../aboutme/index.html">About me</a></li>
+			</ul>
+		</div>
+
+		<div id="Article">
+			<h1>特殊的函数：析构函数</h1>
+			<p>作者：jicanmeng</p>
+			<p>时间：2014年11月25日</p>
+			<hr />
+
+			<p>
+                与类的构造函数相对应的是类的析构函数。它是c++类中另一个特殊的成员函数，函数名称是在类名称前加一个"~"符号(逻辑非)，表示和构造函数的功能相反。
+            </p>
+
+			<p>
+				当对象的生存期结束后，或者使用delete释放由new分配的动态内存的对象时，析构函数会被自动调用。
+			</p>
+
+			<p>对于析构函数，需要注意的地方有:</p>
+
+			<ol>
+				<li>每一个类最多只能有一个析构函数，且应为public型，否则类实例化后无法自动调用析构函数进行释放，但它不能重载，没有任何参数，也不返回任何值，其函数名前也不能有任何关键字(包括void)。</li>
+				<li>与类的其它成员函数一样，析构函数的定义也可以在类外进行，但必须指明它所属的类，且在类体重还必须要有析构函数的声明。</li>
+				<li><b>与默认构造函数类似，若类的声明中没有定义析构函数，则编译时会自动生成一个隐式的不进行任何操作的默认析构函数。</b></li>
+			</ol>
+
+			<p>
+				看一个示例程序：
+			</p>
+<pre class="sourceCode">#include &lt;iostream&gt;
+#include &lt;cstring&gt;
+using namespace std;
+
+class MyString
+{
+private:
+    char *m_pchString;
+    int m_nLength;
+
+public:
+    MyString(const char *pchString="")
+    {
+        // Find the length of the string
+        // Plus one character for a terminator
+        m_nLength = strlen(pchString) + 1;
+
+        m_pchString = new char[m_nLength];
+        strncpy(m_pchString, pchString, m_nLength);
+
+        // Make sure the string is terminated
+        m_pchString[m_nLength-1] = '\0';
+        cout &lt;&lt; "MyString constructor called" &lt;&lt; endl;
+    }
+
+    ~MyString() // destructor
+    {
+        // We need to deallocate our buffer
+        if(m_pchString){
+            cout &lt;&lt; "MyString destructor called. m_pchString is " &lt;&lt; m_pchString &lt;&lt; endl;
+            delete[] m_pchString;
+            m_pchString = NULL;
+        }
+    }
+
+    char* GetString() { return m_pchString; }
+    int GetLength() { return m_nLength; }
+};
+
+int main()
+{
+    MyString NameOne("Alex");
+    cout &lt;&lt; "My name is: " &lt;&lt; NameOne.GetString() &lt;&lt; endl;
+
+    // Allocate a MyString dynamically
+    MyString *pNameTwo = new MyString("Lilei");
+    cout &lt;&lt; "My name is: " &lt;&lt; pNameTwo->GetString() &lt;&lt; endl;
+    delete pNameTwo;
+
+    {
+        MyString NameThree("HanMeimei");
+        cout &lt;&lt; "My name is: " &lt;&lt; NameThree.GetString() &lt;&lt; endl;
+    }
+
+    cout &lt;&lt; "program would exit!" &lt;&lt; endl;
+    return 0;
+} // NameOne destructor called here!</pre>
+			<p>
+				看一看运行结果：
+			</p>
+
+			<pre class="terminal"><code>[jicanmeng@andy tmp]$ <span class="cmd">g++ destructor.cpp</span>
+			[jicanmeng@andy tmp]$ ./a.out
+			MyString constructor called
+			My name is: Alex
+			MyString constructor called
+			My name is: Lilei
+			MyString destructor called. m_pchString is Lilei
+			MyString constructor called
+			My name is: HanMeimei
+			MyString destructor called. m_pchString is HanMeimei
+			program would exit!
+			MyString destructor called. m_pchString is Alex
+			[jicanmeng@andy tmp]$</code></pre>
+
+			<p>
+				对上面的程序简单分析一下：上面的程序创建了三个MyString类型的对象。前面提到，<b>当对象的生存期结束后，或者使用delete释放由new分配的动态内存的对象时，析构函数会被自动调用</b>。NameOne对象在程序结束时生存期结束了才会销毁。而pNameTwo指向的对象是使用delete来销毁的。NameThree在一个单独的block中，它的作用域只限于这个block，出了这个block，这个对象的生存期结束，所以也销毁了。
+			</p>
+
+			<h2>参考资料</h2>
+				<ol>
+					<li>
+						&lt;&lt;C++实用教程&gt;&gt; 电子工业出版社 郑阿奇 主编 丁有和 编著
+					</li>
+					<li>
+						The C++ Tutorial:<br />
+						<a href="http://www.learncpp.com/cpp-tutorial/86-destructors/" target="_blank">http://www.learncpp.com/cpp-tutorial/86-destructors/</a><br />
+						<a href="http://www.learncpp.com/cpp-tutorial/41-blocks-compound-statements-and-local-variables/" target="_blank">http://www.learncpp.com/cpp-tutorial/41-blocks-compound-statements-and-local-variables/</a>	
+					</li>
+				</ol>
+		</div>
+
+		<div id="footer">
+			<p>jicanmeng@126.com 2013</p>
+			<p>本站文章可随意转载，但请注明转载的本站文章地址，谢谢！</p>
+		</div>
+	</body>
+</html>

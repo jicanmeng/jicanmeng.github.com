@@ -1,0 +1,128 @@
+﻿<!DOCTYPE html>
+<html>
+	<head>
+		<title>c++: the "this" pointer</title>
+		<meta http-equiv="content-type" content="text/html; charset=UTF-8">
+		<link rel="stylesheet" type="text/css" href="../../../../style.css" />
+	</head>
+	<body>
+
+		<script type="text/javascript" src="../../../../style.js"></script>
+
+		<div id="header">
+			<h1>每天进步一点点</h1>
+		</div>
+
+		<div id="navigation">
+			<ul id="navigation">
+				<li><a class="navigation" href="../../../../index.html">Home Page</a></li>
+				<li><a class="navigation" href="../../../../life/index.html">Life</a></li>
+				<li><a class="navigation" href="../../../index.html">Programmig</a></li>
+				<li><a class="navigation" href="../../../../projects/index.html">Projects</a></li>
+				<li><a class="navigation" href="../../../../aboutme/index.html">About me</a></li>
+			</ul>
+		</div>
+
+		<div id="Article">
+			<h1>this指针</h1>
+			<p>作者：jicanmeng</p>
+			<p>时间：2014年11月30日</p>
+			<hr />
+
+			<p>
+				先看一个示例程序：
+			</p>
+<pre class="sourceCode">#include &lt;iostream&gt;
+
+class Simple
+{
+private:
+    int m_nID;
+
+public:
+    Simple(int nID)
+    {
+        m_nID = nID;
+    }
+
+    void SetID(int nID) { m_nID = nID; }
+    int GetID() { return m_nID; }
+};
+
+int main()
+{
+    Simple cSimple(1);
+    cSimple.SetID(2);
+    std::cout &lt; cSimple.GetID() &lt; std::endl;
+    return 0;
+}</pre>
+
+			<p>
+				结果输出为2。
+			</p>
+
+			<p>
+				修改一下程序。假设SetID的参数为<code>int m_nID</code>，函数体为<code>m_nID = m_nID;</code>，那么输出结果为1。因为函数的参数和类的成员变量名称相同，函数中的两个m_nID都是函数的参数，导致类的成员变量没有发生变化。
+			</p>
+
+			<p>
+				再次修改一下程序，我们将SetID()函数体修改为<code>this->m_nID = m_nID;</code>。如下所示：
+			</p>
+<pre class="sourceCode">#include &lt;iostream&gt;
+
+class Simple
+{
+private:
+    int m_nID;
+
+public:
+    Simple(int nID)
+    {
+        m_nID = nID;
+    }
+
+    void SetID(int m_nID) { this->m_nID = m_nID; }
+    int GetID() { return m_nID; }
+};
+
+int main()
+{
+    Simple cSimple(1);
+    cSimple.SetID(2);
+    std::cout &lt; cSimple.GetID() &lt; std::endl;
+    return 0;
+}</pre>
+
+			<p>
+				这里的this是一个指针，指向调用SetID()函数的对象本身。在c++中，对于类中的每个成员函数，都会默认有一个this指针，指向调用这个函数时对象本身。
+			</p>
+			<p>
+				learncpp.com上面是这样描述的：C++ has added a new parameter to the function. The added parameter is a pointer to the class object the class function is working with, and it is always named “this”. The this pointer is a hidden pointer inside every class member function that points to the class object the member function is working with.(当然，这段话不够准确，因为静态成员函数是没有this指针的。)
+			</p>
+
+			<p>
+				举例来说，对于上面的<code>SetID(int m_nID)</code>函数，c++编译器会转换为下列格式：<code>SetID(Simple * const this, int m_nID)</code>。
+			</p>
+
+			<p>
+				我们可以在程序中使用this指针，获取类的对象的成员变量，这样，当函数参数和类的成员变量相同时，我们可以实现我们想要的功能。
+			</p>
+
+			<h2>参考资料</h2>
+				<ol>
+					<li>
+						&lt;&lt;C++实用教程&gt;&gt; 电子工业出版社 郑阿奇 主编 丁有和 编著 P280
+					</li>
+					<li>
+						The C++ Tutorial:<br />
+						<a href="http://www.learncpp.com/cpp-tutorial/87-the-hidden-this-pointer/" target="_blank">http://www.learncpp.com/cpp-tutorial/87-the-hidden-this-pointer/</a><br />
+					</li>
+				</ol>
+		</div>
+
+		<div id="footer">
+			<p>jicanmeng@126.com 2013</p>
+			<p>本站文章可随意转载，但请注明转载的本站文章地址，谢谢！</p>
+		</div>
+	</body>
+</html>

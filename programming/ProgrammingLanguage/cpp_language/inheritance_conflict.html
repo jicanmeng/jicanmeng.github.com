@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<title>name conflict between base and derived class in C++</title>
+		<meta http-equiv="content-type" content="text/html; charset=UTF-8">
+		<link rel="stylesheet" type="text/css" href="../../../style.css" />
+	</head>
+	<body>
+
+		<script type="text/javascript" src="../../../style.js"></script>
+
+		<div id="header">
+			<h1>每天进步一点点</h1>
+		</div>
+
+		<div id="navigation">
+			<ul id="navigation">
+				<li><a class="navigation" href="../../../index.html">Home Page</a></li>
+				<li><a class="navigation" href="../../../life/index.html">Life</a></li>
+				<li><a class="navigation" href="../../index.html">Programmig</a></li>
+				<li><a class="navigation" href="../../../projects/index.html">Projects</a></li>
+				<li><a class="navigation" href="../../../aboutme/index.html">About me</a></li>
+			</ul>
+		</div>
+
+		<div id="Article">
+			<h1>派生类中和基类中成员名称冲突时的访问</h1>
+			<p>作者：jicanmeng</p>
+			<p>时间：2014年12月03日</p>
+			<hr />
+
+			<p>
+				假设基类有一个public类型的成员变量<code>int m_nValue;</code>，在派生类中定义一个相同的public类型的成员变量<code>int m_nValue</code>，那么如果使用派生类定义一个对象，则使用此对象访问m_nValue时访问的是哪一个呢？
+			</p>
+
+			<p>
+				看下面的示例程序：
+			</p>
+
+<pre class="sourceCode">#include &lt;iostream&gt;
+using namespace std;
+
+class Base
+{
+public:
+    int m_nValue;
+public:
+    Base(int nValue)
+        : m_nValue(nValue)
+    {
+    }
+
+    void Identify() { cout &lt;&lt; "I am a Base" &lt;&lt; endl; }
+};
+
+class Derived: public Base
+{
+public:
+    Derived(int nValue)
+        :Base(nValue)
+    {
+        m_nValue = nValue+1;
+    }
+
+    int GetValue() { return m_nValue; }
+
+    // Here's our modified function
+    void Identify(){
+        cout &lt;&lt; "I am a Derived" &lt;&lt; endl;
+    }
+    void Identify2(){
+        Base::Identify();
+    }
+public:
+    int m_nValue;
+};
+
+int main()
+{
+    Derived one(2);
+
+    cout &lt;&lt; one.m_nValue &lt;&lt; endl;
+    cout &lt;&lt; one.Base::m_nValue &lt;&lt; endl;
+
+    one.Identify();
+    one.Base::Identify();
+    one.Identify2();
+
+    return 0;
+}</pre>
+
+			<p>
+				以下是运行结果：
+			</p>
+			<pre class="terminal"><code>[jicanmeng@andy tmp]$ <span class="cmd">./a.out</span>
+				3
+				2
+				I am a Derived
+				I am a Base
+				I am a Base
+			[jicanmeng@andy tmp]$</code></pre>
+
+			<p>
+				由此可见，对于基类和派生类中同名的变量m_nValue，如果定义一个派生类对象，访问m_nValue，访问的是派生类中的m_nValue。如果要访问基类中的m_nValue，需要明确指定，就像代码中44行所示。
+			</p>
+			<p>
+				类似的，如果基类和派生类中有同名的函数，那么如果要访问基类的函数，也需要明确指定。就像代码中47行所示。或者在派生类中定义一个函数，直接调用基类中的函数。就像代码中48行所示。
+			</p>
+
+			<p>
+				上例中，基类和派生类中的m_nValue的访问权限都是public，假如我们将派生类中的m_nValue设定为private再进行编译，那么编译报错。可以看出，如果派生类中的变量或函数名和基类中的相同，那么就会覆盖基类的同名变量和同名函数。要访问基类的同名变量或函数，必须明确指定。
+			</p>
+
+			<h2>参考资料</h2>
+				<ol>
+					<li>
+						&lt;&lt;C++实用教程&gt;&gt; 电子工业出版社 郑阿奇 主编 丁有和 编著
+					</li>
+					<li>
+						The C++ Tutorial:<br />
+						<a href="http://www.learncpp.com/cpp-tutorial/116-adding-changing-and-hiding-members-in-a-derived-class/" target="_blank">http://www.learncpp.com/cpp-tutorial/116-adding-changing-and-hiding-members-in-a-derived-class/</a><br />
+					</li>
+				</ol>
+		</div>
+
+		<div id="footer">
+			<p>jicanmeng@126.com 2013</p>
+			<p>本站文章可随意转载，但请注明转载的本站文章地址，谢谢！</p>
+		</div>
+	</body>
+</html>

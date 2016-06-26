@@ -1,0 +1,235 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<title>constructor in c++</title>
+		<meta http-equiv="content-type" content="text/html; charset=UTF-8">
+		<link rel="stylesheet" type="text/css" href="../../../style.css" />
+	</head>
+	<body>
+
+		<script type="text/javascript" src="../../../style.js"></script>
+
+		<div id="header">
+			<h1>每天进步一点点</h1>
+		</div>
+
+		<div id="navigation">
+			<ul id="navigation">
+				<li><a class="navigation" href="../../../index.html">Home Page</a></li>
+				<li><a class="navigation" href="../../../life/index.html">Life</a></li>
+				<li><a class="navigation" href="../../index.html">Programmig</a></li>
+				<li><a class="navigation" href="../../../projects/index.html">Projects</a></li>
+				<li><a class="navigation" href="../../../aboutme/index.html">About me</a></li>
+			</ul>
+		</div>
+
+		<div id="Article">
+			<h1>特殊的函数：构造函数</h1>
+			<p>作者：jicanmeng</p>
+			<p>时间：2014年08月12日</p>
+			<hr />
+
+			<p>问题：<br />
+				什么是隐式的默认构造函数？<br />
+				什么是显式的默认构造函数？<br />
+				什么是重载构造函数？
+			</p>
+
+			<p>
+				我们在定义一个变量的时候，常常会对这个变量进行赋值，称为变量的初始化。类似的，我们在定义一个类的对象的时候，也会对此对象中包含的数据进行赋值，称为类对象的初始化。变量的初始化是通过赋值运算符"="来实现的，而类的对象的初始化是通过构造函数来实现的。
+			</p>
+
+			<p>
+				对构造函数的规定：
+				<ol>
+				<li>
+				Constructors should always have the same name as the class (with the same capitalization)
+				</li>
+				<li>
+				Constructors have no return type (not even void)
+				</li>
+				</ol>
+			</p>
+
+			<p>来看一个例子：</p>
+<pre class="sourceCode">#include &lt;iostream&gt;
+using namespace std;
+
+class CA
+{
+public:
+    CA( int x, int y ){
+        a = x;
+        b = y;
+        cout &lt;&lt; "constructor function called" &lt;&lt; endl;
+    }
+    int getA(){
+        return a;
+    }
+    int getB(){
+        return b;
+    }
+private:
+    int a, b;
+};
+
+int main()
+{
+    CA object(3,4);
+    cout &lt;&lt; "object.getA() is " &lt;&lt; object.getA() &lt;&lt; endl;
+    cout &lt;&lt; "object.getB() is " &lt;&lt; object.getB() &lt;&lt; endl;
+
+    return 0;
+}</pre>
+
+			<p>编译此文件并运行，看一看运行结果:</p>
+
+			<pre class="terminal"><code>[jicanmeng@andy tmp]$ <span class="cmd">g++ a.cpp</span>
+			[jicanmeng@andy tmp]$ <span class="cmd">./a.out</span>
+			constructor function called
+			object.getA() is 3
+			object.getB() is 4
+			[jicanmeng@andy tmp]$</code></pre>
+
+			<p>
+				我们在定义一个变量的时候，例如一个int类型的变量，可以进行赋值，也可以不赋值。<code>int a = 3</code>和<code>int a;</code>这两种形式都是有效的。那对于类的对象是不是也是这样呢？我们可以在代码的第27行添加一行:<code>CA object2;</code>。然后进行编译：
+			</p>
+
+			<pre class="terminal"><code>[jicanmeng@andy tmp]$ <span class="cmd">g++ a.cpp</span>
+			a.cpp: In function ‘int main()’:
+			a.cpp:27: error: no matching function for call to ‘CA::CA()’
+			a.cpp:7: note: candidates are: CA::CA(int, int)
+			a.cpp:5: note:                 CA::CA(const CA&)
+			[jicanmeng@andy tmp]$</code></pre>
+
+			<p>
+				从编译的输出来看，在第27行定义objectTwo对象的时候，调用了一个CA::CA()函数，但是这个函数根本就不存在。有两个候选的可供调用的函数，第7行的CA::CA(int,int)构造函数；还有一个CA::CA(const CA&)，这个函数叫做拷贝构造函数，后续再进行讲解，这里只需要知道有这回事儿就行了。
+			</p>
+
+			<p>
+				既然CA::CA()函数不存在，那么我们就定义一个这样的函数，看看结果如何。代码如下：
+			</p>
+
+<pre class="sourceCode">#include &lt;iostream&gt;
+using namespace std;
+
+class CA
+{
+public:
+    CA( int x, int y ){
+        a = x;
+        b = y;
+        cout &lt;&lt; "constructor function called" &lt;&lt; endl;
+    }
+    CA(){
+        a = 5;
+        b = 5;
+    }
+    int getA(){
+        return a;
+    }
+    int getB(){
+        return b;
+    }
+private:
+    int a, b;
+};
+
+int main()
+{
+    CA objectOne(3,4);
+    cout &lt;&lt; "objectOne.getA() is " &lt;&lt; objectOne.getA() &lt;&lt; endl;
+    cout &lt;&lt; "objectOne.getB() is " &lt;&lt; objectOne.getB() &lt;&lt; endl;
+    CA objectTwo;
+    cout &lt;&lt; "objectTwo.getA() is " &lt;&lt; objectTwo.getA() &lt;&lt; endl;
+    cout &lt;&lt; "objectTwo.getB() is " &lt;&lt; objectTwo.getB() &lt;&lt; endl;
+    return 0;
+}</pre>
+
+			<p>
+				再次进行编译，这次没有错误了，说明我们添加的函数起作用了。由此可以得出，我们定义一个类的对象时，如果不赋初值，c++编译器就会去寻找一个构造函数，这个构造函数不带任何参数，在上面的代码中就是<code>CA::CA()</code>，称为<b>默认构造函数</b>。而那个带参数的构造函数<code>CA::CA(int,int)</code>则称为<b>重载构造函数</b>。
+			</p>
+
+
+			<p>
+				其实，在实际的项目当中，常常将重载构造函数和默认构造函数结合起来，写成一个函数。看下面的代码：
+			</p>
+<pre class="sourceCode">#include &lt;iostream&gt;
+using namespace std;
+
+class CA
+{
+public:
+    CA( int x = 5, int y = 5 ){
+        a = x;
+        b = y;
+        cout &lt;&lt; "constructor function called" &lt;&lt; endl;
+    }
+    int getA(){
+        return a;
+    }
+    int getB(){
+        return b;
+    }
+private:
+    int a, b;
+};
+
+int main()
+{
+    CA objectOne(3,4);
+    cout &lt;&lt; "objectOne.getA() is " &lt;&lt; objectOne.getA() &lt;&lt; endl;
+    cout &lt;&lt; "objectOne.getB() is " &lt;&lt; objectOne.getB() &lt;&lt; endl;
+    CA objectTwo;
+    cout &lt;&lt; "objectTwo.getA() is " &lt;&lt; objectTwo.getA() &lt;&lt; endl;
+    cout &lt;&lt; "objectTwo.getB() is " &lt;&lt; objectTwo.getB() &lt;&lt; endl;
+    return 0;
+}</pre>
+
+			<p>
+				在C++中，可以定义带有默认参数的函数，所以上面的构造函数具有重载构造函数和默认构造函数的双重功能。
+			</p>
+
+			<p>
+				但是前面的<a href="./encapsulation.html">C++特性一：封装</a>中的示例程序中，并没有定义任何的构造函数，那为什么定义一个类的对象没有报错呢？原因是因为当类的定义中如果不存在任何的构造函数的定义，那么系统会默认的生成一个默认的构造函数，这个默认的构造函数可以保证定义一个类的对象的合法性。为了和上面的区分开，这个系统默认生成的构造函数称为<b>隐式的默认构造函数</b>，而上面的我们定义的则称为<b>显式的默认构造函数</b>。
+			</p>
+
+			<p>
+				现在可以总结一下了:
+			</p>
+
+			<p>
+				<b>重载构造函数</b>的作用：在定义类的对象的同时进行初始化，当然我们可以在函数中什么也不做，函数体为空。重载构造函数可以有多个。定义几个重载构造函数，就有几种初始化类的对象的方式。
+			</p>
+			<p>
+				<b>显式的默认构造函数</b>的作用：在定义类的对象的同时进行初始化，当然我们可以在函数中什么也不做，函数体为空。当类的定义中已经存在了一个重载的构造函数时，如果不定义显式的默认构造函数，那么定义一个不带参数的类的对象就会出错。显式的默认构造函数只能有一个。</b>
+			</p>
+			<p>
+				<b>隐式的默认构造函数</b>的作用：是当类的定义中不存在构造函数时，能够使得定义一个类的对象的表达式合法。但是这个函数什么也不做，函数体为空。当类中存在构造函数的定义时，隐式的默认构造函数就不存在了。
+			</p>
+
+			<p>
+				现在可以回答最开始的三个问题了：1.隐式的构造函数是当定义一个类时，如果我们没有实现任何和类名相同的构造函数，那么系统自动生成的一个构造函数。2.显式的构造函数是我们在类的定义中实现的一个构造函数，不带任何参数。3.重载构造函数是我们在类的定义中实现的带参数的构造函数。
+			</p>
+
+			<p>
+				最后有一点需要注意：构造函数是类的成员函数，可以声明为public类型的，也可以声明为private类型的。如果声明为private类型，那么我们就不能创建一个这样的对象。一般来讲，如果一个类的构造函数为private类型的，那么这个类只作为一个基类，供别的类继承使用?????（待确认）。
+			</p>
+			<h2>参考资料</h2>
+				<ol>
+					<li>
+						&lt;&lt;C++实用教程&gt;&gt; 电子工业出版社 郑阿奇 主编 丁有和 编著
+					</li>
+					<li>
+						The C++ Tutorial:<br />
+						<a href="http://www.learncpp.com/cpp-tutorial/85-constructors/" target="_blank">http://www.learncpp.com/cpp-tutorial/85-constructors/</a>
+					</li>
+				</ol>
+		</div>
+
+		<div id="footer">
+			<p>jicanmeng@126.com 2013</p>
+			<p>本站文章可随意转载，但请注明转载的本站文章地址，谢谢！</p>
+		</div>
+	</body>
+</html>

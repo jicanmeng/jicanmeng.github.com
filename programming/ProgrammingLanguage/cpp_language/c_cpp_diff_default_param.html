@@ -1,0 +1,106 @@
+﻿<!DOCTYPE html>
+<html>
+	<head>
+		<title>functions can have default parameters in C++</title>
+		<meta http-equiv="content-type" content="text/html; charset=UTF-8">
+		<link rel="stylesheet" type="text/css" href="../../../style.css" />
+	</head>
+	<body>
+
+		<script type="text/javascript" src="../../../style.js"></script>
+
+		<div id="header">
+			<h1>每天进步一点点</h1>
+		</div>
+
+		<div id="navigation">
+			<ul id="navigation">
+				<li><a class="navigation" href="../../../index.html">Home Page</a></li>
+				<li><a class="navigation" href="../../../life/index.html">Life</a></li>
+				<li><a class="navigation" href="../../index.html">Programmig</a></li>
+				<li><a class="navigation" href="../../../projects/index.html">Projects</a></li>
+				<li><a class="navigation" href="../../../aboutme/index.html">About me</a></li>
+			</ul>
+		</div>
+
+		<div id="Article">
+			<h1>函数可以有默认的参数</h1>
+			<p>作者：jicanmeng</p>
+			<p>时间：2014年11月27日</p>
+			<hr />
+
+			<p>
+				在C++中，允许在函数声明或定义时给一个或多个参数指定默认值。而在C语言中是不允许的。
+			</p>
+
+			<p>示例程序如下:</p>
+
+<pre class="sourceCode">#include &lt;iostream&gt;
+
+void PrintValues(int nValue1, int nValue2=10)
+{
+    using namespace std;
+    cout &lt;&lt; "1st value: " &lt;&lt; nValue1 &lt;&lt; endl;
+    cout &lt;&lt; "2nd value: " &lt;&lt; nValue2 &lt;&lt; endl;
+}
+
+int main()
+{
+    PrintValues(1); // nValue2 will use default parameter of 10
+    PrintValues(3, 4); // override default value for nValue2
+}</pre>
+
+			<p>程序运行结果如下:</p>
+
+			<pre class="terminal"><code>[jicanmeng@andy tmp]$ <span class="cmd">g++ defaultParam.cpp</span>
+				[jicanmeng@andy tmp]$ <span class="cmd">./a.out</span>
+				1st value: 1
+				2nd value: 10
+				1st value: 3
+				2nd value: 4
+				[jicanmeng@andy tmp]$</code></pre>
+
+			<p>
+				函数PrintValues()有两个参数，其中第二个参数有默认值10。当我们调用这个函数时，如果没有提供第二个参数，那么PrintValues()调用时第二个参数就使用默认值10。
+			</p>
+
+			<p>
+				在设置函数的默认形参值时要注意几点：
+			</p>
+
+			<ol>
+				<li>
+					当函数既有原型声明又有定义时，默认参数只能在原型声明中指定，而不能在函数定义中指定。
+				</li>
+
+				<li>
+					当一个函数需要有多个默认参数时，则在形参列表中，默认参数应严格从右到左逐个定义和指定，中间不能跳开。例如<code>void PrintValue(int nValue1=10, int nValue2);</code>这样的函数声明是不允许的。
+				</li>
+
+				<li>
+					当调用有默认参数的函数时，系统按从左到右的顺序将实参和形参结合。当实参的数目不足时，系统将按同样的顺序用声明或定义中的默认值来补齐所缺少的参数。
+				</li>
+
+				<li>
+					由于对同一个函数的原型可以进行多次声明，因此在函数声明中指定多个默认参数时，可用多条函数声明语句来指定，但同一个参数的默认值只能指定一次。例如：<code>void PrintValue(int nValue1=10, int nValue2=5);</code>函数声明语句就等价于两条函数声明语句：<code>void PrintValue(int nValue1=10, int nValue2);</code> <code>void PrintValue(int nValue1, int nValue2=5);</code>
+				</li>
+			</ol>
+
+			<h2>参考资料</h2>
+				<ol>
+					<li>
+						&lt;&lt;C++实用教程&gt;&gt; 电子工业出版社 郑阿奇 主编 丁有和 编著 P95
+					</li>
+					<li>
+						The C++ Tutorial:<br />
+						<a href="http://www.learncpp.com/cpp-tutorial/77-default-parameters/" target="_blank">http://www.learncpp.com/cpp-tutorial/77-default-parameters/</a><br />
+					</li>
+				</ol>
+		</div>
+
+		<div id="footer">
+			<p>jicanmeng@126.com 2013</p>
+			<p>本站文章可随意转载，但请注明转载的本站文章地址，谢谢！</p>
+		</div>
+	</body>
+</html>

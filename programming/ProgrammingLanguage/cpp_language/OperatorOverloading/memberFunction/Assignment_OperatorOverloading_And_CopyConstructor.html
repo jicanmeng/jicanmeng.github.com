@@ -1,0 +1,330 @@
+﻿<!DOCTYPE html>
+<html>
+	<head>
+		<title>assignment operator overloading and copy constructor</title>
+		<meta http-equiv="content-type" content="text/html; charset=UTF-8">
+		<link rel="stylesheet" type="text/css" href="../../../../../style.css" />
+	</head>
+	<body>
+
+		<script type="text/javascript" src="../../../../../style.js"></script>
+
+		<div id="header">
+			<h1>每天进步一点点</h1>
+		</div>
+
+		<div id="navigation">
+			<ul id="navigation">
+				<li><a class="navigation" href="../../../../../index.html">Home Page</a></li>
+				<li><a class="navigation" href="../../../../../life/index.html">Life</a></li>
+				<li><a class="navigation" href="../../../../index.html">Programmig</a></li>
+				<li><a class="navigation" href="../../../../../projects/index.html">Projects</a></li>
+				<li><a class="navigation" href="../../../../../aboutme/index.html">About me</a></li>
+			</ul>
+		</div>
+
+		<div id="Article">
+			<h1>赋值运算符(assignment operator)重载和拷贝构造函数(copy constructor)</h1>
+			<p>作者：jicanmeng</p>
+			<p>时间：2014年11月18日</p>
+			<hr />
+
+			<p>
+				赋值运算符的重载比较特殊。learncpp.com上面提到：
+			</p>
+			<p>
+				The assignment operator is used to copy the values from one object to another already existing object. The key words here are "already existing". 
+			</p>
+			<p>
+				假如赋值运算符的左值不是一个already existing object，那么调用的是另外一个特殊的函数，称为拷贝构造函数(copy constructor)。
+			</p>
+			<pre class="sourceCode">#include &lt;iostream&gt;
+using namespace std;
+
+class Cents
+{
+private:
+    int m_nCents;
+public:
+    Cents(int nCents=0){
+        m_nCents = nCents;
+    }
+
+    // Copy constructor
+    Cents(const Cents &cSource){
+        m_nCents = cSource.m_nCents;
+        cout &lt;&lt; "copy constructor function called" &lt;&lt; endl;
+    }
+
+    // overload the assignment operator
+    Cents& operator= (const Cents &cSource);
+
+};
+
+Cents& Cents::operator= (const Cents &cSource)
+{
+    cout &lt;&lt; "assignment operator overload function called" &lt;&lt; endl;
+
+    // check for self-assignment by comparing the address of the
+    // implicit object and the parameter
+    if (this == &cSource)
+        return *this;
+
+    // do the copy
+    m_nCents = cSource.m_nCents;
+
+    // return the existing object
+    return *this;
+}
+
+int main()
+{
+    Cents cCents1(12);
+    Cents cCents2(13);
+    Cents cCents3 = cCents1;
+    cout &lt;&lt; "--------" &lt;&lt; endl;
+    cCents2 = cCents3;
+    return 0;
+}</pre>
+			<p>
+				对上面的代码编译并运行，结果如下：
+			</p>
+			<pre class="terminal"><code>[jicanmeng@andy Desktop]$ <span class="cmd">g++ 7_Assignment_Operator_And_Copy_Constructor.cpp</span>
+						[jicanmeng@andy Desktop]$ <span class="cmd">./a.out</span>
+						copy constructor function called
+						--------
+						assignment operator overload function called
+					[jicanmeng@andy Desktop]$</code></pre>
+
+			<p>
+				从上面的结果可以看出，执行<code>Cents cCents3 = cCent1;</code>这行代码的时候，调用的是copy constructor。执行<code>cCents2 = cCents3;</code>这行代码的时候，调用的运算符重载函数operator=。
+			</p>
+
+			<p>
+				The purpose of the copy constructor and the assignment operator are almost equivalent — both copy one object to another. However, the assignment operator copies to existing objects, and the copy constructor copies to newly created objects.
+			</p>
+
+			<p>
+				There are three general cases where the copy constructor is called instead of the assignment operator:
+				<ol>
+				<li>When instantiating one object and initializing it with values from another object (as in the example above).</li>
+				<li>When passing an object by value.</li>
+				<li>When an object is returned from a function by value.</li>
+				</ol>
+			</p>
+
+			<b>
+			<p>copy constructor和assignment operator function的实现代码几乎是相同的，不过assignment operator function相比copy constructor多了两点：
+				<ol>
+					<li>
+						assignment operator function的开头有如下代码：<code>if (this == &cSource) {return *this;}</code>。这是因为在c++中，可以给自己赋值。例如：<code>cCents1 = cCents1;</code>。如果在assignment operator function中发现是self-assignment，就直接返回了，不需要后面的步骤了。
+					</li>
+					<li>
+						copy constructor是构造函数，没有返回值。assignment operator function的返回值是*this。这是因为常常会有多个赋值运算符连在一起，例如<code>cCents1 = cCents2 = cCents3;</code>。
+					</li>
+				</ol>
+			</p>
+			</b>
+
+			<p>C++ will provide <b>a default copy constructor</b> if you do not provide one yourself, and C++ will provide <b>a default assignment operator</b> if you do not provide one yourself! 而且，默认的拷贝构造函数和默认的赋值运算符函数的作用相同，都是把右边的对象的数据成员的值赋给左边的对象的数据成员。
+			</p>
+
+			<p>
+				在上面的例子中，Cents类中只有一个int类型的数据成员。我们可以完全不用重载赋值运算符，可以不用实现拷贝构造函数，因为默认的拷贝构造函数和默认的赋值运算符函数实现的是完全相同的功能。此时拷贝构造函数实现的拷贝称为浅拷贝(shallow copy, also known as a memberwise copy)。learncpp.com上面给出的定义是： A shallow copy means that C++ copies each member of the class individually using the assignment operator.
+			</p>
+
+			<p>
+				shallow copy有一定的限制。如果一个类中包含了动态分配的内存时，我们使用copy constructor或赋值运算符时，就会出错了。看下面的例子：
+			</p>
+			<pre class="sourceCode">#include &lt;iostream&gt;
+#include &lt;cstring&gt;
+
+class MyString
+{
+private:
+    char *m_pchString;
+    int m_nLength;
+
+public:
+    MyString(const char *pchString="")
+    {
+        // Find the length of the string
+        // Plus one character for a terminator
+        m_nLength = strlen(pchString) + 1;
+
+        // Allocate a buffer equal to this length
+        m_pchString= new char[m_nLength];
+
+        // Copy the parameter into our internal buffer
+        strncpy(m_pchString, pchString, m_nLength);
+
+        // Make sure the string is terminated
+        m_pchString[m_nLength-1] = '\0';
+    }
+
+    ~MyString()
+    {
+        if(m_pchString){
+            delete[] m_pchString;
+        }
+        m_pchString = NULL;
+    }
+
+    char* GetString() { return m_pchString; }
+    int GetLength() { return m_nLength; }
+};
+
+int main()
+{
+    MyString cHello("Hello, world!");
+
+    {
+        MyString cCopy = cHello; // use default copy constructor
+    } // cCopy goes out of scope here
+
+    std::cout &lt;&lt; cHello.GetString() &lt;&lt; std::endl; // this will crash
+}</pre>
+			<p>
+				如果编译程序并运行，程序会打印乱码并直接崩溃。打印乱码的原因是因为在执行<code>MyString cCopy = cHello;</code>，执行了默认的拷贝构造函数，cCopy和cHello中的m_pchString都指向了同一块内存，但是在代码块执行完后，这一块内存被cCopy的析构函数释放，后面cHello再访问这块内存，所以会打印乱码。至于程序会崩溃的原因是在main()返回的时候需要调用cHello的析构函数，需要释放cHello中m_pchString指向的内存，但是这块内存已经被释放了。所以会提示“double free memory”的错误并崩溃。
+			</p>
+
+			<p>
+				解决的方法是从cHello向cCopy拷贝时，不仅拷贝m_nLength和m_pchString的值，并且还拷贝分配的内存。这样，cCopy和cHello有各自的动态分配的内存，相互之间不会影响。此时的拷贝就不是shallow copy了，而是被称为deep copy。
+				<ol>
+				<li>如果要对<code>MyString cCopy = cHello;</code>实现deep copy，我们需要重载copy constructor;</li>
+				<li>如果要对<code>MyString cCopy; cCopy = cHello;</code>实现deep copy，我们需要重载assignment operator;</li>
+				</ol>
+			</p>
+
+			<p>
+				下面的代码对copy constructor和assignment operator进行了重载，实现了deep copy的功能：
+			</p>
+			<pre class="sourceCode">#include &lt;iostream&gt;
+#include &lt;cstring&gt;
+
+class MyString
+{
+private:
+    char *m_pchString;
+    int m_nLength;
+
+public:
+    MyString(const char *pchString=""){
+        // Find the length of the string
+        // Plus one character for a terminator
+        m_nLength = strlen(pchString) + 1;
+
+        // Allocate a buffer equal to this length
+        m_pchString= new char[m_nLength];
+
+        // Copy the parameter into our internal buffer
+        strncpy(m_pchString, pchString, m_nLength);
+
+        // Make sure the string is terminated
+        m_pchString[m_nLength-1] = '\0';
+    }
+
+    MyString(const MyString& cSource);
+    MyString& operator=(const MyString& cSource);
+
+    ~MyString() {
+        if(m_pchString){
+            delete[] m_pchString;
+        }
+        m_pchString = NULL;
+    }
+
+    char* GetString() { return m_pchString; }
+    int GetLength() { return m_nLength; }
+};
+
+// Copy constructor
+MyString::MyString(const MyString& cSource)
+{
+    // because m_nLength is not a pointer, we can shallow copy it
+    m_nLength = cSource.m_nLength;
+
+    // m_pchString is a pointer, so we need to deep copy it if it is non-null
+    if (cSource.m_pchString){
+        // allocate memory for our copy
+        m_pchString = new char[m_nLength];
+
+        // Copy the string into our newly allocated memory
+        strncpy(m_pchString, cSource.m_pchString, m_nLength);
+    }
+    else
+        m_pchString = NULL;
+}
+
+// Assignment operator
+MyString& MyString::operator=(const MyString& cSource)
+{
+    // check for self-assignment
+    if (this == &cSource)
+        return *this;
+
+    // first we need to deallocate any value that this string is holding!
+    delete[] m_pchString;
+
+    // because m_nLength is not a pointer, we can shallow copy it
+    m_nLength = cSource.m_nLength;
+
+    // now we need to deep copy m_pchString
+    if (cSource.m_pchString){
+        // allocate memory for our copy
+        m_pchString = new char[m_nLength];
+
+        // Copy the parameter the newly allocated memory
+        strncpy(m_pchString, cSource.m_pchString, m_nLength);
+    }
+    else
+        m_pchString = 0;
+
+    return *this;
+}
+int main()
+{
+    MyString cHello("Hello, world!");
+
+    {
+        MyString cCopy = cHello; // use default copy constructor
+    }// cCopy goes out of scope here
+
+    std::cout &lt;&lt; cHello.GetString() &lt;&lt; std::endl; // this will crash
+}
+</pre>
+			<p>
+				我们再看一下，在deep copy的情况下，copy constructor和assignment operator function的实现有哪些差别？
+			</p>
+			<b>
+			<p>copy constructor和assignment operator function的实现代码几乎是相同的，不过assignment operator function相比copy constructor多了三点：
+				<ol>
+					<li>
+						assignment operator function的开头有如下代码：<code>if (this == &cSource) {return *this;}</code>。这是因为在c++中，可以给自己赋值。例如：<code>cCents1 = cCents1;</code>。如果在assignment operator function中发现是self-assignment，就直接返回了，不需要后面的步骤了。
+					</li>
+					<li>
+						copy constructor是构造函数，没有返回值。assignment operator function的返回值是*this。这是因为常常会有多个赋值运算符连在一起，例如<code>cCents1 = cCents2 = cCents3;</code>。
+					</li>
+					<li>
+						在assignment operator function中，在分配内存之前，需要首先释放以前的内存。代码为<code>delete[] m_pchString;</code>。
+					</li>
+				</ol>
+			</p>
+			</b>
+
+
+			<h2>参考资料</h2>
+				<ol>
+					<li>
+						The C++ Tutorial：<br />
+						<a href="http://www.learncpp.com/" target="_blank">http://www.learncpp.com/</a>
+					</li>
+				</ol>
+		</div>
+
+		<div id="footer">
+			<p>jicanmeng@126.com 2013</p>
+			<p>本站文章可随意转载，但请注明转载的本站文章地址，谢谢！</p>
+		</div>
+	</body>
+</html>

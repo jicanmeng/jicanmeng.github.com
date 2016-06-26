@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<title>multiple inheritance in C++</title>
+		<meta http-equiv="content-type" content="text/html; charset=UTF-8">
+		<link rel="stylesheet" type="text/css" href="../../../style.css" />
+	</head>
+	<body>
+
+		<script type="text/javascript" src="../../../style.js"></script>
+
+		<div id="header">
+			<h1>每天进步一点点</h1>
+		</div>
+
+		<div id="navigation">
+			<ul id="navigation">
+				<li><a class="navigation" href="../../../index.html">Home Page</a></li>
+				<li><a class="navigation" href="../../../life/index.html">Life</a></li>
+				<li><a class="navigation" href="../../index.html">Programmig</a></li>
+				<li><a class="navigation" href="../../../projects/index.html">Projects</a></li>
+				<li><a class="navigation" href="../../../aboutme/index.html">About me</a></li>
+			</ul>
+		</div>
+
+		<div id="Article">
+			<h1>多继承</h1>
+			<p>作者：jicanmeng</p>
+			<p>时间：2014年12月04日</p>
+			<hr />
+
+			<p>
+				多继承就是一个派生类同时继承了两个基类的属性和方法。
+			</p>
+			<p>
+				看一个例子：
+			</p>
+<pre class="sourceCode">#include &lt;iostream&gt;
+using namespace std;
+
+class USBDevice
+{
+private:
+    long m_lID;
+
+public:
+    USBDevice(long lID)
+        : m_lID(lID)
+    {
+        cout &lt;&lt; "USBDevice constructor" &lt;&lt; endl;
+    }
+
+    long GetID() { return m_lID; }
+};
+
+class NetworkDevice
+{
+private:
+    long m_lID;
+
+public:
+    NetworkDevice(long lID)
+        : m_lID(lID)
+    {
+        cout &lt;&lt; "NetworkDevice constructor" &lt;&lt; endl;
+    }
+
+    long GetID() { return m_lID; }
+};
+
+class WirelessAdaptor: public USBDevice, public NetworkDevice
+{
+public:
+    WirelessAdaptor(long lUSBID, long lNetworkID)
+        : NetworkDevice(lNetworkID), USBDevice(lUSBID)
+    {
+        cout &lt;&lt; "WirelessAdaptor constructor" &lt;&lt; endl;
+    }
+};
+
+int main()
+{
+    WirelessAdaptor c54G(5442, 181742);
+//    cout &lt;&lt; c54G.GetID(); // Which GetID() do we call?
+    cout &lt;&lt; c54G.USBDevice::GetID();
+    cout &lt;&lt; c54G.NetworkDevice::GetID();
+
+    return 0;
+}</pre>
+
+			<p>
+				以下是运行结果：
+			</p>
+			<pre class="terminal"><code>[jicanmeng@andy tmp]$ <span class="cmd">./a.out</span>
+				USBDevice constructor
+				NetworkDevice constructor
+				WirelessAdaptor constructor
+			[jicanmeng@andy tmp]$</code></pre>
+
+			<p>
+				对于这个例子，需要注意两点：
+				<ol>
+					<li>
+						可以看到，两个基类中都有一个GetID()方法，如果在派生类中直接调用GetID，如上面47行所示，那么会编译出错，因为编译器不知道要调用哪一个基类的GetID()函数。需要详细指定才可以，如48行和49行所示。
+					</li>
+					<li>
+						WirelessAdaptor类继承了两个基类，那么在构造WirelessAdaptor时，需要先构造哪一个基类子对象呢？其实在<a href="inheritance_initialization.html">3.6.1 派生类中成员的初始化</a>中已经提到：<b>如果是多继承，那么基类拷贝的初始化次序取决于派生类声明中指定继承时基类的先后次序。 </b>。我们在WirelessAdaptor类声明的时候(34行)，基类的先后次序是USBDevice类在前，NetworkDevice类在后。所以会先构造USBDevice基类子对象，然后再构造NetworkDevice基类子对象。
+					</li>
+				</ol>
+			</p>
+
+			<p>
+				多继承使用起来容易出错。learncpp.com上面建议大家使用的时候要非常小心。其它语言对多继承的使用或多或少有一些限制。(Many object-oriented languages (eg. Smalltalk, PHP) do not even support multiple inheritance. Many relatively modern languages such as Java and C# restricts classes to single inheritance of normal classes, but allow multiple inheritance of interface classes (which we will talk about later). )
+			</p>
+
+			<h2>参考资料</h2>
+				<ol>
+					<li>
+						&lt;&lt;C++实用教程&gt;&gt; 电子工业出版社 郑阿奇 主编 丁有和 编著
+					</li>
+					<li>
+						The C++ Tutorial:<br />
+						<a href="http://www.learncpp.com/cpp-tutorial/117-multiple-inheritance/" target="_blank">http://www.learncpp.com/cpp-tutorial/117-multiple-inheritance/</a><br />
+					</li>
+				</ol>
+		</div>
+
+		<div id="footer">
+			<p>jicanmeng@126.com 2013</p>
+			<p>本站文章可随意转载，但请注明转载的本站文章地址，谢谢！</p>
+		</div>
+	</body>
+</html>

@@ -1,0 +1,395 @@
+﻿<!DOCTYPE html>
+<html>
+	<head>
+		<title>Overloading operators using member functions</title>
+		<meta http-equiv="content-type" content="text/html; charset=UTF-8">
+		<link rel="stylesheet" type="text/css" href="../../../../../style.css" />
+	</head>
+	<body>
+
+		<script type="text/javascript" src="../../../../../style.js"></script>
+
+		<div id="header">
+			<h1>每天进步一点点</h1>
+		</div>
+
+		<div id="navigation">
+			<ul id="navigation">
+				<li><a class="navigation" href="../../../../../index.html">Home Page</a></li>
+				<li><a class="navigation" href="../../../../../life/index.html">Life</a></li>
+				<li><a class="navigation" href="../../../../index.html">Programmig</a></li>
+				<li><a class="navigation" href="../../../../../projects/index.html">Projects</a></li>
+				<li><a class="navigation" href="../../../../../aboutme/index.html">About me</a></li>
+			</ul>
+		</div>
+
+		<div id="Article">
+			<h1>将运算符重载为成员函数</h1>
+			<p>作者：jicanmeng</p>
+			<p>时间：2014年11月17日</p>
+			<hr />
+
+			<p>
+				For operators that do modify their operands, we typically overload the operator using a member function of the class.
+			</p>
+			<p>
+				Overloading operators using a member function is very similar to overloading operators using a friend function. When overloading an operator using a member function:
+			</p>
+			<ol>
+				<li>The leftmost operand of the overloaded operator must be an object of the class type.
+				</li>
+				<li>The leftmost operand becomes the implicit *this parameter. All other operands become function parameters. 
+				</li>
+			</ol>
+
+			<p>
+				Most operators can actually be overloaded either way, however there are a few exception cases:
+			</p>
+			<ol>
+				<li>If the leftmost operand is not a member of the class type, such as when overloading operator+(int, YourClass), or operator<<(ostream&, YourClass), the operator must be overloaded as a friend.
+				</li>
+				<li>The assignment (=), subscript ([]), call (()), and member selection (->) operators must be overloaded as member functions.
+				</li>
+			</ol>
+
+			<p>
+				learncpp.com上面列举了几个例子：
+			</p>
+
+            <ol>
+                <li>
+                    <a href="#ArithmeticOperatorOverloading">算术运算符(arithmetic operators)重载</a>
+                </li>
+                <li>
+                    <a href="#Increment_Decrement_OperatorOverloading">自增运算符和自减运算符(increment and decrement operators)重载</a>
+                </li>
+                 <li>
+                    <a href="#Subscript_OperatorOverloading">下标运算符(subscript operator)重载</a>
+                </li>
+                <li>
+                    <a href="#Parenthesis_OperatorOverloading">括号运算符(parenthesis operator)重载</a>
+                </li>
+                <li>
+                    <a href="#Typecast_OperatorOverloading">强制转换运算符(typecasts operators)重载</a>
+                </li>
+                <li>
+                    <a href="#Unary_OperatorOverloading">一元运算符(unary operators)重载</a>
+                </li>
+            </ol>
+
+			<h2 id="ArithmeticOperatorOverloading">1. 算术运算符(arithmetic operators)重载</h2>
+			<pre class="sourceCode">#include &lt;iostream&gt;
+using namespace std;
+
+class Cents
+{
+private:
+    int m_nCents;
+public:
+    Cents(int nCents){
+        m_nCents = nCents;
+    }
+
+    //Overload Cents + Cents
+    friend Cents operator+(const Cents &c1, const Cents &c2);
+    // Overload cCents + int
+    Cents operator+(int nCents);
+
+    int GetCents(){
+        return m_nCents;
+    }
+};
+
+//note: this function is not a member function!
+Cents operator+(const Cents &c1, const Cents &c2)
+{
+    //use the Cents constructor and operator+(int, int)
+    return Cents(c1.m_nCents + c2.m_nCents);
+}
+
+Cents Cents::operator+(int nCents)
+{
+    return Cents(m_nCents + nCents);
+}
+
+int main()
+{
+    Cents cCents1(6);
+    Cents cCents2(8);
+    Cents cCentsSum1 = cCents1 + cCents2;
+    Cents cCentsSum2 = cCents1 + 7;
+    cout &lt;&lt; "sum1 have " &lt;&lt; cCentsSum1.GetCents() &lt;&lt; " cents" &lt;&lt; endl;
+    cout &lt;&lt; "sum2 have " &lt;&lt; cCentsSum2.GetCents() &lt;&lt; " cents" &lt;&lt; endl;
+
+    return 0;
+}</pre>
+
+			<h2 id="Increment_Decrement_OperatorOverloading">2. 自增运算符和自减运算符(increment and decrement operators)重载</h2>
+			<pre class="sourceCode">#include &lt;iostream&gt;
+using namespace std;
+
+class Digit
+{
+private:
+    int m_nDigit;
+public:
+    Digit(int nDigit=0)
+    {
+        m_nDigit = nDigit;
+    }
+
+    Digit& operator++(); // prefix
+    Digit& operator--(); // prefix
+
+    Digit operator++(int); // postfix
+    Digit operator--(int); // postfix
+
+    int GetDigit() const { return m_nDigit; }
+};
+
+Digit& Digit::operator++()
+{
+    // If our number is already at 9, wrap around to 0
+    if (m_nDigit == 9)
+        m_nDigit = 0;
+    // otherwise just increment to next number
+    else
+        ++m_nDigit;
+
+    return *this;
+}
+
+Digit& Digit::operator--()
+{
+    // If our number is already at 0, wrap around to 9
+    if (m_nDigit == 0)
+        m_nDigit = 9;
+    // otherwise just decrement to next number
+    else
+        --m_nDigit;
+
+    return *this;
+}
+
+Digit Digit::operator++(int)
+{
+    // Create a temporary variable with our current digit
+    Digit cResult(m_nDigit);
+
+    // Use prefix operator to increment this digit
+    ++(*this);             // apply operator
+
+    // return temporary result
+    return cResult;       // return saved state
+}
+
+Digit Digit::operator--(int)
+{
+    // Create a temporary variable with our current digit
+    Digit cResult(m_nDigit);
+
+    // Use prefix operator to increment this digit
+    --(*this);             // apply operator
+
+    // return temporary result
+    return cResult;       // return saved state
+}
+
+int main()
+{
+    Digit cDigit1(5), cDigit2(5), digit1, digit2;
+	digit1 = ++cDigit1; // calls Digit::operator++();
+    digit2 = cDigit2++; // calls Digit::operator++(int);
+
+    cout &lt;&lt; "digit1 is " &lt;&lt; digit1.GetDigit() &lt;&lt; endl;
+	cout &lt;&lt; "digit2 is " &lt;&lt; digit2.GetDigit() &lt;&lt; endl;
+
+    return 0;
+}</pre>
+
+			<h2 id="Subscript_OperatorOverloading">3. 下标运算符(subscript operator)重载</h2>
+			<pre class="sourceCode">#include &lt;iostream&gt;
+#include &lt;cassert&gt; // for assert()
+using namespace std;
+
+class IntList
+{
+private:
+    int m_anList[10];
+
+public:
+    int& operator[] (const int nIndex);
+};
+
+int& IntList::operator[] (const int nIndex)
+{
+    assert(nIndex >= 0 && nIndex &lt; 10);
+    return m_anList[nIndex];
+}
+
+int main()
+{
+    IntList cMyList;
+    cMyList[2] = 3; 			// set a value
+    cout &lt;&lt; cMyList[2] &lt;&lt; endl; // get a value
+
+    return 0;
+}</pre>
+
+			<h2 id="Parenthesis_OperatorOverloading">4. 括号运算符(parenthesis operator)重载</h2>
+			<pre class="sourceCode">#include &lt;iostream&gt;
+#include &lt;cassert&gt; // for assert()
+using namespace std;
+
+class Matrix
+{
+private:
+    double adData[4][4];
+public:
+    Matrix(){
+        // Set all elements of the matrix to 0.0
+        for (int nCol=0; nCol&lt;4; nCol++)
+            for (int nRow=0; nRow&lt;4; nRow++)
+                adData[nRow][nCol] = 0.0;
+    }
+
+    double& operator()(const int nCol, const int nRow);
+    void operator()();
+};
+
+double& Matrix::operator()(const int nCol, const int nRow)
+{
+    assert(nCol >= 0 && nCol &lt; 4);
+    assert(nRow >= 0 && nRow &lt; 4);
+
+    return adData[nRow][nCol];
+}
+
+void Matrix::operator()()
+{
+    // reset all elements of the matrix to 0.0
+    for (int nCol=0; nCol&lt;4; nCol++)
+        for (int nRow=0; nRow&lt;4; nRow++)
+            adData[nRow][nCol] = 0.0;
+}
+
+int main()
+{
+    Matrix cMatrix;
+    cMatrix(1, 2) = 4.5;
+    cout &lt;&lt; cMatrix(1, 2) &lt;&lt; endl;
+    cMatrix(); // erase cMatrix
+    cout &lt;&lt; cMatrix(1, 2) &lt;&lt; endl;
+    return 0;
+}</pre>
+
+			<h2 id="Typecast_OperatorOverloading">5. 强制转换运算符(typecasts operators)重载</h2>
+			<pre class="sourceCode">#include &lt;iostream&gt;
+using namespace std;
+
+class Cents
+{
+private:
+    int m_nCents;
+public:
+    Cents(int nCents=0)
+    {
+        m_nCents = nCents;
+    }
+
+    // Overloaded int cast
+    operator int() { return m_nCents; }
+
+    int GetCents() { return m_nCents; }
+    void SetCents(int nCents) { m_nCents = nCents; }
+};
+
+class Dollars
+{
+private:
+    int m_nDollars;
+public:
+    Dollars(int nDollars=0)
+    {
+        m_nDollars = nDollars;
+    }
+
+     // Allow us to convert Dollars into Cents
+     operator Cents() { return Cents(m_nDollars * 100); }
+};
+
+void PrintInt(int nValue)
+{
+    cout &lt;&lt; nValue;
+}
+
+void PrintCents(Cents cCents)
+{
+//    cout &lt;&lt; cCents.GetCents();		//use this line of code or next line
+    PrintInt(cCents);
+}
+
+int main()
+{
+    Cents cCents(7);
+    PrintInt(cCents); // cCents will be cast tot a int
+    cout &lt;&lt; endl;
+
+    int nCents = static_cast&lt;int&gt;(cCents);
+    cout &lt;&lt; "using explicitly cast: nCents is " &lt;&lt; nCents &lt;&lt; endl;
+
+    Dollars cDollars(9);
+    PrintCents(cDollars); // cDollars will be cast to a Cents
+    cout &lt;&lt; endl;
+
+    return 0;
+}</pre>
+
+			<h2 id="Unary_OperatorOverloading">6. 一元运算符(unary operators)重载</h2>
+            <pre class="sourceCode">#include &lt;iostream&gt;
+using namespace std;
+
+class Cents
+{
+private:
+    int m_nCents;
+public:
+    Cents(int nCents){
+        m_nCents = nCents;
+    }
+    Cents operator-();
+
+    int GetCents(){
+        return m_nCents;
+    }
+};
+
+Cents Cents::operator-()
+{
+    return Cents(-m_nCents);
+}
+
+int main()
+{
+    Cents cCents1(6);
+    Cents cCentsSum = -cCents1;
+    cout &lt;&lt; "I have " &lt;&lt; cCentsSum.GetCents() &lt;&lt; " cents" &lt;&lt; endl;
+
+    return 0;
+}</pre>
+
+			<h2>参考资料</h2>
+				<ol>
+					<li>
+						The C++ Tutorial：<br />
+						<a href="http://www.learncpp.com/" target="_blank">http://www.learncpp.com/</a>
+					</li>
+				</ol>
+		</div>
+
+		<div id="footer">
+			<p>jicanmeng@126.com 2013</p>
+			<p>本站文章可随意转载，但请注明转载的本站文章地址，谢谢！</p>
+		</div>
+	</body>
+</html>

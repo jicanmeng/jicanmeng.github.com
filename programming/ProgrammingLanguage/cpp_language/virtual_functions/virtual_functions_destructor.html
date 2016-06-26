@@ -1,0 +1,128 @@
+﻿<!DOCTYPE html>
+<html>
+	<head>
+		<title>virtual destructors functions in C++</title>
+		<meta http-equiv="content-type" content="text/html; charset=UTF-8">
+		<link rel="stylesheet" type="text/css" href="../../../../style.css" />
+	</head>
+	<body>
+
+		<script type="text/javascript" src="../../../../style.js"></script>
+
+		<div id="header">
+			<h1>每天进步一点点</h1>
+		</div>
+
+		<div id="navigation">
+			<ul id="navigation">
+				<li><a class="navigation" href="../../../../index.html">Home Page</a></li>
+				<li><a class="navigation" href="../../../../life/index.html">Life</a></li>
+				<li><a class="navigation" href="../../../index.html">Programmig</a></li>
+				<li><a class="navigation" href="../../../../projects/index.html">Projects</a></li>
+				<li><a class="navigation" href="../../../../aboutme/index.html">About me</a></li>
+			</ul>
+		</div>
+
+		<div id="Article">
+			<h1>虚析构函数</h1>
+			<p>作者：jicanmeng</p>
+			<p>时间：2014年12月05日</p>
+			<hr />
+
+			<p>
+				先看一个程序：
+			</p>
+
+<pre class="sourceCode">#include &lt;iostream&gt;
+using namespace std;
+
+class Base
+{
+public:
+    ~Base(){
+        cout &lt;&lt; "Calling ~Base()" &lt;&lt; endl;
+    }
+};
+
+class Derived: public Base
+{
+private:
+    int* m_pnArray;
+
+public:
+    Derived(int nLength){
+        m_pnArray = new int[nLength];
+    }
+
+    ~Derived(){
+        cout &lt;&lt; "Calling ~Derived()" &lt;&lt; endl;
+        delete[] m_pnArray;
+    }
+};
+
+int main()
+{
+    Derived *pDerived = new Derived(5);
+    Base *pBase = pDerived;
+    delete pBase;
+
+    return 0;
+}</pre>
+
+			<p>
+				上面的程序中，程序退出之前，我们调用<code>delete pBase;</code>，但是这行代码只会调用Base的析构函数，不会调用Derived的析构函数，会产生内存泄露。可以通过将Base的析构函数设置为虚函数来解决这个问题。
+			</p>
+<pre class="sourceCode">#include &lt;iostream&gt;
+using namespace std;
+
+class Base
+{
+public:
+    virtual ~Base(){
+        cout &lt;&lt; "Calling ~Base()" &lt;&lt; endl;
+    }
+};
+
+class Derived: public Base
+{
+private:
+    int* m_pnArray;
+
+public:
+    Derived(int nLength){
+        m_pnArray = new int[nLength];
+    }
+
+    virtual ~Derived(){
+        cout &lt;&lt; "Calling ~Derived()" &lt;&lt; endl;
+        delete[] m_pnArray;
+    }
+};
+
+int main()
+{
+    Derived *pDerived = new Derived(5);
+    Base *pBase = pDerived;
+    delete pBase;
+
+    return 0;
+}</pre>
+
+			<h2>参考资料</h2>
+				<ol>
+					<li>
+						&lt;&lt;C++实用教程&gt;&gt; 电子工业出版社 郑阿奇 主编 丁有和 编著
+					</li>
+					<li>
+						The C++ Tutorial:<br />
+						<a href="http://www.learncpp.com/cpp-tutorial/123-virtual-destructors-virtual-assignment-and-overriding-virtualization/" target="_blank">http://www.learncpp.com/cpp-tutorial/123-virtual-destructors-virtual-assignment-and-overriding-virtualization/</a>
+					</li>
+				</ol>
+		</div>
+
+		<div id="footer">
+			<p>jicanmeng@126.com 2013</p>
+			<p>本站文章可随意转载，但请注明转载的本站文章地址，谢谢！</p>
+		</div>
+	</body>
+</html>

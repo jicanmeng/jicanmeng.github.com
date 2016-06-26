@@ -1,0 +1,268 @@
+﻿<!DOCTYPE html>
+<html>
+	<head>
+		<title>Overloading operators using friend functions</title>
+		<meta http-equiv="content-type" content="text/html; charset=UTF-8">
+		<link rel="stylesheet" type="text/css" href="../../../../../style.css" />
+	</head>
+	<body>
+
+		<script type="text/javascript" src="../../../../../style.js"></script>
+
+		<div id="header">
+			<h1>每天进步一点点</h1>
+		</div>
+
+		<div id="navigation">
+			<ul id="navigation">
+				<li><a class="navigation" href="../../../../../index.html">Home Page</a></li>
+				<li><a class="navigation" href="../../../../../life/index.html">Life</a></li>
+				<li><a class="navigation" href="../../../../index.html">Programmig</a></li>
+				<li><a class="navigation" href="../../../../../projects/index.html">Projects</a></li>
+				<li><a class="navigation" href="../../../../../aboutme/index.html">About me</a></li>
+			</ul>
+		</div>
+
+		<div id="Article">
+			<h1>将运算符重载为友元函数</h1>
+			<p>作者：jicanmeng</p>
+			<p>时间：2014年11月17日</p>
+			<hr />
+
+			<p>
+				When the operator does not modify its operands, the best way to overload the operator is via friend function. learncpp.com上面列举了四个例子：
+			</p>
+
+            <ol>
+                <li>
+                    <a href="#ArithmeticOperatorOverloading">算术运算符(arithmetic operators)重载</a>
+                </li>
+                <li>
+                    <a href="#IOOperatorOverloading">输入输出运算符(I/O operators)重载</a>
+                </li>
+                 <li>
+                    <a href="#ComparisionOperatorOverloading">比较运算符(comparison operators)重载</a>
+                </li>
+                <li>
+                    <a href="#UnaryOperatorOverloadingl">一元运算符(unary operators)重载</a>
+                </li>
+            </ol>
+
+
+			<h2 id="ArithmeticOperatorOverloading">1. 算术运算符(arithmetic operators)重载</h2>
+<pre class="sourceCode">#include &lt;iostream&gt;
+using namespace std;
+
+class Cents
+{
+private:
+    int m_nCents;
+public:
+    Cents(int nCents){
+        m_nCents = nCents;
+    }
+
+    //Overload Cents + Cents
+    friend Cents operator+(const Cents &c1, const Cents &c2);
+    // Overload cCents + int
+    friend Cents operator+(const Cents &cCents, int nCents);
+
+    int GetCents(){
+        return m_nCents;
+    }
+};
+
+Cents operator+(const Cents &c1, const Cents &c2)
+{
+    return Cents(c1.m_nCents + c2.m_nCents);
+}
+
+Cents operator+(const Cents &c1, int nCents)
+{
+    return Cents(c1.m_nCents + nCents);
+}
+
+int main()
+{
+    Cents cCents1(6);
+    Cents cCents2(8);
+    Cents cCentsSum1 = cCents1 + cCents2;
+    Cents cCentsSum2 = cCents1 + 7;
+    cout &lt;&lt; "sum1 have " &lt;&lt; cCentsSum1.GetCents() &lt;&lt; " cents" &lt;&lt; endl;
+    cout &lt;&lt; "sum2 have " &lt;&lt; cCentsSum2.GetCents() &lt;&lt; " cents" &lt;&lt;endl;
+
+    return 0;
+}</pre>
+			<h2 id="IOOperatorOverloading">2. 输入输出运算符(I/O operators)重载</h2>
+			<pre class="sourceCode">#include &lt;iostream&gt;
+using namespace std;
+
+class Point
+{
+private:
+    double m_dX, m_dY, m_dZ;
+
+public:
+    Point(double dX=0.0, double dY=0.0, double dZ=0.0){
+        m_dX = dX;
+        m_dY = dY;
+        m_dZ = dZ;
+    }
+
+    friend ostream& operator&lt;&lt; (ostream &out, Point &cPoint);
+    friend istream& operator&gt;&gt; (istream &in, Point &cPoint);
+
+    double GetX() { return m_dX; }
+    double GetY() { return m_dY; }
+    double GetZ() { return m_dZ; }
+};
+
+ostream& operator&lt;&lt; (ostream &out, Point &cPoint)
+{
+    // Since operator&lt;&lt; is a friend of the Point class, we can access
+    // Point's members directly.
+    out &lt;&lt; "(" &lt;&lt; cPoint.m_dX &lt;&lt; ", " &lt;&lt;
+        cPoint.m_dY &lt;&lt; ", " &lt;&lt;
+        cPoint.m_dZ &lt;&lt; ")";
+    return out;
+}
+
+istream& operator&gt;&gt; (istream &in, Point &cPoint)
+{
+    in &gt;&gt; cPoint.m_dX;
+    in &gt;&gt; cPoint.m_dY;
+    in &gt;&gt; cPoint.m_dZ;
+    return in;
+}
+
+int main()
+{
+    Point cPoint1(2.0, 3.0, 4.0);
+    Point cPoint2(6.0, 7.0, 8.0);
+    cout &lt;&lt; cPoint1 &lt;&lt; " " &lt;&lt; cPoint2 &lt;&lt; endl;
+
+    cout &lt;&lt; "Enter a point: " &lt;&lt; endl;
+    Point cPoint;
+    cin &gt;&gt; cPoint;
+    cout &lt;&lt; "You entered: " &lt;&lt; cPoint &lt;&lt; endl;
+
+    return 0;
+}</pre>
+
+			<h2 id="ComparisionOperatorOverloading">3. 比较运算符(comparison operators)重载</h2>
+			<pre class="sourceCode">#include &lt;iostream&gt;
+using namespace std;
+
+class Point
+{
+private:
+    double m_dX, m_dY, m_dZ;
+
+public:
+    Point(double dX=0.0, double dY=0.0, double dZ=0.0){
+        m_dX = dX;
+        m_dY = dY;
+        m_dZ = dZ;
+    }
+
+    friend bool operator== (Point &cP1, Point &cP2);
+    friend bool operator!= (Point &cP1, Point &cP2);
+
+    double GetX() { return m_dX; }
+    double GetY() { return m_dY; }
+    double GetZ() { return m_dZ; }
+};
+
+bool operator== (Point &cP1, Point &cP2)
+{
+    return (cP1.m_dX == cP2.m_dX &&
+            cP1.m_dY == cP2.m_dY &&
+            cP1.m_dZ == cP2.m_dZ);
+}
+
+bool operator!= (Point &cP1, Point &cP2)
+{
+    return !(cP1 == cP2);
+}
+
+int main()
+{
+    Point cPoint1(2.0, 3.0, 4.0);
+    Point cPoint2(6.0, 7.0, 8.0);
+
+    if(cPoint1 == cPoint2){
+        cout &lt;&lt; "cPoint == cPoint2" &lt;&lt; endl;
+    }else{
+        cout &lt;&lt; "cPoint != cPoint2" &lt;&lt; endl;
+    }
+
+    return 0;
+}</pre>
+
+			<h2 id="UnaryOperatorOverloadingl">4. 一元运算符(unary operators)重载</h2>
+			<pre class="sourceCode">#include &lt;iostream&gt;
+using namespace std;
+
+class Cents
+{
+private:
+    int m_nCents;
+public:
+    Cents(int nCents = 0){
+        m_nCents = nCents;
+    }
+
+    // Overload -cCents
+    friend Cents operator-(const Cents &cCents);
+
+    // Return true if use default constructor
+    friend bool operator! (const Cents &cCents);
+
+    int GetCents(){
+        return m_nCents;
+    }
+};
+
+// note: this function is not a member function!
+Cents operator-(const Cents &cCents)
+{
+    return Cents(-cCents.m_nCents);
+}
+
+// Return true if use default constructor
+bool operator! (const Cents &cCents)
+{
+    return (cCents.m_nCents == 0);
+}
+
+int main()
+{
+    Cents cCents1(6);
+    Cents cCentsSum = -cCents1;
+    cout &lt;&lt; "I have " &lt;&lt; cCentsSum.GetCents() &lt;&lt; " cents" &lt;&lt; endl;
+
+    Cents cCents2; // use default contructor to set to m_nCents = 0
+    if(!cCents2){
+        cout &lt;&lt; "cCents2 was set use default constructor." &lt;&lt; endl;
+    }else{
+        cout &lt;&lt; "cCents2 was set use reload constructor." &lt;&lt; endl;
+    }
+
+    return 0;
+}</pre>
+
+			<h2>参考资料</h2>
+				<ol>
+					<li>
+						The C++ Tutorial：<br />
+						<a href="http://www.learncpp.com/" target="_blank">http://www.learncpp.com/</a>
+					</li>
+				</ol>
+		</div>
+
+		<div id="footer">
+			<p>jicanmeng@126.com 2013</p>
+			<p>本站文章可随意转载，但请注明转载的本站文章地址，谢谢！</p>
+		</div>
+	</body>
+</html>

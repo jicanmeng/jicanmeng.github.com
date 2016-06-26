@@ -1,0 +1,141 @@
+﻿<!DOCTYPE html>
+<html>
+	<head>
+		<title>c++ : namespace and scope resolution operator</title>
+		<meta http-equiv="content-type" content="text/html; charset=UTF-8">
+		<link rel="stylesheet" type="text/css" href="../../../style.css" />
+	</head>
+	<body>
+
+		<script type="text/javascript" src="../../../style.js"></script>
+
+		<div id="header">
+			<h1>每天进步一点点</h1>
+		</div>
+
+		<div id="navigation">
+			<ul id="navigation">
+				<li><a class="navigation" href="../../../index.html">Home Page</a></li>
+				<li><a class="navigation" href="../../../life/index.html">Life</a></li>
+				<li><a class="navigation" href="../../index.html">Programmig</a></li>
+				<li><a class="navigation" href="../../../projects/index.html">Projects</a></li>
+				<li><a class="navigation" href="../../../aboutme/index.html">About me</a></li>
+			</ul>
+		</div>
+
+		<div id="Article">
+			<h1>namespace和作用域运算符</h1>
+			<p>作者：jicanmeng</p>
+			<p>时间：2014年11月28日</p>
+			<hr />
+
+			<p>假设我们的程序中使用了两个库，这两个库中都包含了名称为DoSomething()的函数。那么如果调用DoSomething()函数，那么编译器会不知道应该调用哪一个库中的函数，这称为名称冲突(naming collision)。为了解决这样的问题，C++引入了一种机制，称为命名空间(namespace)。将这两个函数分别放入不同的namespace，然后在调用DoSomething()函数的时候指定调用的是哪一个namespace的函数，即可解决此问题。 
+			</p>
+
+			<p>
+				learncpp.com上是这样描述的：
+				<ol>
+				<li>
+					A namespace defines an area of code in which all identifiers are guaranteed to be unique. By default, all variables and functions are defined in the <b>global namespace</b>.
+				</li>
+				<li>
+					C++ allows us to declare our own namespaces via the namespace keyword. Anything declared inside a user-defined namespace belongs to that namespace, not the global namespace.
+				</li>
+				</ol>
+			</p>
+
+			<p>
+				在C++中，定义一个命名空间的格式如下：
+			</p>
+<pre class="sourceCode">namespace [标识符]
+{
+    成员1：
+    成员2:
+    ...
+}</pre>
+			<p>
+				其中，namespace是C++关键字，标识符用作命名空间的名称。命名空间中的成员可以是变量，函数，结构体，枚举，类，联合，等等。
+			</p>
+			<p>示例程序如下:</p>
+
+<pre class="sourceCode">#include &lt;iostream&gt;
+
+namespace Foo
+{
+    // This DoSomething() belongs to namespace Foo
+    int DoSomething(int nX, int nY){
+        return nX + nY;
+    }
+}
+
+namespace Goo
+{
+    // This DoSomething() belongs to namespace Goo
+    int DoSomething(int nX, int nY){
+        return nX - nY;
+    }
+}
+
+int main(void)
+{
+    using namespace std;
+    cout &lt;&lt; Foo::DoSomething(4, 3) &lt;&lt; endl;
+    cout &lt;&lt; Goo::DoSomething(4, 3) &lt;&lt; endl;
+    return 0;
+}</pre>
+
+			<p>对名称空间中的成员的使用有两种方式：</p>
+
+			<p>
+				第一种方式是包含了某个namespace的定义后，使用"命名空间名::成员"的方式来引用。其中，<b>"::"称为作用域运算符(scope resolution operator)。</b>拿上例来说，我们在源文件中包含了命名空间Foo的定义后，在后面使用Foo::DoSomething()的方式引用这个DoSomething函数。
+			</p>
+
+			<p>
+				第二种方式是包含了某个namespace的定义后，使用"using namespace 命名空间名"的方式来告诉编译器，如果有不认识的标识符，可以在这个空间中进行寻找。其中"using namespace 命名空间名"可以放在程序的最开始，可以放在其它位置。例如上面的例子可以修改成下面的代码：
+			</p>
+
+<pre class="sourceCode">#include &lt;iostream&gt;
+
+namespace Foo
+{
+    // This DoSomething() belongs to namespace Foo
+    int DoSomething(int nX, int nY){
+        return nX + nY;
+    }
+}
+
+namespace Goo
+{
+    // This DoSomething() belongs to namespace Goo
+    int DoSomething(int nX, int nY){
+        return nX - nY;
+    }
+}
+
+int main(void)
+{
+    using namespace std;
+    using namespace Foo;
+    cout &lt;&lt; DoSomething(4, 3) &lt;&lt; endl;
+    cout &lt;&lt; Goo::DoSomething(4, 3) &lt;&lt; endl;
+    return 0;
+}</pre>
+
+			<h2>参考资料</h2>
+				<ol>
+					<li>
+						&lt;&lt;C++实用教程&gt;&gt; 电子工业出版社 郑阿奇 主编 丁有和 编著  P220
+					</li>
+					<li>
+						The C++ Tutorial:<br />
+						<a href="http://www.learncpp.com/cpp-tutorial/711-namespaces/" target="_blank">http://www.learncpp.com/cpp-tutorial/711-namespaces/</a><br />
+					</li>
+				</ol>
+		</div>
+
+		<div id="footer">
+			<p>jicanmeng@126.com 2013</p>
+			<p>本站文章可随意转载，但请注明转载的本站文章地址，谢谢！</p>
+		</div>
+	</body>
+</html>

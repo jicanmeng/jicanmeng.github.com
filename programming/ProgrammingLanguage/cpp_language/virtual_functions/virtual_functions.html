@@ -1,0 +1,229 @@
+﻿<!DOCTYPE html>
+<html>
+	<head>
+		<title>virtual functions in C++</title>
+		<meta http-equiv="content-type" content="text/html; charset=UTF-8">
+		<link rel="stylesheet" type="text/css" href="../../../../style.css" />
+	</head>
+	<body>
+
+		<script type="text/javascript" src="../../../../style.js"></script>
+
+		<div id="header">
+			<h1>每天进步一点点</h1>
+		</div>
+
+		<div id="navigation">
+			<ul id="navigation">
+				<li><a class="navigation" href="../../../../index.html">Home Page</a></li>
+				<li><a class="navigation" href="../../../../life/index.html">Life</a></li>
+				<li><a class="navigation" href="../../../index.html">Programmig</a></li>
+				<li><a class="navigation" href="../../../../projects/index.html">Projects</a></li>
+				<li><a class="navigation" href="../../../../aboutme/index.html">About me</a></li>
+			</ul>
+		</div>
+
+		<div id="Article">
+			<h1>特性三：多态和虚函数</h1>
+			<p>作者：jicanmeng</p>
+			<p>时间：2014年12月05日</p>
+			<hr />
+
+			<p>
+				先看一个程序：
+			</p>
+
+<pre class="sourceCode">#include &lt;iostream&gt;
+#include &lt;string&gt;
+
+class Animal
+{
+protected:
+    std::string m_strName;
+
+    // We're making this constructor protected because
+    // we don't want people creating Animal objects directly,
+    // but we still want derived classes to be able to use it.
+    Animal(std::string strName)
+        : m_strName(strName)
+    {
+    }
+
+public:
+    std::string GetName() { return m_strName; }
+    const char* Speak() { return "???"; }
+};
+
+class Cat: public Animal
+{
+public:
+    Cat(std::string strName)
+        : Animal(strName)
+    {
+    }
+
+    const char* Speak() { return "Miao"; }
+};
+
+int main()
+{
+    using namespace std;
+
+    Cat cCat("Fred");
+    cout &lt;&lt; "cCat is named " &lt;&lt; cCat.GetName() &lt;&lt; ", and it says " &lt;&lt;
+	cCat.Speak() &lt;&lt; endl;
+
+    Animal *pAnimal = &cCat;
+    cout &lt;&lt; "pAnimal is named " &lt;&lt; pAnimal->GetName() &lt;&lt; ", and it says " &lt;&lt;
+	pAnimal->Speak() &lt;&lt; endl;
+
+    Animal &amp;rAnimal = cCat;
+    cout &lt;&lt; "rAnimal is named " &lt;&lt; rAnimal.GetName() &lt;&lt; ", and it says " &lt;&lt;
+	rAnimal.Speak() &lt;&lt; endl;
+    return 0;
+}</pre>
+
+			<p>
+				以下是运行结果：
+			</p>
+			<pre class="terminal"><code>[jicanmeng@andy tmp]$ <span class="cmd">./a.out</span>
+				cCat is named Fred, and it says Miao
+				pAnimal is named Fred, and it says ???
+				rAnimal is named Fred, and it says ???
+			[jicanmeng@andy tmp]$</code></pre>
+
+			<p>
+				对结果的分析，learncpp.com上面解释的非常清楚：
+			</p>
+			<blockquote>
+				<p>
+				It turns out that because rBase and pBase are a Base reference and pointer, they can only see members of Base (or any classes that Base inherited). So even though Derived::GetName() is an override of Base::GetName(), the Base pointer/reference can not see Derived::GetName(). Consequently, they call Base::GetName(), which is why rBase and pBase report that they are a Base rather than a Derived.
+				</p>
+				<p>
+				Note that this also means it is not possible to call Derived::GetValue() using rBase or pBase. They are unable to see anything in Derived.
+				</p>
+			</blockquote>
+
+			<p>
+				假设现在除了定义了一个Cat子类，还定义了cDog，Wolf，Horse,Cow等等子类。我们需要实现一个函数，打印每个动物的名字和声音。对于Cat，函数如下：
+			</p>
+<pre class="sourceCode">void Report(Cat &amp;cCat)
+{
+    cout &lt;&lt; cCat.GetName() &lt;&lt; " says " &lt;&lt; cCat.Speak() &lt;&lt; endl;
+}</pre>
+			<p>
+				对于cDog，函数如下：
+			</p>
+<pre class="sourceCode">void Report(Dog &amp;cDog)
+{
+    cout &lt;&lt; cDog.GetName() &lt;&lt; " says " &lt;&lt; cDog.Speak() &lt;&lt; endl;
+}</pre>
+			<p>
+				如果对于每一个子类，我们都实现一个类似的函数，那么工作量就很大。
+			</p>
+
+			<p>
+				为了解决这样的问题，C++中引入了虚函数的概念。我们将上面的程序修改为虚函数的形式。
+			</p>
+<pre class="sourceCode">#include &lt;iostream&gt;
+#include &lt;string&gt;
+
+class Animal
+{
+protected:
+    std::string m_strName;
+
+    // We're making this constructor protected because
+    // we don't want people creating Animal objects directly,
+    // but we still want derived classes to be able to use it.
+    Animal(std::string strName)
+        : m_strName(strName)
+    {
+    }
+
+public:
+    std::string GetName() { return m_strName; }
+    virtual const char* Speak() { return "???"; }
+};
+
+class Cat: public Animal
+{
+public:
+    Cat(std::string strName)
+        : Animal(strName)
+    {
+    }
+
+    virtual const char* Speak() { return "Miao"; }
+};
+
+int main()
+{
+    using namespace std;
+
+    Cat cCat("Fred");
+    cout &lt;&lt; "cCat is named " &lt;&lt; cCat.GetName() &lt;&lt; ", and it says " &lt;&lt;
+	cCat.Speak() &lt;&lt; endl;
+
+    Animal *pAnimal = &cCat;
+    cout &lt;&lt; "pAnimal is named " &lt;&lt; pAnimal->GetName() &lt;&lt; ", and it says " &lt;&lt;
+	pAnimal->Speak() &lt;&lt; endl;
+
+    Animal &amp;rAnimal = cCat;
+    cout &lt;&lt; "rAnimal is named " &lt;&lt; rAnimal.GetName() &lt;&lt; ", and it says " &lt;&lt;
+	rAnimal.Speak() &lt;&lt; endl;
+    return 0;
+}</pre>
+
+			<p>
+				以下是运行结果：
+			</p>
+			<pre class="terminal"><code>[jicanmeng@andy tmp]$ <span class="cmd">./a.out</span>
+				cCat is named Fred, and it says Miao
+				pAnimal is named Fred, and it says Miao
+				rAnimal is named Fred, and it says Miao
+			[jicanmeng@andy tmp]$</code></pre>
+
+			<p>
+				可以看出来，定义一个指针<code>*pAnimal</code>指向一个派生类对象，但是指针本身是指向基类类型的，基类和派生类中都有虚函数<code>Speak()</code>，那么pAnimal->Speak()调用的不是基类的Speak()函数，而是派生类的Speak()函数。
+			</p>
+
+			<p>
+				使用虚函数，前面提到的问题可以得到解决。我们将Speak()定义为虚函数，然后定义一个函数：
+			</p>
+<pre class="sourceCode">void Report(Animal &amp;cAnimal)
+{
+    cout &lt;&lt; cAnimal.GetName() &lt;&lt; " says " &lt;&lt; cAnimal.Speak() &lt;&lt; endl;
+}</pre>
+			<p>
+				这样，传进来的是Cat类型的对象，就调用Cat类的Speak()函数。传进来的是Dog类型的对象，就调用Dog类的Speak()函数。这种<b>通过基类指针或引用，调用函数时根据指针指向的对象的类，来决定调用哪个函数</b>的行为，就称为多态。多态是通过虚函数实现的。
+			</p>
+
+			<p>
+				learncpp.com上面是这样描述的：
+			</p>
+			<blockquote>
+			<p>"A virtual function is a special type of function that resolves to the most-derived version of the function with the same signature. To make a function virtual, simply place the “virtual” keyword before the function declaration."
+			</p>
+			</blockquote>
+
+			<h2>参考资料</h2>
+				<ol>
+					<li>
+						&lt;&lt;C++实用教程&gt;&gt; 电子工业出版社 郑阿奇 主编 丁有和 编著
+					</li>
+					<li>
+						The C++ Tutorial:<br />
+						<a href="http://www.learncpp.com/cpp-tutorial/121-pointers-and-references-to-the-base-class-of-derived-objects/" target="_blank">http://www.learncpp.com/cpp-tutorial/121-pointers-and-references-to-the-base-class-of-derived-objects/</a><br />
+
+						<a href="http://www.learncpp.com/cpp-tutorial/122-virtual-functions/" target="_blank">http://www.learncpp.com/cpp-tutorial/122-virtual-functions/</a>
+					</li>
+				</ol>
+		</div>
+
+		<div id="footer">
+			<p>jicanmeng@126.com 2013</p>
+			<p>本站文章可随意转载，但请注明转载的本站文章地址，谢谢！</p>
+		</div>
+	</body>
+</html>

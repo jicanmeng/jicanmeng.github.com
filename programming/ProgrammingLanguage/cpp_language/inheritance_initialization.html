@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<title>inheritance initialization in C++</title>
+		<meta http-equiv="content-type" content="text/html; charset=UTF-8">
+		<link rel="stylesheet" type="text/css" href="../../../style.css" />
+	</head>
+	<body>
+
+		<script type="text/javascript" src="../../../style.js"></script>
+
+		<div id="header">
+			<h1>每天进步一点点</h1>
+		</div>
+
+		<div id="navigation">
+			<ul id="navigation">
+				<li><a class="navigation" href="../../../index.html">Home Page</a></li>
+				<li><a class="navigation" href="../../../life/index.html">Life</a></li>
+				<li><a class="navigation" href="../../index.html">Programmig</a></li>
+				<li><a class="navigation" href="../../../projects/index.html">Projects</a></li>
+				<li><a class="navigation" href="../../../aboutme/index.html">About me</a></li>
+			</ul>
+		</div>
+
+		<div id="Article">
+			<h1>派生类中成员的初始化</h1>
+			<p>作者：jicanmeng</p>
+			<p>时间：2014年12月03日</p>
+			<hr />
+
+			<p>
+				派生类中成员包括两种：基类对象和派生类中自身的数据成员(包括class类型的对象成员)。需要说明的是，通常将派生类中的基类，称为基类拷贝，或称为"base class subobject，基类子对象"。
+			</p>
+			<p>
+				派生类中对象成员的初始化应该在初始化列表中进行。而且，派生类的基类拷贝也应该在初始化列表中进行。如果没有的话，就调用默认的基类的构造函数对基类子对象进行初始化。
+			</p>
+			<p>
+				派生类中的各成员的初始化次序是：首先是基类拷贝的初始化，然后才是派生类自己的数据成员的初始化。
+			</p>
+			<p>
+				基类拷贝的初始化的次序与它在初始化列表中的次序无关。如果是多继承，那么基类拷贝的初始化次序取决于派生类声明中指定继承时基类的先后次序。
+			</p>
+
+
+
+
+<pre class="sourceCode">#include &lt;iostream&gt;
+#include &lt;cstring&gt;
+using namespace std;
+
+class CPoint
+{
+public:
+    CPoint(int x = 0, int y = 0){
+        xPos = x;
+        yPos = y;
+        cout &lt;&lt; "CPoint constructor! xPos=" &lt;&lt; xPos &lt;&lt; ",yPos=" &lt;&lt; yPos &lt;&lt; endl;
+    }
+private:
+    int xPos, yPos;
+};
+
+class Base
+{
+public:
+    int m_nValue;
+
+    Base(int nValue=0)
+        :m_nValue(nValue)
+    {
+        cout &lt;&lt; "Base constructor! nValue=" &lt;&lt; nValue &lt;&lt; endl;
+    }
+};
+
+class Derived: public Base
+{
+public:
+    double m_dValue;
+
+    Derived(double dValue=0.0, int nValue=0)
+        :m_dValue(dValue),m_point(3,4),Base(nValue)
+    {
+        cout &lt;&lt; "Derived constructor! dValue=" &lt;&lt; dValue &lt;&lt; endl;
+    }
+private:
+    CPoint m_point;
+};
+
+int main()
+{
+    Derived one(5.5, 2);
+
+    return 0;
+}</pre>
+
+			<p>
+				以下是运行结果：
+			</p>
+			<pre class="terminal"><code>[jicanmeng@andy tmp]$ <span class="cmd">./a.out</span>
+				Base constructor! nValue=2
+				CPoint constructor! xPos=3,yPos=4
+				Derived constructor! dValue=5.5
+			[jicanmeng@andy tmp]$</code></pre>
+
+			<p>
+				可以看到，先构建了Base基类子对象，然后才是Derived自身的对象成员。
+			</p>
+
+			<p>
+				learncpp.com上面是这样描述的：
+			</p>
+			<blockquote>
+			<ol>
+				<li>
+				Memory for cDerived is set aside (enough for both the Base and Derived portions).
+				</li>
+				<li>
+				The appropriate Derived constructor is called
+				</li>
+				<li>
+				<b>The Base object is constructed first using the appropriate Base constructor</b>
+				</li>
+				<li>
+				The initialization list initializes variables
+				</li>
+				<li>
+				The body of the constructor executes
+				</li>
+				<li>
+				Control is returned to the caller
+				</li>
+			</ol>
+			</blockquote>
+
+
+			<h2>参考资料</h2>
+				<ol>
+					<li>
+						&lt;&lt;C++实用教程&gt;&gt; 电子工业出版社 郑阿奇 主编 丁有和 编著
+					</li>
+					<li>
+						The C++ Tutorial:<br />
+						<a href="http://www.learncpp.com/cpp-tutorial/114-constructors-and-initialization-of-derived-classes/" target="_blank">http://www.learncpp.com/cpp-tutorial/114-constructors-and-initialization-of-derived-classes/</a><br />
+					</li>
+				</ol>
+		</div>
+
+		<div id="footer">
+			<p>jicanmeng@126.com 2013</p>
+			<p>本站文章可随意转载，但请注明转载的本站文章地址，谢谢！</p>
+		</div>
+	</body>
+</html>

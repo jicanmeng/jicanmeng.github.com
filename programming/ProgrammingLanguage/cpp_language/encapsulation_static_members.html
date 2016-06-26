@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<title>c++: static members</title>
+		<meta http-equiv="content-type" content="text/html; charset=UTF-8">
+		<link rel="stylesheet" type="text/css" href="../../../style.css" />
+	</head>
+	<body>
+
+		<script type="text/javascript" src="../../../style.js"></script>
+
+		<div id="header">
+			<h1>每天进步一点点</h1>
+		</div>
+
+		<div id="navigation">
+			<ul id="navigation">
+				<li><a class="navigation" href="../../../index.html">Home Page</a></li>
+				<li><a class="navigation" href="../../../life/index.html">Life</a></li>
+				<li><a class="navigation" href="../../index.html">Programmig</a></li>
+				<li><a class="navigation" href="../../../projects/index.html">Projects</a></li>
+				<li><a class="navigation" href="../../../aboutme/index.html">About me</a></li>
+			</ul>
+		</div>
+
+		<div id="Article">
+			<h1>静态成员</h1>
+			<p>作者：jicanmeng</p>
+			<p>时间：2014年11月30日</p>
+			<hr />
+
+			<p>
+                在类中，静态成员变量是使用static修饰的成员变量，它是由所有这个类的对象所共享的。类似的，静态成员函数是使用static修饰的成员函数，它由所有这个类的对象所共享。
+            </p>
+
+			<ol class="content">
+				<li><a href="#staticMemberVariable">静态成员变量(static member variables)</a></li>
+				<li><a href="#staticMemberFunction">静态成员函数(static member functions)</a></li>
+			</ol>
+
+			<h2 id="staticMemberVariable">1. 静态成员变量(static member variables)</h2>
+			<p>
+				静态成员变量的使用方法如下：
+				<ol>
+					<li>
+						在类中使用关键字static声明静态成员变量。在类中声明静态成员变量，仅仅说明了静态成员变量是类中的成员这个关系，即使我们使用该类定义对象时，该静态成员变量也不会分配内存空间。可以说，类中声明的静态成员变量是一种形式上的虚的成员变量。静态成员变量的实际定义是由下一步完成的。
+					</li>
+					<li>
+						在类外为静态成员变量分配内存空间并初始化。类中普通的成员变量的内存空间是在对象定义时分配的，但是静态成员变量的内存空间是由该类的所有对象所共享的，只能分配一次，不能通过定义类对象的方式来分配，必须在类的外部进行实际定义才能被所有对象所共享。定义格式如下：<br />
+						&lt;数据类型&gt; &lt;类名&gt;::&lt;静态成员变量名&gt;=&lt;值&gt;
+					</li>
+				</ol>
+			</p>
+
+			<p>
+				看一个示例程序：
+			</p>
+<pre class="sourceCode">#include &lt;iostream&gt;
+
+class Something
+{
+public:
+    static int s_nValue;
+};
+
+int Something::s_nValue = 1;
+
+int main()
+{
+    Something cFirst;
+    cFirst.s_nValue = 2;
+
+    Something cSecond;
+    std::cout &lt;&lt; cSecond.s_nValue &lt;&lt; std::endl;
+
+    Something::s_nValue = 3;
+    std::cout &lt;&lt; cSecond.s_nValue &lt;&lt; std::endl;
+
+    return 0;
+}</pre>
+
+			<p>
+				看一看运行结果：
+			</p>
+
+			<pre class="terminal"><code>[jicanmeng@andy tmp]$ <span class="cmd">g++ staticMemberVar.cpp</span>
+			[jicanmeng@andy tmp]$ ./a.out
+			2
+			3
+			[jicanmeng@andy tmp]$</code></pre>
+
+			<p>
+				几点说明：
+			</p>
+			<p>
+				1. 静态成员变量的实际定义和初始化本身是不受public，protected和private访问属性限制的。
+			</p>
+			<p>
+				2. <b>静态成员变量是属于类的，可以通过"&lt;类名&gt;::&lt;静态成员变量名&gt;"的方式来访问</b>(如上面代码中的19行)。另外，当静态成员变量的访问属性为public时，也可以通过"对象.静态成员变量名"的方式来访问。
+			</p>
+
+			<h2 id="staticMemberFunction">2. 静态成员函数(static member functions)</h2>
+			<p>
+				静态成员函数和静态成员变量一样，是属于类的，并且被所有的类的对象所共享。可以通过"&lt;类名&gt;::&lt;静态成员函数名&gt;"的方式来访问。另外，当静态成员函数的访问属性为public时，也可以通过"对象.静态成员函数名"的方式来访问。
+			</p>
+
+			<p>
+				有一点需要注意：<b>静态成员函数只能访问静态成员变量</b>。
+			</p>
+
+			<p>
+				看一个示例程序：
+			</p>
+<pre class="sourceCode">#include &lt;iostream&gt;
+
+class IDGenerator
+{
+private:
+    static int s_nNextID;
+
+public:
+     static int GetNextID() { return s_nNextID++; }
+};
+
+// We'll start generating IDs at 1
+int IDGenerator::s_nNextID = 1;
+
+int main()
+{
+    for (int i=0; i &lt; 5; i++)
+        std::cout &lt;&lt; "The next ID is: " &lt;&lt; IDGenerator::GetNextID() &lt;&lt; std::endl;
+
+    return 0;
+}</pre>
+
+
+
+			<h2>参考资料</h2>
+				<ol>
+					<li>
+						&lt;&lt;C++实用教程&gt;&gt; 电子工业出版社 郑阿奇 主编 丁有和 编著
+					</li>
+					<li>
+						The C++ Tutorial:<br />
+						<a href="http://www.learncpp.com/cpp-tutorial/811-static-member-variables/" target="_blank">http://www.learncpp.com/cpp-tutorial/811-static-member-variables/</a><br />
+						<a href="http://www.learncpp.com/cpp-tutorial/812-static-member-functions/" target="_blank">http://www.learncpp.com/cpp-tutorial/812-static-member-functions/</a>
+					</li>
+				</ol>
+		</div>
+
+		<div id="footer">
+			<p>jicanmeng@126.com 2013</p>
+			<p>本站文章可随意转载，但请注明转载的本站文章地址，谢谢！</p>
+		</div>
+	</body>
+</html>

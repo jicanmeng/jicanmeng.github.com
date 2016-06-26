@@ -1,0 +1,188 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<title>inheritance in C++</title>
+		<meta http-equiv="content-type" content="text/html; charset=UTF-8">
+		<link rel="stylesheet" type="text/css" href="../../../style.css" />
+	</head>
+	<body>
+
+		<script type="text/javascript" src="../../../style.js"></script>
+
+		<div id="header">
+			<h1>每天进步一点点</h1>
+		</div>
+
+		<div id="navigation">
+			<ul id="navigation">
+				<li><a class="navigation" href="../../../index.html">Home Page</a></li>
+				<li><a class="navigation" href="../../../life/index.html">Life</a></li>
+				<li><a class="navigation" href="../../index.html">Programmig</a></li>
+				<li><a class="navigation" href="../../../projects/index.html">Projects</a></li>
+				<li><a class="navigation" href="../../../aboutme/index.html">About me</a></li>
+			</ul>
+		</div>
+
+		<div id="Article">
+			<h1>C++特性二：继承</h1>
+			<p>作者：jicanmeng</p>
+			<p>时间：2014年11月08日</p>
+			<hr />
+
+			<p>
+				c++中，当一个新类从一个已经定义的类中派生后，新类不仅继承了原有类的属性和方法，而且还有拥有自己的属性和方法。被继承的类称为基类(base class)或超类(super class)或父类，在基类或父类基础上建立的新类称为派生类(derived class)或子类(sub class)。
+			</p>
+
+
+			<p>在c++中，一个派生类的定义格式如下:</p>
+
+			<p>
+				class &lt;派生类名&gt;:[&lt;继承方式 1&gt;] &lt;基类名&gt;, [&lt;继承方式2&gt;] &lt;基类名&gt;,...<br />
+				{<br />
+				};
+			</p>
+
+			<p>
+				有四点需要注意：
+			</p>
+			<ol>
+				<li>一个派生类和一个一般类的定义格式基本相同，唯一的区别在于，派生类定义时派生类名后面是由冒号":"引导的基类列表。</li>
+				<li>基类列表中，若指定基类只有一个，则为单继承方式；若有多个基类，则为多继承方式。当有多个基类时，基类之间需要用逗号分隔。</li>
+				<li>各个基类名前面需要指定继承方式，用于限定派生类继承自基类中的属性和方法的访问权限。c++继承方式有三种：public，protected，private。若继承方式没有指定，则默认指定为private方式。</li>
+				<li>基类必须是在派生类定义前已经定义过的类。若在派生类后面定义，而仅仅在派生类定义前进行基类的提前声明，则是不合法的。</li>
+			</ol>
+
+			<p>
+				类的继承使基类可以向派生类传递基类的属性和方法。但在派生类中访问基类的属性和方法不仅取决于基类成员的访问属性，而且取决于其继承方式。
+			</p>
+			<p>	1. 如果继承方式是public，那么基类中的访问属性为public的成员在派生类中的属性为public，基类中的访问属性为protected的成员在派生类中的属性为protected，基类中的访问属性为private的成员在派生类中不可访问。
+			</p>
+			<p>
+				2. 如果继承方式是protected，那么基类中的访问属性为public的成员在派生类中的属性为protected，基类中的访问属性为protected的成员在派生类中的属性为protected，基类中的访问属性为private的成员在派生类中不可访问。
+			</p>
+			<p>
+				3. 如果继承方式是private，那么基类中的访问属性为public的成员在派生类中的属性为private，基类中的访问属性为protected的成员在派生类中的属性为private，基类中的访问属性为private的成员在派生类中不可访问。
+			</p>
+
+
+<pre class="sourceCode">#include &lt;iostream&gt;
+#include &lt;cstring&gt;
+using namespace std;
+
+class CPerson
+{
+public:
+    CPerson(string strName = "", int nAge = 0, char sex='M')
+    {
+        m_strName = strName;
+        m_nAge = nAge;
+        m_sex = sex;
+    }
+    string GetName(){
+        return m_strName;
+    }
+    char  GetSex(){
+        return m_sex;
+    }
+    int GetAge(){
+        return m_nAge;
+    }
+
+    string m_strName;
+    char m_sex;
+    int m_nAge;
+};
+class CStudent:public CPerson
+{
+public:
+    CStudent(string strName = "", int nAge = 0, char sex='M', string strStuno = "")
+        :CPerson(strName,nAge,sex)
+    {
+        m_strStuno = strStuno;
+    }
+    string GetStuno(){
+        return m_strStuno;
+    }
+private:
+    string m_strStuno;
+};
+int main()
+{
+    CStudent one("XiaoMing", 19, 'M', "5040108");
+    one.m_strName = "DaMeng";
+    cout &lt;&lt; "Name: " &lt;&lt; one.m_strName &lt;&lt; endl &lt;&lt;
+        "sex: " &lt;&lt; one.m_sex &lt;&lt; endl &lt;&lt;
+        "age: " &lt;&lt; one.m_nAge &lt;&lt; endl &lt;&lt;
+        "student number: " &lt;&lt; one.GetStuno() &lt;&lt; endl;
+    return 0;
+}</pre>
+
+			<p>
+				以下是运行结果：
+			</p>
+			<pre class="terminal"><code>[jicanmeng@andy tmp]$ <span class="cmd">./a.out</span>
+				CPerson constructor called.
+				CStudent constructor called.
+				Name: DaMeng
+				sex: M
+				age: 19
+				student number: 5040108
+				CStudent destructor called.
+				CPerson destructor called.
+			[jicanmeng@andy tmp]$</code></pre>
+
+			<p>
+				可以得出，<b>派生类对象构建的时候，首先构建基类对象，然后才构建派生类对象(或者说，首先构建派生类对象的基类部分，然后再构建剩余部分)。在析构的时候，首先析构派生类对象，然后再析构基类对象</b>。
+			</p>
+			<p>
+				看一看learncpp.com上面对继承的一些描述：
+			</p>
+			<blockquote>
+				<p>
+					Inheritance in C++ takes place between classes. When one class inherits from another, the derived class inherits the variables and functions of the base class. These variables and functions become part of the derived class.
+				</p>
+			</blockquote>
+
+			<p>
+				这里有一点需要注意：在定义派生类CStudent的构造函数头后面还有一个":"引导的基类的构造函数。如果没有这个构造函数，那么就会调用基类的默认构造函数。
+			</p>
+			<p>
+				我们在前面<a href="#">类中成员的初始化</a>中也提到过，构造函数头后面可以跟由冒号":"引导的对象成员初始化列表。其实，派生类的构造函数头后面可以同时带有基类的构造函数和自己成员的初始化列表。将上面的程序中派生类的构造函数的定义稍微修改下：
+			</p>
+
+<pre class="sourceCode">#include &lt;iostream&gt;
+class CStudent:public CPerson
+{
+public:
+    CStudent(string strName = "", int nAge = 0, char sex='M', string strStuno = "")
+        :CPerson(strName,nAge,sex),m_strStuno(strStuno)
+    {
+    }
+    string GetStuno(){
+        return m_strStuno;
+    }
+private:
+    string m_strStuno;
+};</pre>
+			<p>
+				这也是完全没有问题的。
+			</p>
+
+			<h2>参考资料</h2>
+				<ol>
+					<li>
+						&lt;&lt;C++实用教程&gt;&gt; 电子工业出版社 郑阿奇 主编 丁有和 编著
+					</li>
+					<li>
+						The C++ Tutorial:<br />
+						<a href="http://www.learncpp.com/cpp-tutorial/112-basic-inheritance-in-c/" target="_blank">http://www.learncpp.com/cpp-tutorial/112-basic-inheritance-in-c/</a><br />
+					</li>
+				</ol>
+		</div>
+
+		<div id="footer">
+			<p>jicanmeng@126.com 2013</p>
+			<p>本站文章可随意转载，但请注明转载的本站文章地址，谢谢！</p>
+		</div>
+	</body>
+</html>

@@ -1,0 +1,240 @@
+﻿<!DOCTYPE html>
+<html>
+	<head>
+		<title>c++ : reference</title>
+		<meta http-equiv="content-type" content="text/html; charset=UTF-8">
+		<link rel="stylesheet" type="text/css" href="../../../style.css" />
+	</head>
+	<body>
+
+		<script type="text/javascript" src="../../../style.js"></script>
+
+		<div id="header">
+			<h1>每天进步一点点</h1>
+		</div>
+
+		<div id="navigation">
+			<ul id="navigation">
+				<li><a class="navigation" href="../../../index.html">Home Page</a></li>
+				<li><a class="navigation" href="../../../life/index.html">Life</a></li>
+				<li><a class="navigation" href="../../index.html">Programmig</a></li>
+				<li><a class="navigation" href="../../../projects/index.html">Projects</a></li>
+				<li><a class="navigation" href="../../../aboutme/index.html">About me</a></li>
+			</ul>
+		</div>
+
+		<div id="Article">
+			<h1>引用(reference)</h1>
+			<p>作者：jicanmeng</p>
+			<p>时间：2014年11月26日</p>
+			<hr />
+
+			<ol class="content">
+				<li><a href="#definitionOfRefrence">引用的定义</a></li>
+				<li>
+					<a href="#ApplicationOfReference">引用的应用场景</a>
+					<ol class="content">
+						<li><a href="#parameterOfFunctionIsReference">函数的参数类型为引用类型</a></li>
+						<li><a href="#returnOfFunctionIsReference">函数的返回值类型为引用类型</a></li>
+					</ol>
+				</li>
+				<li><a href="#exampleOfReference">一个例子</a></li>
+			</ol>
+
+			<h2 id="definitionOfRefrence">1. 引用的定义：</h2>
+			<p>引用(reference)是C++引入的一种新的数据类型，在C语言中是没有的。learncpp.com上面是这样描述的：References are a type of C++ variable that act as an alias to another variable. 
+			</p>
+
+			<p>声明一个引用类型的变量，这个变量会和一个已经分配的内存空间绑定在一起。假设内存空间使用变量var1来表示，所以声明一个引用变量var2就相当于为var1起了一个"绰号"，var1和var2表示是相同的一块内存空间。由于内存空间已经分配，所以编译时不会为引用本身分配内存空间。
+			</p>
+			<p>在声明一个引用类型的变量时，必须为其指定绑定的内存空间，即声明引用的时候必须进行初始化。声明引用的时候使用符号"&"。看一个例子：
+			</p>
+
+
+			<p>程序如下:</p>
+
+<pre class="sourceCode">#include &lt;iostream&gt;
+using namespace std;
+
+int main(){
+    int a = 3;
+    int &b = a;
+    int &c(a);
+
+    b = 4;
+    cout &lt;&lt; "a is " &lt;&lt; a &lt;&lt; endl;
+    c = 5;
+    cout &lt;&lt; "a is " &lt;&lt; a &lt;&lt; endl;
+
+    return 0;
+}</pre>
+
+			<p>程序运行结果如下:</p>
+
+			<pre class="terminal"><code>[jicanmeng@andy tmp]$ <span class="cmd">g++ reference1.cpp</span>
+				[jicanmeng@andy tmp]$ <span class="cmd">./a.out</span>
+				a is 4
+				a is 5
+				[jicanmeng@andy tmp]$</code></pre>
+
+			<p>
+				声明一个引用类型的变量有两种形式，分别如第6行和第7行所示。声明了引用变量b和c后，a变量，b变量，c变量表示是相同的内存空间。修改b就相当于修改a和c，修改c就相当于修改a和b。
+			</p>
+
+			<p>
+				在c语言中学习指针的时候，定义一个指针变量时：<code>int a = 3; int *pointer = &amp;a;</code>,*表示定义的变量是指针类型的。而在正常使用时：<code>*pointer = 4;</code>, *是指针运算符，*pointer表示取指针变量pointer指向的内存的数据。
+			</p>
+			<p>
+				类似的，定义一个引用变量时：<code>int a = 3; int &amp;b = a;</code>，&表示定义的变量是引用类型的。而在正常使用时：<code>int *pointer = &amp;b</code>，&则表示取地址运算符，&amp;b表示得到b表示的内存的地址。
+			</p>
+			<p>
+				指针和引用的区别如下：1. 指针本身要占用内存空间，而引用不需要；2. 引用是一个已分配内存空间的另一个标识，一旦初始化，他们的关系就确定下来，不可再修改。而指针指向另一个内存空间，指向可以更改。
+			</p>
+
+			<p>
+				c++中已经有了指针，为什么还要在添加一个引用类型呢？learncpp.com上给的解释是：Because references always “point” to valid objects, and can never be pointed to deallocated memory, <b>references are safer to use than pointers.</b>
+			</p>
+
+			<h2 id="ApplicationOfReference">2. 引用的应用场景：</h2>
+			<p>
+				reference有两个典型的应用场景：1. 函数的参数为引用类型；2. 函数的返回值类型为引用类型。
+			</p>
+
+			<h3 id="parameterOfFunctionIsReference">2.1 函数的参数类型为引用类型</h3>
+			<p>第一种场景：函数的参数类型为引用类型：</p>
+
+<pre class="sourceCode">#include &lt;iostream&gt;
+using namespace std;
+
+void foo(int &amp;y) // y is now a reference
+{
+    cout &lt;&lt; "y = " &lt;&lt; y &lt;&lt; endl;
+    y = 6;
+    cout &lt;&lt; "y = " &lt;&lt; y &lt;&lt; endl;
+} // y is destroyed here
+
+int main()
+{
+    int x = 5;
+    cout &lt;&lt; "x = " &lt;&lt; x &lt;&lt; endl;
+    foo(x);
+    cout &lt;&lt; "x = " &lt;&lt; x &lt;&lt; endl;
+    return 0;
+}</pre>
+
+			<h3 id="returnOfFunctionIsReference">2.2 函数的返回值类型为引用类型</h3>
+			<p>第二种场景：函数的返回值类型为引用类型。这里需要详细的说明一下如果返回的是一个局部变量的情况。函数的返回值通过传值返回，通过传递引用返回，通过传递指针返回。</p>
+			<p>
+				1. 函数的返回值通过传值返回：
+			</p>
+<pre class="sourceCode">#include &lt;iostream&gt;
+using namespace std;
+
+int DoubleValue(int nX)
+{
+    int nValue = nX * 2;
+    return nValue; // A copy of nValue will be returned here
+} // nValue goes out of scope here
+
+int main()
+{
+    int a = 3;
+    cout &lt;&lt; "return value is " &lt;&lt; DoubleValue(a) &lt;&lt; endl;
+    return 0;
+}</pre>
+
+			<p>在这种方式下，当返回局部变量时，其实程序会将nValue复制一份返回给调用者。</p>
+
+			<p>
+				2. 函数的返回值通过传递引用或传递指针返回：
+			</p>
+
+<pre class="sourceCode">#include &lt;iostream&gt;
+using namespace std;
+
+int &amp; DoubleValue(int nX)
+{
+    int nValue = nX * 2;
+    return nValue; // return a reference to nValue here
+} // nValue goes out of scope here
+
+int main()
+{
+    int a = 3;
+    cout &lt;&lt; "return value is " &lt;&lt; DoubleValue(a) &lt;&lt; endl;
+    return 0;
+}</pre>
+
+<pre class="sourceCode">#include &lt;iostream&gt;
+using namespace std;
+
+int * DoubleValue(int nX)
+{
+    int nValue = nX * 2;
+    return &amp;nValue; // return nValue by address here
+} // nValue goes out of scope here
+
+int main()
+{
+    int a = 3;
+    int *pa = DoubleValue(a);
+    cout &lt;&lt; "return value is " &lt;&lt; *pa &lt;&lt; endl;
+    return 0;
+}</pre>
+
+			<p>
+				上面的两个程序都会提示警告："warning: reference to local variable ‘nValue’ returned" 或者"warning: address of local variable ‘nValue’ returned"。因为函数调用结束后，局部变量会释放分配的内存空间，我们却返回了这块内存空间的引用和指针，所以会出现警告。其实，只要我们返回的是某块不释放的内存的引用或指针，都不会有警告的。
+			</p>
+
+			<h2 id="exampleOfReference">3. 一个例子：</h2>
+			<p>
+				上面提到，声明一个引用变量其实是对一块已经存在的内存空间进行绑定，这块内存空间常常使用变量名表示。来看一种特殊情况：一个指针变量表示的内存空间。我们看一个例子：
+			</p>
+
+<pre class="sourceCode">#include &lt;iostream&gt;
+using namespace std;
+
+int & multiply2(int *&nX)
+{
+    *nX = *nX * 2;
+    return *nX;
+}
+
+int main()
+{
+    using namespace std;
+    int a = 3;
+    int *pa = &a;
+
+    int b = multiply2(pa);
+    cout &lt;&lt; "a is " &lt;&lt; a &lt;&lt;
+        "b is " &lt;&lt; b &lt;&lt; endl;
+
+    return 0;
+}</pre>
+
+			<p>
+				这个例子中，注意两个地方：1. multiply2()函数的参数nX是指针类型的引用变量，表示nX绑定的内存空间用于存放int类型的变量的地址，nX和pa表示的是相同的内存空间。2. multiply2()函数的返回值类型是引用类型，不过因为这个函数返回的不是局部变量，所以没有警告，顺利编译通过。
+			</p>
+
+			<h2>参考资料</h2>
+				<ol>
+					<li>
+						&lt;&lt;C++实用教程&gt;&gt; 电子工业出版社 郑阿奇 主编 丁有和 编著
+					</li>
+					<li>
+						The C++ Tutorial:<br />
+						<a href="http://www.learncpp.com/cpp-tutorial/611-references/" target="_blank">http://www.learncpp.com/cpp-tutorial/611-references/</a><br />
+						<a href="http://www.learncpp.com/cpp-tutorial/612-references-vs-pointers-and-member-selection/" target="_blank">http://www.learncpp.com/cpp-tutorial/612-references-vs-pointers-and-member-selection/</a><br />
+						<a href="http://www.learncpp.com/cpp-tutorial/73-passing-arguments-by-reference/" target="_blank">http://www.learncpp.com/cpp-tutorial/73-passing-arguments-by-reference/</a><br />
+						<a href="http://www.learncpp.com/cpp-tutorial/74a-returning-values-by-value-reference-and-address/" target="_blank">http://www.learncpp.com/cpp-tutorial/74a-returning-values-by-value-reference-and-address/</a><br />
+					</li>
+				</ol>
+		</div>
+
+		<div id="footer">
+			<p>jicanmeng@126.com 2013</p>
+			<p>本站文章可随意转载，但请注明转载的本站文章地址，谢谢！</p>
+		</div>
+	</body>
+</html>

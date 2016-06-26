@@ -1,0 +1,160 @@
+﻿<!DOCTYPE html>
+<html>
+	<head>
+		<title>pure virtual functions in C++</title>
+		<meta http-equiv="content-type" content="text/html; charset=UTF-8">
+		<link rel="stylesheet" type="text/css" href="../../../../style.css" />
+	</head>
+	<body>
+
+		<script type="text/javascript" src="../../../../style.js"></script>
+
+		<div id="header">
+			<h1>每天进步一点点</h1>
+		</div>
+
+		<div id="navigation">
+			<ul id="navigation">
+				<li><a class="navigation" href="../../../../index.html">Home Page</a></li>
+				<li><a class="navigation" href="../../../../life/index.html">Life</a></li>
+				<li><a class="navigation" href="../../../index.html">Programmig</a></li>
+				<li><a class="navigation" href="../../../../projects/index.html">Projects</a></li>
+				<li><a class="navigation" href="../../../../aboutme/index.html">About me</a></li>
+			</ul>
+		</div>
+
+		<div id="Article">
+			<h1>纯虚函数、抽象类、接口类</h1>
+			<p>作者：jicanmeng</p>
+			<p>时间：2014年12月06日</p>
+			<hr />
+
+			<ol class="content">
+				<li><a href="#pure_virtual_function">纯虚函数(pure virtual function)</a></li>
+				<li><a href="#abstract_class">抽象类(abstract class)</a></li>
+				<li><a href="#interface_class">接口类(interface class)</a></li>
+			</ol>
+
+			<h2 id="pure_virtual_function">1. 纯虚函数(pure virtual function)</h2>
+
+			<p>
+				对于<a href="virtual_functions.html">特性三. 多态和虚函数</a>中举的例子，如果我们在Cat类中由于粗心，忘记了定义<code>virtual const char* Speak() { return "Miao"; }</code>函数，那么函数的执行结果如下：
+			</p>
+			<pre class="terminal"><code>[jicanmeng@andy tmp]$ <span class="cmd">./a.out</span>
+				cCat is named Fred, and it says Miao
+				pAnimal is named Fred, and it says ???
+				rAnimal is named Fred, and it says ???
+			[jicanmeng@andy tmp]$</code></pre>
+
+			<p>
+				这显然不是我们想要的结果。为了避免这样的问题，我们需要仔细检查我们的代码，看我们是否忘记了Speak()函数。在程序量很大的时候，这种结果就很耗费时间。我们可以通过将Animal类中的Speak()函数声明为纯虚函数(pure virtual function)，这样，在Cat类中必须要实现Speak()函数，否则程序会编译报错。让程序对自身进行检查，比我们进行检查可靠，而且大大节省时间。
+			</p>
+
+			<p>
+				程序代码如下：
+			</p>
+
+<pre class="sourceCode">#include &lt;iostream&gt;
+#include &lt;string&gt;
+
+class Animal
+{
+protected:
+    std::string m_strName;
+
+    // We're making this constructor protected because
+    // we don't want people creating Animal objects directly,
+    // but we still want derived classes to be able to use it.
+    Animal(std::string strName)
+        : m_strName(strName)
+    {
+    }
+
+public:
+    std::string GetName() { return m_strName; }
+    virtual const char* Speak() = 0;	//pure virtual function
+};
+
+class Cat: public Animal
+{
+public:
+    Cat(std::string strName)
+        : Animal(strName)
+    {
+    }
+
+    virtual const char* Speak() { return "Miao"; }
+};
+
+int main()
+{
+    using namespace std;
+
+    Cat cCat("Fred");
+    cout &lt;&lt; "cCat is named " &lt;&lt; cCat.GetName() &lt;&lt; ", and it says " &lt;&lt;
+	cCat.Speak() &lt;&lt; endl;
+
+    Animal *pAnimal = &cCat;
+    cout &lt;&lt; "pAnimal is named " &lt;&lt; pAnimal->GetName() &lt;&lt; ", and it says " &lt;&lt;
+	pAnimal->Speak() &lt;&lt; endl;
+
+    Animal &amp;rAnimal = cCat;
+    cout &lt;&lt; "rAnimal is named " &lt;&lt; rAnimal.GetName() &lt;&lt; ", and it says " &lt;&lt;
+	rAnimal.Speak() &lt;&lt; endl;
+    return 0;
+}</pre>
+
+			<p>
+				重点在第19行。Cat类继承了Animal类，必须要实现Animal类中定义的纯虚函数，否则使用Cat类实例化一个对象的时候，会编译报错(当然，如果不使用Cat类定义对象，就不会编译报错)。我们将30行注释掉再进行编译看一看：
+			</p>
+			<pre class="terminal"><code>[jicanmeng@andy tmp]$ <span class="cmd">g++ pure_function.cpp</span>
+				pure_function.cpp: In function ‘int main()’:
+				pure_function.cpp:37: error: cannot declare variable ‘cCat’ to be of abstract type ‘Cat’
+				pure_function.cpp:23: note:   because the following virtual functions are pure within ‘Cat’:
+				pure_function.cpp:19: note: 	virtual const char* Animal::Speak()
+			[jicanmeng@andy tmp]$</code></pre>
+
+			<p>
+				这就是纯虚函数的作用了：减少人为检查错误的时间，提高工作效率。
+			</p>
+
+			<h2 id="abstract_class">2. 抽象类(abstract class)</h2>
+
+			<p>
+				如果一个类包含纯虚函数，那么这个类就称为抽象类(abstract class)。<b>C++中规定，不能使用抽象类实例化一个对象。</b>如果一个类B继承了这个抽象类A，那么这个类B就必须要实现抽象类A中的纯虚函数，否则类B也是一个抽象类，也不能实例化对象。
+			</p>
+
+			<h2 id="interface_class">3. 接口类(interface class)</h2>
+
+			<p>
+				如果一个类中不包含成员变量，只包含成员函数，而且这些成员函数全部都是纯虚函数，那么这样的类就称为接口类(interface class)。其实，接口类是抽象类的一种，不过比较特殊，所以单独列出来而已。
+			</p>
+
+			<p>
+				learncpp.com上面对interface class也有一些描述：
+			</p>
+			<blockquote>
+			<p>
+				Interface classes have become extremely popular because they are easy to use, easy to extend, and easy to maintain. In fact, some modern languages, such as Java and C#, have added an “interface” keyword that allows programmers to directly define an interface class without having to explicitly mark all of the member functions as abstract. Furthermore, although Java and C# will not let you use multiple inheritance on normal classes, they will let you multiply inherit as many interfaces as you like. Because interfaces have no data and no function bodies, they avoid a lot of the traditional problems with multiple inheritance while still providing much of the flexibility.
+			</p>
+			</blockquote>
+
+
+			<h2>参考资料</h2>
+				<ol>
+					<li>
+						&lt;&lt;C++实用教程&gt;&gt; 电子工业出版社 郑阿奇 主编 丁有和 编著
+					</li>
+					<li>
+						The C++ Tutorial:<br />
+						<a href="http://www.learncpp.com/cpp-tutorial/126-pure-virtual-functions-abstract-base-classes-and-interface-classes/" target="_blank">http://www.learncpp.com/cpp-tutorial/126-pure-virtual-functions-abstract-base-classes-and-interface-classes/</a><br />
+					</li>
+				</ol>
+		</div>
+
+		<div id="footer">
+			<p>jicanmeng@126.com 2013</p>
+			<p>本站文章可随意转载，但请注明转载的本站文章地址，谢谢！</p>
+		</div>
+	</body>
+</html>
