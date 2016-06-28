@@ -1,0 +1,66 @@
+﻿<!DOCTYPE html>
+<html>
+	<head>
+		<title>logical shift and arithmetic shift</title>
+		<meta http-equiv="content-type" content="text/html; charset=UTF-8">
+		<link rel="stylesheet" type="text/css" href="../../style.css" />
+	</head>
+	<body>
+
+		<script type="text/javascript" src="../../style.js"></script>
+
+		<div id="header">
+			<h1>每天进步一点点</h1>
+		</div>
+
+		<div id="navigation">
+			<ul id="navigation">
+				<li><a class="navigation" href="../../index.html">Home Page</a></li>
+				<li><a class="navigation" href="../../life/index.html">Life</a></li>
+				<li><a class="navigation" href="../index.html">Programmig</a></li>
+				<li><a class="navigation" href="../../projects/index.html">Projects</a></li>
+				<li><a class="navigation" href="../../aboutme/index.html">About me</a></li>
+			</ul>
+		</div>
+
+		<div id="Article">
+			<h1>逻辑移位和算术移位</h1>
+			<p>作者：jicanmeng</p>
+			<p>时间：2016年06月27日</p>
+			<hr />
+
+			<p>
+                逻辑左移和算术左移相同，都是在右侧补零。
+            </p>
+
+            <p>
+                逻辑右移时，在左侧补零。算术右移时，在左侧补符号位。
+            </p>
+
+            <p>
+                stackoverflow上面有如下的描述：
+                <blockquote>
+                    <ul>
+                        <li><code>&gt;&gt;</code> is the arithmetic (or signed) right shift operator.</li>
+                        <li><code>&gt;&gt;&gt;</code> is the logical (or unsigned) right shift operator.</li>
+                        <li><code>&lt;&lt;</code> is the left shift operator, and meets the needs of both logical and arithmetic shifts.</li>
+                    </ul>
+                    Note that &lt;&lt;&lt; is not an operator, because it would be redundant. <font color="red">Also note that C and C++ do not distingiush between the right shift operators. <b>They provide only the &gt;&gt; operator</b>, and the shifting behavior is implementation defined</font>.
+                </blockquote>
+            </p>
+
+			<h2>参考资料</h2>
+				<ol>
+					<li>
+						What are bitwise shift (bit-shift) operators and how do they work?<br />
+						<a href="http://stackoverflow.com/questions/141525/what-are-bitwise-shift-bit-shift-operators-and-how-do-they-work" target="_blank">http://stackoverflow.com/questions/141525/what-are-bitwise-shift-bit-shift-operators-and-how-do-they-work</a>
+					</li>
+				</ol>
+		</div>
+
+		<div id="footer">
+			<p>jicanmeng@126.com 2013</p>
+			<p>本站文章可随意转载，但请注明转载的本站文章地址，谢谢！</p>
+		</div>
+	</body>
+</html>

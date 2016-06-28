@@ -1,0 +1,90 @@
+﻿<!DOCTYPE html>
+<html>
+	<head>
+		<title>sign-and-magnitude、one's complement and two's complaement</title>
+		<meta http-equiv="content-type" content="text/html; charset=UTF-8">
+		<link rel="stylesheet" type="text/css" href="../../style.css" />
+	</head>
+	<body>
+
+		<script type="text/javascript" src="../../style.js"></script>
+
+		<div id="header">
+			<h1>每天进步一点点</h1>
+		</div>
+
+		<div id="navigation">
+			<ul id="navigation">
+				<li><a class="navigation" href="../../index.html">Home Page</a></li>
+				<li><a class="navigation" href="../../life/index.html">Life</a></li>
+				<li><a class="navigation" href="../index.html">Programmig</a></li>
+				<li><a class="navigation" href="../../projects/index.html">Projects</a></li>
+				<li><a class="navigation" href="../../aboutme/index.html">About me</a></li>
+			</ul>
+		</div>
+
+		<div id="Article">
+			<h1>原码、反码和补码</h1>
+			<p>作者：jicanmeng</p>
+			<p>时间：2014年10月26日</p>
+			<hr />
+
+			<p>
+				在计算机内部，所有信息都是用二进制的形式表示的，整数自然也不例外。
+			</p>
+			<p>
+				整数分为正整数，零和负整数。正整数在计算机中的表示我们使用二进制很容易推算出来，例如对于正整数8，二进制的形式是1000。零的二进制形式就是0000。那负整数在计算机中如何使用二进制表示呢？
+			</p>
+			<p>
+				<font color="red"><b>负整数在计算机中有三种表示方法：原码(sign-and-magnitude)，反码(one's complement)，补码(two's complement)</b></font>。<font color="red">对于一个正整数来说，原码，反码和补码是相同的</font>。下面会分别说明这三种表示方法，为了方便，假定使用4位二进制数表示一个整数。
+			</p>
+
+			<h2>第一种方法：原码</h2>
+			<p>最高位表示符号，1表示负数，0表示正数。例如1011表示-3，0011表示3。所以4位二进制数表示的有符号数的范围是[-7,7]。这种表示方法有两个缺点：</p>
+			<ol>
+				<li>正负相加不为0。例如-1为1001，+1为0001，相加后为1010，表示-2。</li>
+				<li>有两个0：+0和-0。</li>
+			</ol>
+			<p>
+				这种方法被直接比较于常用的符号表示法（放置一个“+”或者“−”在数字的数值之前）。一些早期的二进制电脑（例如IBM 7090）使用这种表示法，也许是由于它与通用用途的自然联系。在现代计算机中，这种表示方法已经不再使用。
+			</p>
+
+			<h2>第二种方法：反码</h2>
+			<p>仍然使用最高位表示符号，1表示负数，0表示正数。其它位和原码的对应是相反的。这就解决了上面提到的第一个问题，但是仍然有两个0存在。
+			</p>
+			<p>
+				反码这种数字表示系统通常出现在老式的计算机中；PDP-1，CDC 160A，UNIVAC 1100/2200系列以及其它的一些电脑都使用反码算术。和原码一样，反码这种表示方法也在现在计算机中不再使用了。
+			</p>
+
+			<h2>第三种方法：补码</h2>
+			<p>仍然使用最高位表示符号，1表示负数，0表示正数。其它位在反码的基础上加1。这就解决了上面提到的两个问题。
+			</p>
+			<p>
+				<font color="red"><b>现代计算机中，有符号数的表示方法都使用了反码这种表示方法</b></font>。
+			</p>
+
+			<h2>参考资料</h2>
+				<ol>
+					<li>
+						C语言点滴  第三章 数据类型<br />
+						<a href="http://www.hrbxinzhi.com/cbook/03.htm" target="_blank">http://www.hrbxinzhi.com/cbook/03.htm</a>
+					</li>
+
+					<li>
+						关于2的补码:<br />
+					<a href="http://www.ruanyifeng.com/blog/2009/08/twos_complement.html" target="_blank">http://www.ruanyifeng.com/blog/2009/08/twos_complement.html</a>
+					</li>
+
+					<li>
+						有符号数处理:<br />
+						<a href="http://zh.wikipedia.org/zh-cn/%E6%9C%89%E7%AC%A6%E8%99%9F%E6%95%B8%E8%99%95%E7%90%86" target="_blank">http://zh.wikipedia.org/zh-cn/%E6%9C%89%E7%AC%A6%E8%99%9F%E6%95%B8%E8%99%95%E7%90%86</a>
+					</li>
+				</ol>
+		</div>
+
+		<div id="footer">
+			<p>jicanmeng@126.com 2013</p>
+			<p>本站文章可随意转载，但请注明转载的本站文章地址，谢谢！</p>
+		</div>
+	</body>
+</html>

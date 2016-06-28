@@ -1,0 +1,117 @@
+﻿<!DOCTYPE html>
+<html>
+	<head>
+		<title>Floating Point Data Representation Inside Computer</title>
+		<meta http-equiv="content-type" content="text/html; charset=UTF-8">
+		<link rel="stylesheet" type="text/css" href="../../style.css" />
+	</head>
+	<body>
+
+		<script type="text/javascript" src="../../style.js"></script>
+
+		<div id="header">
+			<h1>每天进步一点点</h1>
+		</div>
+
+		<div id="navigation">
+			<ul id="navigation">
+				<li><a class="navigation" href="../../index.html">Home Page</a></li>
+				<li><a class="navigation" href="../../life/index.html">Life</a></li>
+				<li><a class="navigation" href="../index.html">Programmig</a></li>
+				<li><a class="navigation" href="../../projects/index.html">Projects</a></li>
+				<li><a class="navigation" href="../../aboutme/index.html">About me</a></li>
+			</ul>
+		</div>
+
+		<div id="Article">
+			<h1>浮点数的二进制表示</h1>
+			<p>作者：jicanmeng</p>
+			<p>时间：2014年06月19日</p>
+			<hr />
+			<p>今天看了阮一峰老师写的<a href="http://www.ruanyifeng.com/blog/2010/06/ieee_floating-point_representation.html">浮点数的二进制表示</a>，感觉写的非常好。只看还不行，我又实践了一下，以下是实践的情况。
+			</p>
+			<p>程序如下:</p>
+
+<pre class="sourceCode">#include &lt;stdio.h&gt;
+
+int main(void){
+    int num=9;
+    float* pFloat=&amp;num;
+    printf("sizeof(int) is %d, sizeof(float) is %d\n",
+        sizeof(int), sizeof(float));
+    printf("value of num is %d\n",num);
+    printf("value of *pFloat is %f\n",*pFloat);
+    *pFloat=9.0;
+    printf("value of num is %d\n",num);
+    printf("value of *pFloat is %f\n",*pFloat);
+    return 0;
+}</pre>
+
+			<p>使用gdb调试结果如下:</p>
+
+			<pre class="terminal"><code>[jicanmeng@andy tmp]$ <span class="cmd">gcc -g float.c -o float</span>
+				float.c: In function ‘main’:
+				float.c:4: warning: initialization from incompatible pointer type
+				[jicanmeng@andy tmp]$ <span class="cmd">./float</span>
+				sizeof(int) is 4, sizeof(float) is 4
+				value of num is 9
+				value of *pFloat is 0.000000
+				value of num is 1091567616
+				value of *pFloat is 9.000000
+				[jicanmeng@andy tmp]$ <span class="cmd">gdb float</span>
+				GNU gdb (GDB) Red Hat Enterprise Linux (7.2-60.el6_4.1)
+				Copyright (C) 2010 Free Software Foundation, Inc.
+				License GPLv3+: GNU GPL version 3 or later <http://gnu.org/licenses/gpl.html>
+				This is free software: you are free to change and redistribute it.
+				There is NO WARRANTY, to the extent permitted by law. Type "show copying"
+				and "show warranty" for details.
+				This GDB was configured as "x86_64-redhat-linux-gnu".
+				For bug reporting instructions, please see:
+				...
+				Reading symbols from /home/jicanmeng/Desktop/tmp/float...done.
+				(gdb) <span class="cmd">break float.c:10</span>
+				Breakpoint 1 at 0x40052e: file float.c, line 10.
+				(gdb) <span class="cmd">run</span>
+				Starting program: /home/jicanmeng/Desktop/tmp/float
+				sizeof(int) is 4, sizeof(float) is 4
+				value of num is 9
+				value of *pFloat is 0.000000
+
+				Breakpoint 1, main () at float.c:10
+				10 *pFloat=9.0;
+				(gdb) <span class="cmd">print num</span>
+				$1 = 9
+				(gdb) <span class="cmd">print &num</span>
+				$2 = (int *) 0x7fffffffe0e4
+				(gdb) <span class="cmd">x/4tb 0x7fffffffe0e4</span>
+				0x7fffffffe0e4: 00001001 00000000 00000000 00000000
+				(gdb) <span class="cmd">step</span>
+				11 printf("value of num is %d\n",num);
+				(gdb) <span class="cmd">x/4tb 0x7fffffffe0e4</span>
+				0x7fffffffe0e4: 00000000 00000000 00010000 01000001
+				(gdb) <span class="cmd">continue</span>
+				Continuing.
+				value of num is 1091567616
+				value of *pFloat is 9.000000
+
+				Program exited normally.
+				(gdb) <span class="cmd">q</span>
+				[jicanmeng@andy tmp]$</code></pre>
+
+			<p>从gdb的调试结果中可以看到，和阮一峰老师说的完全相同。其中<code>x/4tb 0x7fffffffe0e4</code>表示查看从0x7fffffffe0e4地址开始的4个字节的内容。我们可以通过<code>help x</code>命令来查看x命令的用法。</p>
+
+			<h2>参考资料</h2>
+				<ol>
+					<li>
+						浮点数的二进制表示：<br />
+						<a href="http://www.ruanyifeng.com/blog/2010/06/ieee_floating-point_representation.html" target="_blank">http://www.ruanyifeng.com/blog/2010/06/ieee_floating-point_representation.html</a>
+					</li>
+				</ol>
+		</div>
+
+		<div id="footer">
+			<p>jicanmeng@126.com 2013</p>
+			<p>本站文章可随意转载，但请注明转载的本站文章地址，谢谢！</p>
+		</div>
+	</body>
+</html>
