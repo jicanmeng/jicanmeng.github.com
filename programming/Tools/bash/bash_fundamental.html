@@ -40,12 +40,12 @@
                 <li><a href="#bash_math">bash shell中的数学运算的两种方法</a></li>
                 <li><a href="#bash_math_floating">bash shell中的浮点运算</a></li>
                 <li><a href="#bash_exit_status">bash shell中的退出状态码</a></li>
-                <li><a href="#bash_command_process">bash shell中命令的执行过程是怎样的?</a></li>
+                <li><a href="#bash_command_process"><font color="red"><b>bash shell中命令的执行过程是怎样的?</b></font></a></li>
                 <li><a href="#bash_questions">5个问题</a></li>
             </ol>
 
             <h3 id="two_commands">1. 两个命令写在一行执行</h3>
-            <p>两个命令可以用分号<code>;</code>或逻辑与符号<code>&&</code>隔开，写在一行，在运行时按顺序运行。区别在于：<code>;</code>前后的两条命令都会执行，而<code>&&</code>前面的命令执行成功，后面的命令才会执行</code>。(P200)</p>
+            <p>两个命令可以用分号<code>;</code>或逻辑与符号<code>&&</code>隔开，写在一行，在运行时按顺序运行。区别在于符号<code>;</code>前后的两条命令都会执行，而符号<code>&&</code>前面的命令执行成功，后面的命令才会执行</code>。(P200)</p>
                 <pre class="terminal"><code>[jicanmeng@andy tmp]$ <span class="cmd">ls</span>
                     rpm.txt
                 [jicanmeng@andy tmp]$ <span class="cmd">date</span>
@@ -85,7 +85,7 @@
                     500       5916  5915  0 22:29 pts/2    00:00:00 sleep 20
                     500       5917  5900  0 22:29 pts/3    00:00:00 ps -ef
                 [jicanmeng@andy tmp]$ </code></pre>
-                可以看出，a.sh脚本是被bash执行的，b.sh是被sh执行的，这都是在脚本第一行指定的。但是如果在pts/1中执行命令: <code>./bash a.sh</code>，在pts/2中执行命令: <code>bash b.sh</code>，在pts/3中执行命令: <code>ps -ef</code>，即显式指定bash来读取脚本并执行命令，那么在<code>ps -ef</code>的输出可以看到a.sh和b.sh都是被bash执行的。
+                可以看出，a.sh脚本是被bash执行的，b.sh是被sh执行的，这都是在脚本第一行指定的。但是如果在pts/1中执行命令: <code>bash a.sh</code>，在pts/2中执行命令: <code>bash b.sh</code>，在pts/3中执行命令: <code>ps -ef</code>，即显式指定bash来读取脚本并执行命令，那么在<code>ps -ef</code>的输出可以看到a.sh和b.sh都是被bash执行的。
             </p>
 
             <h3 id="echo_n">3. echo -n</h3>
@@ -263,7 +263,7 @@
                     几个地方需要注意：<b>1. bc可以工作在交互模式，也可以工作在非交互模式； 2. 和bash shell不同，bc中变量的赋值表达式中，等号前后是可以有空格的； 3. 和bash shell不同，bc中的变量在引用的时候，是不需要加$符号的。4. scale内建变量表示浮点数的精度； 5. -q选项表示将bash计算器输出的长长的欢迎信息屏蔽掉。</b>
                 </li>
 
-                <li>bash可以工作在非交互模式，我们常常用反引号来运行某个命令，利用这两个特性，我们在shell脚本中就可以处理浮点数了。具体做法是用反引号``来运行bc命令并赋值给一个变量。例如：
+                <li>bash可以工作在非交互模式，而我们又常常用反引号来运行某个命令，利用这两个特性，我们在shell脚本中就可以处理浮点数了。具体做法是用反引号``来运行bc命令并赋值给一个变量。例如：
                     <pre class="terminal"><code>例4：
                     [jicanmeng@andy tmp]$ <span class="cmd">var=`echo "scale = 4; 12.44 / 5" | bc`</span>
                     [jicanmeng@andy tmp]$ <span class="cmd">echo $var</span>
@@ -339,7 +339,7 @@
                 需要注意的是，退出状态码最大只能是255。
             </p>
 
-            <h3 id="bash_questions">10. bash shell中命令的执行过程是怎样的?</h3>
+            <h3 id="bash_command_process">10. bash shell中命令的执行过程是怎样的?</h3>
             <p>在bash shell中下达的命令，会启动一个新的shell，在这个新的shell中执行命令，执行完毕后会回到原来的shell。当下达的命令是shell的 built-in指令时，才不会新创建一个子shell。子shell会继承父shell的环境变量(environment variables)。我们可以在父shell中执行<code>export variableName</code>来将一个变量变为环境变量，这样在子shell中也可以使用这个变量的值了。
             </p>
 
@@ -351,7 +351,7 @@
                 </li>
                 <li><code>name=canmeng ls</code>这条命令为什么可以执行??? 先定义一个变量，再执行一条命令，书里面并没有提到这种格式啊???
                 </li>
-                <li><code>cat a.txt</code>和<code>cat &lt;&lt; a.txt</code>两条命令都可以显示a.txt文件的内容，那么这两条命令有什么区别呢? 答：<font color="red"><b>如果cat命令没有输入参数，那么它会从标准输入STDIN读取数据，如果有，就从输入参数对应的文件读取数据</b></font>。所以区别是<code>cat &lt;&lt; a.txt</code>命令从标准输入读取的数据，但标准输入被重定向到了a.txt文件中。
+                <li><code>cat a.txt</code>和<code>cat &lt; a.txt</code>两条命令都可以显示a.txt文件的内容，那么这两条命令有什么区别呢? 答：<font color="red"><b>如果cat命令没有输入参数，那么它会从标准输入STDIN读取数据，如果有，就从输入参数对应的文件读取数据</b></font>。所以区别是<code>cat &lt; a.txt</code>命令从标准输入读取的数据，但标准输入被重定向到了a.txt文件中。
                 </li>
                 <li>上面的示例程序test12中，在给var3变量赋值的那一行，如果给字符EOF添加双引号，那么脚本运行的时候就会提示出错。但是在如果直接在命令行上输入，就没有问题，如下：
                 <pre class="terminal"><code>例1：
@@ -373,8 +373,9 @@
 				<ol>
 					<li>Lnux命令行与shell脚本编程大全
 					</li>
-					<li>鸟哥的linux私房菜
-					</li>
+                    <li>鸟哥的linux私房菜：<br />
+                        <a href="http://linux.vbird.org/linux_basic/0320bash.php" target="_blank">http://linux.vbird.org/linux_basic/0320bash.php</a>
+                    </li>
                 </ol>
 
 		</div>
