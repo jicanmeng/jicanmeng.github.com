@@ -77,6 +77,7 @@ public:
         m_strName = strName;
         m_nAge = nAge;
         m_sex = sex;
+        cout &lt;&lt; "CPerson constructor called." &lt;&lt; endl;
     }
     string GetName(){
         return m_strName;
@@ -86,6 +87,10 @@ public:
     }
     int GetAge(){
         return m_nAge;
+    }
+    ~CPerson()
+    {
+      cout &lt;&lt; "CPerson destructor called." &lt;&lt;s endl;
     }
 
     string m_strName;
@@ -99,9 +104,14 @@ public:
         :CPerson(strName,nAge,sex)
     {
         m_strStuno = strStuno;
+        cout &lt;&lt; "CStudent constructor called." &lt;&lt; endl;
     }
     string GetStuno(){
         return m_strStuno;
+    }
+    ~CStudent()
+    {
+      cout &lt;&lt; "CStudent destructor called." &lt;&lt; endl;
     }
 private:
     string m_strStuno;
