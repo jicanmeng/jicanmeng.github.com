@@ -1,0 +1,152 @@
+﻿<!DOCTYPE html>
+<html>
+	<head>
+		<title>standard library and namespace in C++</title>
+		<meta http-equiv="content-type" content="text/html; charset=UTF-8">
+		<link rel="stylesheet" type="text/css" href="../../../style.css" />
+	</head>
+	<body>
+
+		<script type="text/javascript" src="../../../style.js"></script>
+
+		<div id="header">
+			<h1>每天进步一点点</h1>
+		</div>
+
+		<div id="navigation">
+			<ul id="navigation">
+				<li><a class="navigation" href="../../../index.html">Home Page</a></li>
+				<li><a class="navigation" href="../../../life/index.html">Life</a></li>
+				<li><a class="navigation" href="../../index.html">Programmig</a></li>
+				<li><a class="navigation" href="../../../projects/index.html">Projects</a></li>
+				<li><a class="navigation" href="../../../aboutme/index.html">About me</a></li>
+			</ul>
+		</div>
+
+		<div id="Article">
+			<h1>standard library and namespace</h1>
+			<p>作者：jicanmeng</p>
+			<p>时间：2017年1月22日</p>
+			<hr />
+
+			<p>
+				首先要注意，这里说的是standard library，不是standard template library。
+			</p>
+
+			<p>
+				c语言中，最简单的一个示例程序如下：
+			</p>
+
+<pre class="sourceCode">//a.c
+#include &lt;stdio.h&gt;
+
+int main()
+{
+    printf("hello,world!\n");
+    return 0;
+}</pre>
+
+			<p>
+				c++语言中，最简单的一个示例程序如下：
+			</p>
+<pre class="sourceCode">//a.cpp
+#include &lt;iostream&gt;
+
+int main()
+{
+    std::cout << "hello,world!" << std::endl;
+    return 0;
+}</pre>
+
+			<p>两个程序的编译和运行结果如下:</p>
+
+			<pre class="terminal"><code>[jicanmeng@andy tmp]$ <span class="cmd">gcc a.c</span>
+				[jicanmeng@andy tmp]$ <span class="cmd">./a.out</span>
+				hello,world!
+				[jicanmeng@andy tmp]$ <span class="cmd">g++ a.cpp</span>
+				[jicanmeng@andy tmp]$ <span class="cmd">./a.out</span>
+				hello,world!
+				[jicanmeng@andy tmp]$</code></pre>
+
+			<p>
+				很明显可以看出来，c和cpp有两点是不同的：
+				<ol>
+					<li>
+						c语言中包含头文件时使用的是&lt;stdio.h&gt;这种形式，而cpp中使用的是&lt;iostream&gt;这种方式，cpp中包含的头文件是没有.h后缀的。
+					</li>
+					<li>
+						c语言中输出log信息使用printf函数，而cpp中使用std::cout函数来输出。
+					</li>
+				</ol>
+				下面就讲解一下这两点差异。第一点差异涉及到的知识点是standard library，第二点差异涉及到的知识点是namespace。
+			</p>
+
+			<p>
+				对于这两点，learncpp.com上面已经有了详细的说明。先说第一点，摘抄如下：
+				<ol>
+					<li>
+						<blockquote>
+							<p>
+								When C++ was first created, all of the files in the standard runtime library ended in .h. Life was consistent, and it was good. The original version of cout and cin lived in iostream.h. When the language was standardized by the ANSI committee, they decided to move all of the functions in the runtime library into the std namespace (which is generally a good idea). However, this presented a problem: if they moved all the functions into the std namespace, none of the old programs would work any more!
+							</p>
+							<p>
+								<b>To try to get around this issue and provide backwards compatibility for older programs, a new set of header files was introduced that use the same names but lack the .h extension.</b> These new header files have all their functionality inside the std namespace. This way, older programs that include #include <iostream.h> do not need to be rewritten, and newer programs can #include <iostream>.
+							</p>
+							<p>
+								When you include a header file from the standard library, make sure you use the non .h version if it exists. Otherwise you will be using a deprecated version of the header that is no longer supported.
+							</p>
+							<p>
+								In addition, many of the libraries inherited from C that were still useful in C++ were given a c prefix (e.g. stdlib.h became cstdlib). The functionality from these libraries was also moved into the std namespace to help avoid naming collisions.
+							</p>
+							<p>
+								However, when you write your own header files, you should give them all a .h extension, since you will not be putting your code in the std namespace.
+							</p>
+						</blockquote>
+					</li>
+					简单地说，这些不以.h结尾的standard library是为了解决兼容性问题而发明的。再看看learncpp.com是如何描述namespace的：
+					<li>
+						<blockquote>
+							<p>
+								When C++ was originally designed, all of the identifiers in the C++ standard library (such as cin and cout) were available to be used directly. <b>However, this meant that any identifier in the standard library could potentially conflict with a name you picked for your own identifiers.</b> Code that was working might suddenly have a naming conflict when you #included a new file from the standard library. Or worse, programs that would compile under one version of C++ might not compile under a future version of C++, as new functionality introduced into the standard library could conflict. So C++ moved all of the functionality in the standard library into a special area called a namespace.
+							</p>
+							<p>
+								Much like a city guarantees that all roads within the city have unique names, a namespace guarantees that identifiers within the namespace are unique. This prevents the identifiers in a namespace from conflicting with other identifiers.
+							</p>
+							<p>
+								It turns out that std::cout’s name isn’t really “std::cout”. It’s actually just “cout”, and “std” is the name of the namespace it lives inside. <b>All of the functionality in the C++ standard library is defined inside a namespace named std (short for standard).</b> In this way, we don’t have to worry about the functionality of the standard library having a naming conflict with our own identifiers.
+							</p>
+						</blockquote>
+					</li>
+					看看1和2，这其实说的就是一回事儿嘛：最初c++中的standrad library都以.h结尾，但是存在标准库中的函数名称和自定义的函数名称重名的风险。于是c++标准委员会发明了namespace和不以.h结尾的standard library头文件，这样就解决了这个问题。
+				</ol>
+			</p>
+
+			<p>
+				对于standard library，我们最常用的有&lt;iostream&gt;。常见的还有&lt;string&gt;和&lt;typeinfo&gt;。后面谈到数据类型的转换时会用到&lt;typeinfo&gt;的。
+			</p>
+
+
+
+			<h2>参考资料</h2>
+				<ol>
+					<li>
+						learncpp.com:<br />
+						<a href="http://www.learncpp.com/cpp-tutorial/1-8a-naming-conflicts-and-the-std-namespace/" target="_blank">http://www.learncpp.com/cpp-tutorial/1-8a-naming-conflicts-and-the-std-namespace/</a><br />
+					</li>
+					<li>
+						learncpp.com:<br />
+						<a href="http://www.learncpp.com/cpp-tutorial/19-header-files/" target="_blank">http://www.learncpp.com/cpp-tutorial/19-header-files/</a><br />
+					</li>
+					<li>
+						Wikipedia -- C++ Standard Library:<br />
+						<a href="https://en.wikipedia.org/wiki/C%2B%2B_Standard_Library" target="_blank">https://en.wikipedia.org/wiki/C%2B%2B_Standard_Library</a><br />
+					</li>
+				</ol>
+		</div>
+
+		<div id="footer">
+			<p>jicanmeng@126.com 2013</p>
+			<p>本站文章可随意转载，但请注明转载的本站文章地址，谢谢！</p>
+		</div>
+	</body>
+</html>
