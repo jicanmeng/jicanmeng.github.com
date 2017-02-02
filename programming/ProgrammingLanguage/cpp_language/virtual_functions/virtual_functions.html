@@ -93,7 +93,7 @@ int main()
 			[jicanmeng@andy tmp]$</code></pre>
 
 			<p>
-				对结果的分析，learncpp.com上面解释的非常清楚：
+				对结果的分析，learncpp.com上面解释的非常清楚(learncpp.com上面举了一个例子，父类名称为Base，子类名称为Derived，所以下面的说明中，注意Base对应于Animal,pBase对应于pAnimal,rBase对应于rAnimal)：
 			</p>
 			<blockquote>
 				<p>
@@ -203,9 +203,144 @@ int main()
 				learncpp.com上面是这样描述的：
 			</p>
 			<blockquote>
-			<p>"A virtual function is a special type of function that resolves to the most-derived version of the function with the same signature. To make a function virtual, simply place the “virtual” keyword before the function declaration."
+			<p>"A virtual function is a special type of function that <b>resolves to the most-derived version</b> of the function with the same signature. To make a function virtual, simply place the “virtual” keyword before the function declaration."
 			</p>
 			</blockquote>
+
+			<p>
+			对于virtual function，有四个需要注意的地方：
+			</p>
+			<p>
+				<ol>
+					<li>
+						注意上面的加粗字体：resolves to the most-derived version: 看下面的例子：
+<pre class="sourceCode">#include &lt;iostream&gt;
+
+class A
+{
+public:
+    virtual const char* getName() { return "A"; }
+};
+
+class B: public A
+{
+public:
+    virtual const char* getName() { return "B"; }
+};
+
+class C: public B
+{
+public:
+    virtual const char* getName() { return "C"; }
+};
+
+class D: public C
+{
+public:
+    virtual const char* getName() { return "D"; }
+};
+
+int main()
+{
+    C c;
+    A &amp;rBase = c;
+    std::cout &lt;&lt; "rBase is a " &lt;&lt; rBase.getName() << '\n';
+
+    return 0;
+}</pre>
+						输出结果为"rBase is a C"。为什么是C而不是D呢？因为我们创建的就是一个C object，这是最终派生的对象。
+					</li>
+
+					<li>
+						<b>virtual</b>关键字在base class中的函数前面写上即可，在derived class中的函数前面写不写都可以。对于上面的例子，我们这样写也是完全可以的：
+<pre class="sourceCode">#include &lt;iostream&gt;
+
+class A
+{
+public:
+    virtual const char* getName() { return "A"; }
+};
+
+class B: public A
+{
+public:
+    const char* getName() { return "B"; }
+};
+
+class C: public B
+{
+public:
+    const char* getName() { return "C"; }
+};
+
+class D: public C
+{
+public:
+    const char* getName() { return "D"; }
+};
+
+int main()
+{
+    C c;
+    A &amp;rBase = c;
+    std::cout &lt;&lt; "rBase is a " &lt;&lt; rBase.getName() << '\n';
+
+    return 0;
+}</pre>
+						<b>但是为了清楚明了，建议写上。</b>
+					</li>
+					<li>
+						derived class中的函数如果要作为base class中的某个virtual function的对应函数, 那么<b>返回值类型, 函数个数和参数类型, 是否是const</b>都要保持一致。把上面的例子稍微修改一下：
+<pre class="sourceCode">#include &lt;iostream&gt;
+
+class A
+{
+public:
+    virtual const char* getName() const { return "A"; }
+};
+
+class B: public A
+{
+public:
+    const char* getName() { return "B"; }
+};
+
+class C: public B
+{
+public:
+    const char* getName() { return "C"; }
+};
+
+class D: public C
+{
+public:
+    const char* getName() { return "D"; }
+};
+
+int main()
+{
+    C c;
+    A &amp;rBase = c;
+    std::cout &lt;&lt; "rBase is a " &lt;&lt; rBase.getName() << '\n';
+
+    return 0;
+}</pre>
+						现在的输出结果就为"rBase is a A"。因为在base class中有一个const，而derived class中没有。
+					</li>
+					<li>
+						构造函数和析构函数中不要调用虚函数。learncpp.com上面是这样说的：
+						<blockquote>
+							Remember that when a Derived class is created, the Base portion is constructed first. If you were to call a virtual function from the Base constructor, and Derived portion of the class hadn’t even been created yet, it would be unable to call the Derived version of the function because there’s no Derived object for the Derived function to work on. In C++, it will call the Base version instead.
+						</blockquote>
+						<blockquote>
+							A similar issue exists for destructors. If you call a virtual function in a Base class destructor, it will always resolve to the Base class version of the function, because the Derived portion of the class will already have been destroyed.
+						</blockquote>
+					</li>
+				</ol>
+			</p>
+
+
+
 
 			<h2>参考资料</h2>
 				<ol>
