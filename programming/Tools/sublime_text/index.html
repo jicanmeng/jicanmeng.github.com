@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>sublime text 3 simple usage</title>
+        <meta http-equiv="content-type" content="text/html; charset=UTF-8">
+        <link rel="stylesheet" type="text/css" href="../../../style.css" />
+    </head>
+    <body>
+
+        <script type="text/javascript" src="../../../style.js"></script>
+
+        <div id="header">
+            <h1>每天进步一点点</h1>
+        </div>
+
+        <div id="navigation">
+            <ul class="navigation">
+                <li><a class="navigation" href="../../../index.html">Home Page</a></li>
+                <li><a class="navigation" href="../../../life/index.html">Life</a></li>
+                <li><a class="navigation" href="../../index.html">Programmig</a></li>
+                <li><a class="navigation" href="../../../projects/index.html">Projects</a></li>
+                <li><a class="navigation" href="../../../aboutme/index.html">About me</a></li>
+            </ul>
+        </div>
+
+        <div id="Article">
+            <h1>sublime text 3 简单用法</h1>
+            <p>作者：jicanmeng</p>
+            <p>时间：2017年02月14日</p>
+            <hr />
+
+            <p>
+                sublime text 是一款编辑器，相比较nootepad++，它能直接打开一个目录，而且在左侧直接显示目录的结构。看起来很酷。
+            </p>
+
+            <p>
+                前面几天，上网时在网易云课堂中偶然看到了十八哥的教程《布尔教育：8小时学会HTML网页开发》,视频中使用的就是sublime text这款编辑器。而且作者操作起来看着很流畅，于是下载下来看一看。使用的时候需要安装几个插件，如下:
+            </p>
+
+            <h2>1. 支持中文输入</h2>
+            <p>
+                这需要安装一个InputHelper插件。安装步骤如下：
+                <ol>
+                    <li><code>cd ~/.config/sublime-text-3/Packages</code></li>
+                    <li><code>git clone https://github.com/xgenvn/InputHelper.git</code></li>
+                    <li>重启sublime text。</li>
+                </ol>
+                在使用的时候，如果要输入中文，步骤如下：
+                <ol>
+                    <li>
+                        Ctrl+Shift+Z 调出输入框（虽然不习惯也不爽，但能支持中文输入已经不错啦_^)
+                    </li>
+                    <li>
+                        输入框窗口输入中文，然后按下Enter或者Ctrl+Enter键输入文字到sublime text中了。
+                    </li>
+                </ol>
+            </p>
+
+            <h2>
+                2. 编辑html文件时快速生成html头部信息：
+            </h2>
+            <p>
+                这需要安装一个名称为emmet的插件。安装步骤如下：
+                <ol>
+                    <li><code>cd ~/.config/sublime-text-3/Packages</code></li>
+                    <li><code>git clone https://github.com/sergeche/emmet-sublime.git</code></li>
+                    <li>重启sublime text。</li>
+                </ol>
+                <p>
+                有一点需要注意：
+                <blockquote>
+                    WARNING: When plugin is installed, it will automatically download required PyV8 binary so you have to wait a bit (see Loading PyV8 binary message on status bar). If you experience issues with automatic PyV8 loader, try to install it manually.
+                </blockquote>
+                </p>
+                在刚开始编译一个后缀名为html的文件时，输入符号，再按Tab键，就可以展开成为一段代码。符号如下：
+                <ul>
+                    <li><code>html:5</code>：HTML5类型</li>
+                    <li><code>html:4s</code>HTML4严格文档类型</li>
+                    <li><code>html:4t</code>HTML4过渡文档类型</li>
+                    <li><code>html:xs</code>XHTML严格型文档类型</li>
+                    <li><code>html:xt</code>XHTML过渡型文档类型</li>
+                </ul>
+                这样敲代码的时候感觉还是很爽的！
+            </p>
+
+
+            <h2>参考资料</h2>
+                <ol>
+                    <li>Sublime Text 2中如何输入中文：<br />
+                        <a href="http://www.cnblogs.com/lkprof/archive/2013/05/29/3107194.html" target="_blank">http://www.cnblogs.com/lkprof/archive/2013/05/29/3107194.html</a>
+                    </li>
+                    <li>Web 前端利器Emmet 的HTML用法总结：<br />
+                        <a href="http://devework.com/emmet-html.html" target="_blank">http://devework.com/emmet-html.html</a>
+                    </li>
+                    <li>Emmet for Sublime Text：<br />
+                        <a href="https://github.com/sergeche/emmet-sublime" target="_blank">https://github.com/sergeche/emmet-sublime</a>
+                    </li>
+                    <li>如何优雅地使用Sublime Text3：<br />
+                        <a href="http://www.jianshu.com/p/3cb5c6f2421c" target="_blank">http://www.jianshu.com/p/3cb5c6f2421c</a>
+                    </li>
+
+                </ol>
+                <ol>
+
+                </ol>
+
+        </div>
+
+        <div id="footer">
+            <p>jicanmeng@126.com 2013</p>
+            <p>本站文章可随意转载，但请注明转载的本站文章地址，谢谢！</p>
+        </div>
+    </body>
+</html>

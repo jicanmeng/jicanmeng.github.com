@@ -538,6 +538,9 @@ hello,programmer!'</code></pre>
                         > <span class="cmd">/^\n*$/{$d; N; b start}</span>
                         > <span class="cmd">}' test.txt</span>
                         [jicanmeng@andy tmp]$ </code></pre>
+                    <li>将本目录和所有子目录下的文件中的aabb字符串替换为ccdd:</li>
+                        <code>sed -i 's/aabb/ccdd/g'  `grep -rl aabb  .`</code>
+                        <p>其中的-l选项表示只显示匹配到的文件名。</p>
                 </ol>
 
 			<h2>参考资料</h2>
@@ -557,6 +560,9 @@ hello,programmer!'</code></pre>
                         <a href="http://www.catonmat.net/blog/sed-one-liners-explained-part-three/" target="_blank">http://www.catonmat.net/blog/sed-one-liners-explained-part-three/</a><br />
                         <a href="http://www.catonmat.net/blog/sed-book/" target="_blank">http://www.catonmat.net/blog/sed-book/</a>
 					</li>
+                    <li>sed 批量替换多个文件：<br />
+                        <a href="http://blog.csdn.net/lingphper/article/details/52767077" target="_blank">http://blog.csdn.net/lingphper/article/details/52767077</a>
+                    </li>
                 </ol>
 
 		</div>
