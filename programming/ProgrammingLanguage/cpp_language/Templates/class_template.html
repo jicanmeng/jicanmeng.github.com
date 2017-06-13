@@ -1,0 +1,357 @@
+﻿<!DOCTYPE html>
+<html>
+	<head>
+		<title>class template in C++</title>
+		<meta http-equiv="content-type" content="text/html; charset=UTF-8">
+		<link rel="stylesheet" type="text/css" href="../../../../style.css" />
+	</head>
+	<body>
+
+		<script type="text/javascript" src="../../../../style.js"></script>
+
+		<div id="header">
+			<h1>每天进步一点点</h1>
+		</div>
+
+		<div id="navigation">
+			<ul class="navigation">
+				<li><a class="navigation" href="../../../../index.html">Home Page</a></li>
+				<li><a class="navigation" href="../../../../life/index.html">Life</a></li>
+				<li><a class="navigation" href="../../../index.html">Programmig</a></li>
+				<li><a class="navigation" href="../../../../projects/index.html">Projects</a></li>
+				<li><a class="navigation" href="../../../../aboutme/index.html">About me</a></li>
+			</ul>
+		</div>
+
+		<div id="Article">
+			<h1>类模板(class template)</h1>
+			<p>作者：jicanmeng</p>
+			<p>时间：2017年06月05日</p>
+			<hr />
+
+			<p>
+				和函数模板一样，我们先看一个程序，共三个文件：IntArray.h，DoubleArray.h和class_template_before.cpp：
+			</p>
+
+<pre class="sourceCode">//IntArray.h
+#ifndef INTARRAY_H
+#define INTARRAY_H
+
+#include &lt;assert.h&gt; // for assert()
+
+class IntArray
+{
+private:
+    int m_length;
+    int *m_data;
+
+public:
+    IntArray() {
+        m_length = 0;
+        m_data = nullptr;
+    }
+
+    IntArray(int length) {
+        assert(length &gt; 0);
+        m_data = new int[length];
+        m_length = length;
+    }
+
+    ~IntArray() {
+        delete[] m_data;
+    }
+
+    void Erase() {
+        delete[] m_data;
+        // We need to make sure we set m_data to 0 here, otherwise it will
+        // be left pointing at deallocated memory!
+        m_data = nullptr;
+        m_length = 0;
+    }
+
+    int&amp; operator[](int index) {
+        assert(index &gt;= 0 &amp;&amp; index &lt; m_length);
+        return m_data[index];
+    }
+
+    int getLength() {
+      return m_length;
+    }
+};
+
+#endif</pre>
+
+            <p>
+                DoubleArray.h文件内容如下：
+            </p>
+<pre class="sourceCode">//DoubleArray.h
+#ifndef DOUBLEARRAY_H
+#define DOUBLEARRAY_H
+
+#include &lt;assert.h&gt; // for assert()
+
+class DoubleArray
+{
+private:
+    int m_length;
+    double *m_data;
+
+public:
+    DoubleArray() {
+        m_length = 0;
+        m_data = nullptr;
+    }
+
+    DoubleArray(int length) {
+        assert(length &gt; 0);
+        m_data = new double[length];
+        m_length = length;
+    }
+
+    ~DoubleArray() {
+        delete[] m_data;
+    }
+
+    void Erase() {
+        delete[] m_data;
+        // We need to make sure we set m_data to 0 here, otherwise it will
+        // be left pointing at deallocated memory!
+        m_data = nullptr;
+        m_length = 0;
+    }
+
+    double&amp; operator[](int index) {
+        assert(index &gt;= 0 &amp;&amp; index &lt; m_length);
+        return m_data[index];
+    }
+
+    int getLength() {
+      return m_length;
+    }
+};
+
+#endif</pre>
+
+            <p>
+                class_template_before.cpp文件内容如下：
+            </p>
+<pre class="sourceCode">//class_template_before.cpp
+#include &lt;iostream&gt;
+#include "IntArray.h"
+#include "DoubleArray.h"
+
+int main()
+{
+    IntArray intArray(12);
+    DoubleArray doubleArray(12);
+
+    for (int count = 0; count < intArray.getLength(); ++count) {
+        intArray[count] = count;
+        doubleArray[count] = count + 0.5;
+    }
+
+    for (int count = intArray.getLength() - 1; count >= 0; --count) {
+        std::cout << intArray[count] << "\t" << doubleArray[count] << '\n';
+    }
+
+    return 0;
+}</pre>
+
+
+			<p>
+				以下是运行结果：
+			</p>
+			<pre class="terminal"><code>[jicanmeng@andy tmp]$ <span class="cmd">./a.out</span>
+                11&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;11.5
+                10&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;10.5
+                9&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;9.5
+                8&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;8.5
+                7&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;7.5
+                6&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;6.5
+                5&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;5.5
+                4&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;4.5
+                3&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;3.5
+                2&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;2.5
+                1&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;1.5
+                0&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;0.5
+			[jicanmeng@andy tmp]$</code></pre>
+
+			<p>
+				可以看出，上面代码和使用函数模板之前的代码一样，都存在代码冗余的问题。为了解决这个问题，c++引入了类模板。如下面代码所示：
+			</p>
+
+            <p>
+                Array.h文件内容如下：
+            </p>
+<pre class="sourceCode">//Array.h
+#ifndef ARRAY_H
+#define ARRAY_H
+
+#include &lt;assert.h&gt; // for assert()
+
+template &lt;class T&gt; // This is a template class, the user will provide the data type for T
+class Array
+{
+private:
+    int m_length;
+    T *m_data;
+
+public:
+    Array() {
+        m_length = 0;
+        m_data = nullptr;
+    }
+
+    Array(int length) {
+        assert(length &gt; 0);
+        m_data = new T[length];
+        m_length = length;
+    }
+
+    ~Array() {
+        delete[] m_data;
+    }
+
+    void Erase() {
+        delete[] m_data;
+        // We need to make sure we set m_data to 0 here, otherwise it will
+        // be left pointing at deallocated memory!
+        m_data = nullptr;
+        m_length = 0;
+    }
+
+    T&amp; operator[](int index) {
+        assert(index &gt;= 0 &amp;&amp; index &lt; m_length);
+        return m_data[index];
+    }
+
+    // The length of the array is always an integer
+    // It does not depend on the data type of the array
+    int getLength();
+};
+
+// member functions defined outside the class need their own template declaration
+template &lt;typename T&gt;
+int Array&lt;T&gt;::getLength() {
+    return m_length;
+} // note class name is Array&lt;T&gt;, not Array
+
+#endif</pre>
+
+            <p>
+                class_template_after.cpp文件内容如下：
+            </p>
+<pre class="sourceCode">//class_template_after.cpp
+#include &lt;iostream&gt;
+#include "Array.h"
+
+int main()
+{
+    Array&lt;int&gt; intArray(12);
+    Array&lt;double&gt; doubleArray(12);
+
+    for (int count = 0; count < intArray.getLength(); ++count) {
+        intArray[count] = count;
+        doubleArray[count] = count + 0.5;
+    }
+
+    for (int count = intArray.getLength() - 1; count >= 0; --count) {
+        std::cout << intArray[count] << "\t" << doubleArray[count] << '\n';
+    }
+
+    return 0;
+}</pre>
+            <p>
+                运行结果是一样的，但是代码精简很多。learncpp.com上是这样描述使用类模板的好处的：
+                <blockquote>
+                    <p>
+                        Template classes are ideal for implementing container classes, because it is highly desirable to have containers work across a wide variety of data types, and templates allow you to do so without duplicating code. Although the syntax is ugly, and the error messages can be cryptic, template classes are truly one of C++’s best and most useful features.
+                    </p>
+                </blockquote>
+            </p>
+
+            <p>
+                有几点需要注意：
+            </p>
+            <p>
+                1. 直接将类模板的定义放在一个头文件中就可以了，不需要有cpp文件。
+            </p>
+
+            <p>
+                2. 和函数模板一样，类模板中也可以出现固定的数据类型。在learncpp.com上面，这个固定的数据类型被称为class template expression parameter。如下面例子所示：
+            </p>
+<pre class="sourceCode">#include &lt;iostream&gt;
+
+template &lt;class T, int size&gt; // size is the expression parameter
+class StaticArray
+{
+private:
+    // The expression parameter controls the size of the array
+    T m_array[size];
+
+public:
+    T* getArray();
+
+    T&amp; operator[](int index) {
+        return m_array[index];
+    }
+};
+
+// Showing how a function for a class with an expression parameter is defined outside of the class
+template &lt;class T, int size&gt;
+T* StaticArray&lt;T, size&gt;::getArray()
+{
+    return m_array;
+}
+
+int main()
+{
+    // declare an integer array with room for 12 integers
+    StaticArray&lt;int, 12&gt; intArray;
+
+    // Fill it up in order, then print it backwards
+    for (int count = 0; count &lt; 12; ++count) {
+        intArray[count] = count;
+    }
+
+    for (int count = 11; count &gt;= 0; --count) {
+        std::cout &lt;&lt; intArray[count] &lt;&lt; " ";
+    }
+    std::cout &lt;&lt; '\n';
+
+    // declare a double buffer with room for 4 doubles
+    StaticArray&lt;double, 4&gt; doubleArray;
+
+    for (int count = 0; count &lt; 4; ++count) {
+        doubleArray[count] = 4.4 + 0.1*count;
+    }
+
+    for (int count = 0; count &lt; 4; ++count) {
+        std::cout &lt; doubleArray[count] &lt;&lt; ' ';
+    }
+
+    return 0;
+}
+</pre>
+
+
+			<h2>参考资料</h2>
+				<ol>
+					<li>
+						&lt;&lt;C++实用教程&gt;&gt; 电子工业出版社 郑阿奇 主编 丁有和 编著
+					</li>
+					<li>
+						The C++ Tutorial:<br />
+						<a href="http://www.learncpp.com/cpp-tutorial/133-template-classes/" target="_blank">http://www.learncpp.com/cpp-tutorial/133-template-classes/</a><br />
+
+						<a href="http://www.learncpp.com/cpp-tutorial/134-template-expression-parameters/" target="_blank">http://www.learncpp.com/cpp-tutorial/134-template-expression-parameters/</a>
+					</li>
+				</ol>
+		</div>
+
+		<div id="footer">
+			<p>jicanmeng@126.com 2013</p>
+			<p>本站文章可随意转载，但请注明转载的本站文章地址，谢谢！</p>
+		</div>
+	</body>
+</html>

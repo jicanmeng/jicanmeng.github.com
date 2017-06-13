@@ -1,0 +1,572 @@
+﻿<!DOCTYPE html>
+<html>
+	<head>
+		<title>template specialization in C++</title>
+		<meta http-equiv="content-type" content="text/html; charset=UTF-8">
+		<link rel="stylesheet" type="text/css" href="../../../../style.css" />
+	</head>
+	<body>
+
+		<script type="text/javascript" src="../../../../style.js"></script>
+
+		<div id="header">
+			<h1>每天进步一点点</h1>
+		</div>
+
+		<div id="navigation">
+			<ul class="navigation">
+				<li><a class="navigation" href="../../../../index.html">Home Page</a></li>
+				<li><a class="navigation" href="../../../../life/index.html">Life</a></li>
+				<li><a class="navigation" href="../../../index.html">Programmig</a></li>
+				<li><a class="navigation" href="../../../../projects/index.html">Projects</a></li>
+				<li><a class="navigation" href="../../../../aboutme/index.html">About me</a></li>
+			</ul>
+		</div>
+
+		<div id="Article">
+			<h1>tempalte specialization(模板特例化)</h1>
+			<p>作者：jicanmeng</p>
+			<p>时间：2017年06月05日</p>
+			<hr />
+
+            <ol>
+                <li>
+                    <a href="#function_template_specialization">function template specialization</a>
+                </li>
+                <li>
+                    <a href="#class_template_specialization">class template specialization</a>
+                </li>
+                <li>
+                    <a href="#class_template_function_specialization">class template内部的function的 specialization</a>
+                </li>
+            </ol>
+
+			<h2 id="function_template_specialization">
+				1. function template specialization
+			</h2>
+			<p>
+				使用function tempalate后，对于创建的每一个function template instance，都会执行相同的代码。如果我们希望某一个function template instance具有不同的行为，可以单独对这个function template instance进行修改。我们通过修改前面的例子来描述一下：
+			</p>
+
+<pre class="sourceCode">#include &lt;iostream&gt;
+
+using namespace std;
+
+template &lt;typename T&gt;  // this is the template parameter declaration
+const T&amp; max(const T&amp; x, const T&amp; y)
+{
+    return (x > y) ? x : y;
+}
+
+template &lt;&gt;
+const double&amp; max(const double&amp; x, const double&amp; y)
+{
+	cout << "compare double values" << endl;
+	return 1.2345;
+}
+
+int main()
+{
+    int i = max(3, 7);
+    std::cout &lt;&lt; i &lt;&lt; '\n';
+
+    double d = max(6.34, 18.523);
+    std::cout &lt;&lt; d &lt;&lt; '\n';
+
+    char ch = max('a', '6');
+    std::cout &lt;&lt; ch &lt;&lt; '\n';
+
+    return 0;
+}</pre>
+
+			<p>
+				以下是运行结果：
+			</p>
+			<pre class="terminal"><code>[jicanmeng@andy tmp]$ <span class="cmd">./a.out</span>
+				7
+				compare double values
+				1.2345
+				a
+			[jicanmeng@andy tmp]$</code></pre>
+
+			<p>
+				当编译器遇到23行的max(6.34, 18.523)时，在根据max()模板创建一个function template instance时，发现代码中已经定义了一个function template instance了，就直接使用这个了。
+			</p>
+
+			<h2 id="class_template_specialization">
+				2. class template specialization
+			</h2>
+
+			<p>
+				使用class tempalate后，对于创建的每一个class template instance，都会执行相同的代码。如果我们希望某一个class template instance具有不同的行为或属性，可以单独对这个class template instance进行修改。举例如下：
+			</p>
+
+<pre class="sourceCode">#include &lt;iostream&gt;
+
+template &lt;class T&gt;
+class Storage8
+{
+private:
+    T m_array[8];
+
+public:
+    void set(int index, const T &amp;value) {
+        m_array[index] = value;
+    }
+
+    const T&amp; get(int index) {
+        return m_array[index];
+    }
+};
+
+template &lt;&gt;
+class Storage8&lt;double&gt;
+{
+private:
+    double m_array[2];
+
+public:
+    void setValue(int index, const double &amp;value) {
+        m_array[index] = value;
+    }
+
+    const double&amp; getValue(int index) {
+        return 3.3333;
+    }
+};
+
+int main()
+{
+    // Define a Storage8 for integers
+    Storage8&lt;int&gt; intStorage;
+
+    for (int count = 0; count &lt; 8; ++count)
+        intStorage.set(count, count);
+
+    for (int count = 0; count &lt; 8; ++count)
+        std::cout &lt;&lt; intStorage.get(count) &lt;&lt; '\n';
+
+    // Define a Storage8 for bool
+    Storage8&lt;bool&gt; boolStorage;
+    for (int count = 0; count &lt; 8; ++count)
+        boolStorage.set(count, !!(count &amp; 3));
+
+    for (int count = 0; count &lt; 8; ++count)
+        std::cout &lt;&lt; (boolStorage.get(count) ? "true" : "false") &lt;&lt; '\n';
+
+    // Define a Storage8 for double
+    Storage8&lt;double&gt; doubleStorage;
+    for (int count = 0; count &lt; 2; ++count)
+        doubleStorage.setValue(count, 1.2345);
+
+    for (int count = 0; count &lt; 2; ++count)
+       std::cout &lt;&lt; doubleStorage.getValue(count) &lt;&lt; '\n';
+
+    return 0;
+}
+</pre>
+
+            <p>
+                以下是运行结果：
+            </p>
+            <pre class="terminal"><code>[jicanmeng@andy tmp]$ <span class="cmd">./a.out</span>
+                0
+                1
+                2
+                3
+                4
+                5
+                6
+                7
+                false
+                true
+                true
+                true
+                false
+                true
+                true
+                true
+                3.3333
+                3.3333
+            [jicanmeng@andy tmp]$</code></pre>
+
+            <p>
+                可以看出，我们对数据类型为double的storage类进行了特例化。当编译器在代码中55行遇到<code>Storage8&lt;double&gt; doubleStorage;</code>时，会发现代码中已经定义了一个class template instance了，就直接使用这个了。
+            </p>
+
+            <h2 id="class_template_function_specialization">
+                3. class template内部的function的 specialization
+            </h2>
+            <p>
+                上面说的是多class template中的某个class进行特例化，这个class中属性和方法我们可以任意定义。我们也可以只特例化这个class内部的某个方法。如下面例子所示：
+            </p>
+<pre class="sourceCode">#include &lt;iostream&gt;
+
+template &lt;class T&gt;
+class Storage
+{
+private:
+    T m_value;
+public:
+    Storage(T value) {
+        m_value = value;
+    }
+
+    ~Storage() {
+    }
+
+    void print() {
+        std::cout &lt;&lt; m_value &lt;&lt; '\n';
+    }
+};
+
+template &lt;&gt;
+void Storage&lt;double&gt;::print() {
+    std::cout &lt;&lt; std::scientific &lt;&lt; m_value &lt;&lt; '\n';
+}
+
+int main()
+{
+    // Define some storage units
+    Storage&lt;int&gt; nValue(5);
+    Storage&lt;double&gt; dValue(6.7);
+
+    // Print out some values
+    nValue.print();
+    dValue.print();
+
+    return 0;
+}</pre>
+            <p>
+                运行结果如下：
+            </p>
+            <pre class="terminal"><code>[jicanmeng@andy tmp]$ <span class="cmd">./a.out</span>
+                5
+                6.700000e+000
+            [jicanmeng@andy tmp]$</code></pre>
+            <p>
+                在上面的例子中，只将类型为double的class中的print函数进行了特例化。learncpp.com上面是这样描述的：
+                <blockquote>
+                    <p>
+                        When the compiler goes to instantiate Storage&lt;double&gt;::print(), it will see we’ve already explicitly defined that function, and it will use the one we’ve defined instead of stenciling out a version from the generic templated class.
+                    </p>
+                    <p>
+                        The <code>template &lt;&gt;</code> tells the compiler that this is a template function, but that there are no template parameters (since in this case, we’re explicitly specifying all of the types). Some compilers may allow you to omit this, but it’s proper to include it.
+                    </p>
+                </blockquote>
+            </p>
+            <p>
+                但是上面的例子其实还是有bug的，如果我们给Storage模板传递一个<code>char *</code>类型参数，那么就会报错。比如：
+            </p>
+<pre class="sourceCode">#include &lt;iostream&gt;
+
+template &lt;class T&gt;
+class Storage
+{
+private:
+    T m_value;
+public:
+    Storage(T value) {
+        m_value = value;
+    }
+
+    ~Storage() {
+    }
+
+    void print() {
+        std::cout &lt;&lt; m_value &lt;&lt; '\n';
+    }
+};
+
+template &lt;&gt;
+void Storage&lt;double&gt;::print() {
+    std::cout &lt;&lt; std::scientific &lt;&lt; m_value &lt;&lt; '\n';
+}
+
+int main()
+{
+    // Dynamically allocate a temporary string
+    char *string = new char[40];
+
+    // Ask user for their name
+    std::cout &lt;&lt; "Enter your name: ";
+    std::cin &gt;&gt; string;
+
+    // Store the name
+    Storage&lt;char*&gt; value(string);
+
+    // Delete the temporary string
+    delete[] string;
+
+    // if we do not make a Storage&lt;char *&gt; instance， this will print garbage
+    value.print();
+
+    return 0;
+}</pre>
+            <p>
+                在visual studio 2013下运行结果如下：
+            </p>
+            <pre class="terminal"><code>[jicanmeng@andy tmp]$ <span class="cmd">./a.out</span>
+                Enter your name: jicanmeng
+                葺葺葺葺葺葺葺葺葺葺葺葺葺葺葺葺葺葺葺葺葺葺葺葺
+                请按任意键继续. . .
+            [jicanmeng@andy tmp]$</code></pre>
+            <p>
+                原因我不说您也能明白，释放了string指向的内容，再次访问这个地址指向的内容就会出错。为了解决这个问题，我们需要指定当传入<code>char *</code>类型时，Storage模板应该如何实现。如下面代码：
+            </p>
+<pre class="sourceCode">#include &lt;iostream&gt;
+
+template &lt;class T&gt;
+class Storage
+{
+private:
+    T m_value;
+public:
+    Storage(T value) {
+        m_value = value;
+    }
+
+    ~Storage() {
+    }
+
+    void print() {
+        std::cout &lt;&lt; m_value &lt;&lt; '\n';
+    }
+};
+
+template &lt;&gt;
+void Storage&lt;double&gt;::print() {
+    std::cout &lt;&lt; std::scientific &lt;&lt; m_value &lt;&lt; '\n';
+}
+
+template &lt;&gt;
+Storage&lt;char *&gt;::Storage(char *value) {
+    int length = strlen(value) + 1;
+    m_value = new char[length];
+
+    // Copy the actual value string into the m_value memory we just allocated
+    for (int count = 0; count &lt; length; ++count) {
+        m_value[count] = value[count];
+    }
+}
+template &lt;&gt;
+Storage&lt;char*&gt;::~Storage()
+{
+    if (m_value) {
+        delete[] m_value;
+    }
+}
+
+int main()
+{
+    // Dynamically allocate a temporary string
+    char *string = new char[40];
+
+    // Ask user for their name
+    std::cout &lt;&lt; "Enter your name: ";
+    std::cin &gt;&gt; string;
+
+    // Store the name
+    Storage&lt;char*&gt; value(string);
+
+    // Delete the temporary string
+    delete[] string;
+
+    // if we do not make a Storage&lt;char *&gt; instance， this will print garbage
+    value.print();
+
+    return 0;
+}</pre>
+            <p>
+                在visual studio 2013下运行结果如下：
+            </p>
+            <pre class="terminal"><code>[jicanmeng@andy tmp]$ <span class="cmd">./a.out</span>
+                Enter your name: jicanmeng
+                jicanmeng
+                请按任意键继续. . .
+            [jicanmeng@andy tmp]$</code></pre>
+            <p>
+                看起来是没有问题了，但其实代码还是存在bug的。我们可以传递<code>char *</code>类型了，但是后面如果想要传递<code>int *</code>类型或者<code>double *</code>类型呢？一个个定义显然是太麻烦了。我们可以通过部分特例化(Partial template specialization)来解决这个问题。我们可以将指针类型统一进行处理，如下面代码所示：
+            </p>
+<pre class="sourceCode">#include &lt;iostream&gt;
+
+template &lt;class T&gt;
+class Storage
+{
+private:
+    T m_value;
+public:
+    Storage(T value) {
+        m_value = value;
+    }
+
+    ~Storage() {
+    }
+
+    void print() {
+        std::cout &lt;&lt; m_value &lt;&lt; '\n';
+    }
+};
+
+template &lt;&gt;
+void Storage&lt;double&gt;::print() {
+    std::cout &lt;&lt; std::scientific &lt;&lt; m_value &lt;&lt; '\n';
+}
+
+template &lt;class T&gt;
+class Storage&lt;T*&gt; // this is a partial-specialization of Storage that works with pointer types
+{
+private:
+    T* m_value;
+public:
+    Storage(T* value) {
+        // For pointers, we'll do a deep copy
+        m_value = new T(*value);
+    }
+
+    ~Storage() {
+        delete m_value; // so we use scalar delete here, not array delete
+    }
+
+    void print() {
+        std::cout &lt; *m_value &lt; '\n';
+    }
+};
+
+int main()
+{
+    int *pa = new int(3);
+    Storage&lt;int *&gt; valueOne(pa);
+
+    delete pa;
+
+    valueOne.print();
+
+    return 0;
+}</pre>
+            <p>
+                如果你足够细心，你会发现，哎呀，此时的代码传入<code>char *</code>类型又不好使了。怎么办呢？好办。在上面代码的基础上面再特别加上对<code>char *</code>类型的处理就行了。所以，最终的代码如下面所示：
+            </p>
+<pre class="sourceCode">#include &lt;iostream&gt;
+
+template &lt;class T&gt;
+class Storage
+{
+private:
+    T m_value;
+public:
+    Storage(T value) {
+        m_value = value;
+    }
+
+    ~Storage() {
+    }
+
+    void print() {
+        std::cout &lt;&lt; m_value &lt;&lt; '\n';
+    }
+};
+
+template &lt;&gt;
+void Storage&lt;double&gt;::print() {
+    std::cout &lt;&lt; std::scientific &lt;&lt; m_value &lt;&lt; '\n';
+}
+
+template &lt;&gt;
+Storage&lt;char *&gt;::Storage(char *value) {
+    int length = strlen(value) + 1;
+    m_value = new char[length];
+
+    // Copy the actual value string into the m_value memory we just allocated
+    for (int count = 0; count &lt; length; ++count) {
+        m_value[count] = value[count];
+    }
+}
+template &lt;&gt;
+Storage&lt;char*&gt;::~Storage()
+{
+    if (m_value) {
+        delete[] m_value;
+    }
+}
+// Full specialization of print function for type char*
+// Without this, printing a Storage&lt;char*&gt; would call Storage&lt;T*&gt;::print(), which only prints the first element
+template &lt;&gt;
+void Storage&lt;char*&gt;::print()
+{
+    std::cout &lt;&lt; m_value;
+}
+
+template &lt;class T&gt;
+class Storage&lt;T*&gt; // this is a partial-specialization of Storage that works with pointer types
+{
+private:
+    T* m_value;
+public:
+    Storage(T* value) {
+        // For pointers, we'll do a deep copy
+        m_value = new T(*value);
+    }
+
+    ~Storage() {
+        delete m_value; // so we use scalar delete here, not array delete
+    }
+
+    void print() {
+        std::cout &lt; *m_value &lt; '\n';
+    }
+};
+
+int main()
+{
+    // 1. int * type
+    int *pa = new int(3);
+    Storage&lt;int *&gt; valueOne(pa);
+
+    delete pa;
+
+    valueOne.print();
+
+    // 2. char * type
+    // Dynamically allocate a temporary string
+    char *string = new char[40];
+
+    // Ask user for their name
+    std::cout &lt;&lt; "Enter your name: ";
+    std::cin &gt;&gt; string;
+
+    // Store the name
+    Storage&lt;char*&gt; value(string);
+
+    // Delete the temporary string
+    delete[] string;
+
+    // if we do not make a Storage&lt;char *&gt; instance， this will print garbage
+    value.print();
+    return 0;
+}</pre>
+
+            <p>
+                模板部分的内容到此为止，后面的就是多多练习了。
+            </p>
+
+			<h2>参考资料</h2>
+				<ol>
+					<li>
+						&lt;&lt;C++实用教程&gt;&gt; 电子工业出版社 郑阿奇 主编 丁有和 编著
+					</li>
+					<li>
+						The C++ Tutorial:<br />
+						<a href="http://www.learncpp.com/cpp-tutorial/13-5-function-template-specialization/" target="_blank">http://www.learncpp.com/cpp-tutorial/13-5-function-template-specialization/</a><br />
+
+						<a href="http://www.learncpp.com/cpp-tutorial/136-class-template-specialization/" target="_blank">http://www.learncpp.com/cpp-tutorial/136-class-template-specialization/</a>
+					</li>
+				</ol>
+		</div>
+
+		<div id="footer">
+			<p>jicanmeng@126.com 2013</p>
+			<p>本站文章可随意转载，但请注明转载的本站文章地址，谢谢！</p>
+		</div>
+	</body>
+</html>

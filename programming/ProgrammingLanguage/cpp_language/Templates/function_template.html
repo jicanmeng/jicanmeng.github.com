@@ -1,0 +1,269 @@
+﻿<!DOCTYPE html>
+<html>
+	<head>
+		<title>function template in C++</title>
+		<meta http-equiv="content-type" content="text/html; charset=UTF-8">
+		<link rel="stylesheet" type="text/css" href="../../../../style.css" />
+	</head>
+	<body>
+
+		<script type="text/javascript" src="../../../../style.js"></script>
+
+		<div id="header">
+			<h1>每天进步一点点</h1>
+		</div>
+
+		<div id="navigation">
+			<ul class="navigation">
+				<li><a class="navigation" href="../../../../index.html">Home Page</a></li>
+				<li><a class="navigation" href="../../../../life/index.html">Life</a></li>
+				<li><a class="navigation" href="../../../index.html">Programmig</a></li>
+				<li><a class="navigation" href="../../../../projects/index.html">Projects</a></li>
+				<li><a class="navigation" href="../../../../aboutme/index.html">About me</a></li>
+			</ul>
+		</div>
+
+		<div id="Article">
+			<h1>函数模板(function template)</h1>
+			<p>作者：jicanmeng</p>
+			<p>时间：2017年06月04日</p>
+			<hr />
+
+			<p>
+				先看一个程序：
+			</p>
+
+<pre class="sourceCode">#include &lt;iostream&gt;
+
+using namespace std;
+
+const int max(const int x, const int y)
+{
+    return (x &gt; y) ? x : y;
+}
+const double max(const double x, const double y)
+{
+    return (x &gt; y) ? x : y;
+}
+const char max(const char x, const char y)
+{
+    return (x &gt; y) ? x : y;
+}
+
+int main()
+{
+    int i = max(3, 7);
+    std::cout &lt;&lt; i &lt;&lt; '\n';
+
+    double d = max(6.34, 18.523);
+    std::cout &lt;&lt; d &lt;&lt; '\n';
+
+    char ch = max('a', '6');
+    std::cout &lt;&lt; ch &lt;&lt; '\n';
+
+    return 0;
+}</pre>
+
+			<p>
+				以下是运行结果：
+			</p>
+			<pre class="terminal"><code>[jicanmeng@andy tmp]$ <span class="cmd">./a.out</span>
+				7
+				18.523
+				a
+			[jicanmeng@andy tmp]$</code></pre>
+
+			<p>
+				要实现数据类型相同的两个变量的比较，需要定义三个max()函数。这三个max()函数，除了数据类型不同，别地方都是完全相同的。如果还有其它类型的数据，那么代码就会非常庞大并且难以维护。为了解决这个问题，c++引入了函数模板。如下面代码所示：
+			</p>
+
+<pre class="sourceCode">#include &lt;iostream&gt;
+//#include &lt;algorithm&gt;	//这个标准库中定义了max()函数模板，所以如果包含本头文件，就会和下面的max()模板的定义冲突
+
+using namespace std;
+
+template &lt;typename T&gt;  // this is the template parameter declaration
+const T&amp; max(const T&amp; x, const T&amp; y)
+{
+    return (x > y) ? x : y;
+}
+
+int main()
+{
+    int i = max(3, 7);
+    std::cout &lt;&lt; i &lt;&lt; '\n';
+
+    double d = max(6.34, 18.523);
+    std::cout &lt;&lt; d &lt;&lt; '\n';
+
+    char ch = max('a', '6');
+    std::cout &lt;&lt; ch &lt;&lt; '\n';
+
+    return 0;
+}</pre>
+
+            <p>
+                上面代码中，<b>T</b> 被称为<b>template type parameter</b>。第5行代码中，template后面的&lt;&gt;中包含了所有的template type parameter。
+            </p>
+
+            <p>
+                有几点需要注意：
+            </p>
+            <p>
+                1. 可以定义一个template type parameter，也可以定义多个。例如：
+                <blockquote>
+<pre class="sourceCode">template &lt;typename T1, typename T2&gt;
+// template function here</pre>
+                </blockquote>
+                &nbsp;&nbsp;&nbsp;&nbsp;其中，<code>typename</code>关键字也可以使用<code>class</code>关键字代替，意思是相同的。
+            </p>
+
+            <p>
+                2. 由于传递给T的可能也是class类型的对象，为了防止不必要的拷贝，通常使用引用类型。learncpp.com上面的描述如下：
+                <blockquote>
+                    <p>
+                        One final note: Because the function argument passed in for type T could be a class type, and it’s generally not a good idea to pass classes by value, <b>it would be better to make the parameters and return types of our templated function const references.</b> 所以就写成了下面的形式：
+<pre class="sourceCode">template &lt;typename T&gt;
+const T&amp; max(const T&amp; x, const T&amp; y)
+{
+    return (x &gt; y) ? x : y;
+}</pre>
+                    </p>
+                </blockquote>
+            </p>
+
+            <p>
+                3. 编译器遇到max(3,7)时，会去寻找有没有max(int, int)函数。如果没有此函数，会寻找有没有对应的模板可以创建max(int, int)函数：如果有模板，那么会创建一个max(int, int)函数，这称为模板的实例(function template instance)。
+            </p>
+
+            <p>
+                4. 模板的类型参数如果传入class类型的变量, 要注意运算符的重载。
+            </p>
+            <p>
+                可以看两个例子：
+            </p>
+<pre class="sourceCode">#include &lt;iostream&gt;
+
+using namespace std;
+
+template &lt;typename T&gt;  // this is the template parameter declaration
+const T&amp; max(const T&amp; x, const T&amp; y)
+{
+    return (x &gt; y) ? x : y;
+}
+
+class Cents
+{
+private:
+    int m_cents;
+public:
+    Cents(int cents)
+        : m_cents(cents)
+    {
+    }
+    friend bool operator>(const Cents &amp;c1, const Cents &amp;c2) {
+        return (c1.m_cents &gt; c2.m_cents) ? true : false;
+    }
+    int getCents() {
+        return m_cents;
+    }
+};
+
+int main()
+{
+    Cents nickle(5);
+    Cents dime(10);
+
+    Cents bigger = max(nickle, dime);
+    std::cout &lt;&lt; "bigger number is " &lt;&lt; bigger.getCents() &lt;&lt; std::endl;
+
+    return 0;
+}</pre>
+
+            <p>
+                上面的这个例子就说明了2,3,4里面的知识点。由于函数模板有<code>></code>的操作，所以必须对class CPoint类型的对象实现<code>></code>运算符重载。如果我们在模板的参数和模板的返回值中没有使用引用变量，那么就会有拷贝构造函数的调用。使用了引用变量，减少了内存拷贝，提高了程序运行的效率。
+            </p>
+            <p>
+                函数模板的定义中，也可以出现固定的数据类型。如下面的例子：
+            </p>
+<pre class="sourceCode">#include &lt;iostream&gt;
+
+using namespace std;
+
+template &lt;class T&gt;
+T average(T *array, int length)
+{
+    T sum = 0;
+    for (int count = 0; count < length; ++count)
+        sum += array[count];
+
+    sum /= length;
+    return sum;
+}
+
+class Cents
+{
+private:
+    int m_cents;
+public:
+    Cents(int cents)
+        : m_cents(cents)
+    {
+    }
+
+    friend bool operator>(const Cents &amp;c1, const Cents &amp;c2) {
+        return (c1.m_cents > c2.m_cents);
+    }
+    friend ostream&amp; operator<< (ostream &amp;out, const Cents &amp;cCents) {
+        out << cCents.m_cents << " cents ";
+        return out;
+    }
+    Cents &amp; operator+= (Cents &amp;c1);
+    Cents &amp; operator/= (int length);
+};
+
+Cents &amp; Cents::operator+= (Cents &amp;c1) {
+    m_cents += c1.m_cents;
+    return *this;
+}
+
+Cents &amp; Cents::operator/= (int length) {
+    m_cents /= length;
+    return *this;
+}
+
+int main()
+{
+    int array1[] = { 5, 3, 2, 1, 4 };
+    std::cout << average(array1, 5) << '\n';
+
+    double array2[] = { 3.12, 3.45, 9.23, 6.34 };
+    std::cout << average(array2, 4) << '\n';
+
+    Cents array3[] = { Cents(5), Cents(10), Cents(15), Cents(14) };
+    std::cout << average(array3, 4) << '\n';
+
+    return 0;
+}</pre>
+
+
+			<h2>参考资料</h2>
+				<ol>
+					<li>
+						&lt;&lt;C++实用教程&gt;&gt; 电子工业出版社 郑阿奇 主编 丁有和 编著
+					</li>
+					<li>
+						The C++ Tutorial:<br />
+						<a href="http://www.learncpp.com/cpp-tutorial/131-function-templates/" target="_blank">http://www.learncpp.com/cpp-tutorial/131-function-templates/</a><br />
+
+						<a href="http://www.learncpp.com/cpp-tutorial/132-function-template-instances/" target="_blank">http://www.learncpp.com/cpp-tutorial/132-function-template-instances/</a>
+					</li>
+				</ol>
+		</div>
+
+		<div id="footer">
+			<p>jicanmeng@126.com 2013</p>
+			<p>本站文章可随意转载，但请注明转载的本站文章地址，谢谢！</p>
+		</div>
+	</body>
+</html>
