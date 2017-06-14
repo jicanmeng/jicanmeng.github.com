@@ -1,0 +1,241 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<title>Exception Handling in C++</title>
+		<meta http-equiv="content-type" content="text/html; charset=UTF-8">
+		<link rel="stylesheet" type="text/css" href="../../../../style.css" />
+	</head>
+	<body>
+
+		<script type="text/javascript" src="../../../../style.js"></script>
+
+		<div id="header">
+			<h1>每天进步一点点</h1>
+		</div>
+
+		<div id="navigation">
+			<ul class="navigation">
+				<li><a class="navigation" href="../../../../index.html">Home Page</a></li>
+				<li><a class="navigation" href="../../../../life/index.html">Life</a></li>
+				<li><a class="navigation" href="../../../index.html">Programmig</a></li>
+				<li><a class="navigation" href="../../../../projects/index.html">Projects</a></li>
+				<li><a class="navigation" href="../../../../aboutme/index.html">About me</a></li>
+			</ul>
+		</div>
+
+		<div id="Article">
+			<h1>异常处理(Exception Handling)</h1>
+			<p>作者：jicanmeng</p>
+			<p>时间：2017年06月14日</p>
+			<hr />
+
+            <ol>
+                <li>
+                    <a href="#exception_sample">异常处理的简单例子</a>
+                </li>
+                <li>
+                    <a href="#exception_procedure">异常处理的流程</a>
+                </li>
+                <li>
+                    <a href="#exception_catch_all_handler">catch-all handler</a>
+                </li>
+            </ol>
+
+            <p>
+                c++语言中，异常处理的使用是有争议的。根据我目前粗浅的学识，还没有看出使用异常处理的必要性。所以对这一部分只是进行了简单的学习。等到需要的时候，再仔细研究。
+            </p>
+
+            <h2 id="exception_sample">1. 异常处理的简单例子</h2>
+            <p>
+                异常处理通过三个关键字来实现：try，throw，catch。
+            </p>
+
+            <p>
+                首先看一个最简单的例子：
+            </p>
+<pre class="sourceCode">#include &lt;iostream&gt;
+using namespace std;
+
+int _tmain(int argc, _TCHAR* argv[])
+{
+    try {
+        // Statements that may throw exceptions you want to handle go here
+        throw "ab";
+    } catch (int x) {
+        std::cerr &lt;&lt; "We caught an int exception with value: " &lt;&lt; x &lt;&lt; std::endl;
+    } catch (double) {
+        std::cerr &lt;&lt; "We caught an exception of type double" &lt;&lt; std::endl;
+    } catch (const std::string &amp;str) {
+        std::cerr &lt;&lt; "We caught an exception of type std::string" &lt;&lt; std::endl;
+    }
+
+    std::cout &lt;&lt; "Continuing on our merry way\n";
+
+    return 0;
+}</pre>
+            <p>
+                运行结果如下：
+            </p>
+            <pre class="terminal"><code>[jicanmeng@andy tmp]$ <span class="cmd">./a.out</span>
+                We caught an exception of type double
+                Continuing on our merry way
+            [jicanmeng@andy tmp]$</code></pre>
+
+            <p>
+                几点需要注意的：
+                <ol>
+                    <li><code>try</code>和<code>catch</code>配合使用。我们往往将可能出现问题的代码放在<code>try</code>代码块中，一旦出现异常情况，代码流程就会转到对应的<code>catch</code>代码块中。</li>
+                    <li>
+                        一个<code>try</code>代码块最少要对应一个<code>catch</code>代码块。每一个<code>catch</code>代码块只会捕获一种类型的异常情况。(在上面的例子中，就有三个catch blocks)
+                    </li>
+                    <li><code>catch</code>后面的<code>()</code>中的参数是什么类型的，这个catch代码块只能捕获什么类型的异常。Exceptions of fundamental types can be caught by value, <b>but exceptions of non-fundamental types should be caught by const reference to avoid making an unnecessary copy</b>.(比如上面例子中的第13行)</li>
+                    <li>
+                        Just like with functions, if the parameter is not going to be used in the catch block, the variable name can be omitted.(比如上面例子中的第11行)
+                    </li>
+                </ol>
+            </p>
+
+            <h2 id="exception_procedure">2. 异常处理的流程</h2>
+            <p>
+                When an exception is raised (using throw), execution of the program immediately jumps to the nearest enclosing try block. If any of the catch handlers attached to the try block handle that type of exception, that handler is executed and the exception is considered handled.
+            </p>
+            <p>
+                If no appropriate catch handlers exist, execution of the program propagates to the next enclosing try block. If no appropriate catch handlers can be found before the end of the program, the program will fail with an exception error.
+            </p>
+            <p>
+                例子如下：
+            </p>
+<pre class="sourceCode">#include &lt;iostream&gt;
+using namespace std;
+
+void last() // called by third()
+{
+    std::cout &lt;&lt; "Start last\n";
+    std::cout &lt;&lt; "last throwing int exception\n";
+    throw - 1;
+    std::cout &lt;&lt; "End last\n";
+}
+
+void third() // called by second()
+{
+    std::cout &lt;&lt; "Start third\n";
+    last();
+    std::cout &lt;&lt; "End third\n";
+}
+
+void second() // called by first()
+{
+    std::cout &lt;&lt; "Start second\n";
+    try {
+        third();
+    } catch (double) {
+        std::cerr &lt;&lt; "second caught double exception\n";
+    }
+    std::cout &lt;&lt; "End second\n";
+}
+
+void first() // called by main()
+{
+    std::cout &lt;&lt; "Start first\n";
+    try {
+        second();
+    } catch (int) {
+        std::cerr &lt;&lt; "first caught int exception\n";
+    } catch (double) {
+        cerr &lt;&lt; "first caught double exception\n";
+    }
+    std::cout &lt;&lt; "End first\n";
+}
+
+int main()
+{
+    std::cout &lt;&lt; "Start main\n";
+    try {
+        first();
+    } catch (int) {
+        std::cerr &lt;&lt; "main caught int exception\n";
+    }
+    std::cout &lt;&lt; "End main\n";
+
+    return 0;
+}
+</pre>
+            <p>
+                运行结果如下：
+            </p>
+            <pre class="terminal"><code>[jicanmeng@andy tmp]$ <span class="cmd">./a.out</span>
+                Start main
+                Start first
+                Start second
+                Start third
+                Start last
+                last throwing int exception
+                first caught int exception
+                End first
+                End main
+            [jicanmeng@andy tmp]$</code></pre>
+
+
+
+
+            <h2 id="exception_catch_all_handler">3. catch-all handler</h2>
+            <p>
+                前面提到，每一个<code>catch</code>代码块只会捕获一种类型的异常情况。但是我们不可能将所有的异常情况都罗列出来。为了解决这个问题，c++提供了一个比较牛逼的<code>catch</code>代码块，catch的参数为<code>...</code>，表示匹配任意类型的异常。举例如下：
+            </p>
+<pre class="sourceCode">#include &lt;iostream&gt;
+#include &lt;cmath&gt; // for sqrt() function
+
+using namespace std;
+
+// A modular square root function
+double mySqrt(double x)
+{
+    if (x &lt; 0.0)
+        throw "Can not take sqrt of negative number"; // throw exception of type const char*
+
+    return sqrt(x);
+}
+
+int main()
+{
+    std::cout &lt;&lt; "Enter a number: ";
+    double x;
+    std::cin &gt;&gt; x;
+
+    try {
+        std::cout &lt;&lt; "The sqrt of " &lt;&lt; x &lt;&lt; " is " &lt;&lt; mySqrt(x) &lt;&lt; '\n';
+    } catch (...) {
+        std::cout &lt;&lt; "We caught an exception of an undetermined type\n";
+    }
+
+    return 0;
+}</pre>
+            <p>
+                运行结果如下：
+            </p>
+            <pre class="terminal"><code>[jicanmeng@andy tmp]$ <span class="cmd">./a.out</span>
+                Enter a number: -4
+                We caught an exception of an undetermined type
+            [jicanmeng@andy tmp]$</code></pre>
+
+
+
+
+			<h2>参考资料</h2>
+				<ol>
+					<li>
+						&lt;&lt;C++实用教程&gt;&gt; 电子工业出版社 郑阿奇 主编 丁有和 编著
+					</li>
+					<li>
+						The C++ Tutorial:<br />
+						<a href="http://www.learncpp.com/cpp-tutorial/141-the-need-for-exceptions/" target="_blank">http://www.learncpp.com/cpp-tutorial/141-the-need-for-exceptions/</a><br />
+					</li>
+				</ol>
+		</div>
+
+		<div id="footer">
+			<p>jicanmeng@126.com 2013</p>
+			<p>本站文章可随意转载，但请注明转载的本站文章地址，谢谢！</p>
+		</div>
+	</body>
+</html>
