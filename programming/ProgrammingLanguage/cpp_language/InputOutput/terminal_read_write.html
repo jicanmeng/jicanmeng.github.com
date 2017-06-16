@@ -1,0 +1,313 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<title>terminal read and write in C++</title>
+		<meta http-equiv="content-type" content="text/html; charset=UTF-8">
+		<link rel="stylesheet" type="text/css" href="../../../../style.css" />
+	</head>
+	<body>
+
+		<script type="text/javascript" src="../../../../style.js"></script>
+
+		<div id="header">
+			<h1>每天进步一点点</h1>
+		</div>
+
+		<div id="navigation">
+			<ul class="navigation">
+				<li><a class="navigation" href="../../../../index.html">Home Page</a></li>
+				<li><a class="navigation" href="../../../../life/index.html">Life</a></li>
+				<li><a class="navigation" href="../../../index.html">Programmig</a></li>
+				<li><a class="navigation" href="../../../../projects/index.html">Projects</a></li>
+				<li><a class="navigation" href="../../../../aboutme/index.html">About me</a></li>
+			</ul>
+		</div>
+
+		<div id="Article">
+			<h1>终端读写操作</h1>
+			<p>作者：jicanmeng</p>
+			<p>时间：2017年06月07日</p>
+			<hr />
+
+            <ol>
+                <li>
+                    <a href="#setw">setw控制符</a>
+                </li>
+                <li>
+                    <a href="#get">extraction operator(&gt;&gt;)的缺陷和解决方法: get()</a>
+                </li>
+                <li>
+                    <a href="#getline">get()函数的缺陷和解决方法: getline()</a>
+                </li>
+            </ol>
+
+            <p>
+                c语言中，向monitor写数据使用printf()函数，从keyboard读取数据使用scanf()函数。
+            </p>
+            <p>
+                c++中，cout代表monitor，cin代表keyboard。向monitor写数据使用<code>cout &lt;&lt;</code>这种方式。从keyboard读取数据使用<code>cin >> </code>这种方式。<b>注意，cout和cin不是函数，而是对象。</b>
+            </p>
+
+            <p>
+                首先看一个最简单的例子：
+            </p>
+<pre class="sourceCode">#include &lt;iostream&gt;
+using namespace std;
+
+int main()
+{
+    char buf[10];
+
+    cout &lt;&lt; "Enter your name: " &lt;&lt; endl;
+    cin &gt;&gt; buf;
+    cout &lt;&lt; "Your name is " &lt;&lt; nAge &lt;&lt; endl;
+
+    return 0;
+}</pre>
+
+            <p>
+                运行结果如下：
+            </p>
+            <pre class="terminal"><code>[jicanmeng@andy tmp]$ <span class="cmd">./a.out</span>
+                Enter your name:
+                andy
+                Your name is andy
+            [jicanmeng@andy tmp]$</code></pre>
+            <p>
+                但是上面的程序存在一个bug，我们定义的buf数组大小为10个字节，如果我们输入的字符大于9个，那么程序就会提示错误。应该如何解决这个问题呢？
+            </p>
+
+            <h2 id="setw">1. setw控制符</h2>
+            <p>
+                解决方法是使用manipulator。A manipulator is an object that is used to modify a stream when applied with the extraction (>>) or insertion (<<) operators. C++ provides a manipulator known as <b>setw(in the iomapip.h header)</b> that can be used to limit the number of characters read in from a stream. 所以上面的例子修改如下：
+            </p>
+<pre class="sourceCode">#include &lt;iostream&gt;
+#include &lt;iomanip&gt;
+using namespace std;
+
+int main()
+{
+    char buf[10];
+
+    cout &lt;&lt; "Enter your name: " &lt;&lt; endl;
+    cin &gt;&gt; setw(10) &gt;&gt; buf;
+    cout &lt;&lt; "Your name is " &lt;&lt; nAge &lt;&lt; endl;
+
+    return 0;
+}</pre>
+            <p>
+                This program will now only read the first 9 characters out of the stream (leaving room for a terminator). Any remaining characters will be left in the stream until the next extraction.
+            </p>
+
+            <h2 id="get">2. extraction operator(&gt;&gt;)的缺陷和解决方法: get()</h2>
+            <p>
+                使用<code>&gt;&gt;</code>将stream中的数据传递出来时，默认情况下会忽略空白字符(blanks, tabs, and newlines)。如下面的程序：
+            </p>
+<pre class="sourceCode">#include &lt;iostream&gt;
+#include &lt;iomanip&gt;
+using namespace std;
+
+int main()
+{
+    char ch;
+    while (cin &gt;&gt; ch) {
+        cout &lt;&lt; ch;
+    }
+
+    return 0;
+}</pre>
+            <p>
+                运行结果如下：
+            </p>
+            <pre class="terminal"><code>[jicanmeng@andy tmp]$ <span class="cmd">./a.out</span>
+                hello my name is canmeng
+                hellomynameiscanmeng
+            [jicanmeng@andy tmp]$</code></pre>
+            <p>
+                我们期望是，从cin这个stream object中传递出来的数据能够保持原样。One of the most useful method is the <b>get() function</b>, which simply gets a character from the input stream. 修改后的程序如下：
+            </p>
+<pre class="sourceCode">#include &lt;iostream&gt;
+#include &lt;iomanip&gt;
+using namespace std;
+
+int main()
+{
+    char ch;
+    while (cin.get(ch)) {
+        cout &lt;&lt; ch;
+    }
+
+    return 0;
+}</pre>
+            <p>
+                运行结果如下：
+            </p>
+            <pre class="terminal"><code>[jicanmeng@andy tmp]$ <span class="cmd">./a.out</span>
+                hello my name is canmeng
+                hello my name is canmeng
+            [jicanmeng@andy tmp]$</code></pre>
+            <p>
+                get() also has a string version that takes a maximum number of characters to read:
+            </p>
+<pre class="sourceCode">#include &lt;iostream&gt;
+#include &lt;iomanip&gt;
+using namespace std;
+
+int main()
+{
+    char strBuf[11];
+    cin.get(strBuf, 11);
+    cout &lt;&lt; strBuf &lt;&lt; endl;
+
+    return 0;
+}</pre>
+
+            <h2 id="getline">
+                3. get()函数的缺陷和解决方法: getline()
+            </h2>
+            <p>
+                get(strBuf, 11)函数有一个缺陷，它不能从stream中读出newline character。例如下面的例子：
+            </p>
+<pre class="sourceCode">#include &lt;iostream&gt;
+#include &lt;iomanip&gt;
+using namespace std;
+
+int main()
+{
+    char strBuf[11];
+    // Read up to 10 characters
+    cin.get(strBuf, 11);
+    cout &lt;&lt; strBuf &lt;&lt; endl;
+
+    // Read up to 10 more characters
+    cin.get(strBuf, 11);
+    cout &lt;&lt; strBuf &lt;&lt; endl;
+    return 0;
+}</pre>
+            <p>
+                如果我们只输入一个"hello"字符串，那么程序就会直接结束了，而不会等待我们继续输入字符。
+                learncpp.com上面是这样说的：
+                <blockquote>
+                    The answer is because the first get() read up to the newline and then stopped. The second get() saw there was still input in the cin stream and tried to read it. But the first character was the newline, so it stopped immediately.
+                </blockquote>
+            </p>
+            <p>
+                但是经过我的测试，发现上面的说法并不对。正确的说法应该是：第一次get()函数遇到了newline字符的时候，会停止读取，并将newline character转换为0x00保存在input stream中，但是返回的字符不包括0x00这个字符。然后第二次调用get()的时候，会首先读取0x00字符，就认为读取到字符串末尾，所以程序就结束了。(cin.get()函数读取到newline character不会进行转换，cin.get(str,number)才会转换)。
+            </p>
+            <p>
+                不管怎么样，上面的程序是存在问题的。解决方法是使用cin对象的getline()方法。和get()方法不同的是，这个方法可以在遇到newline character的时候，会停止读取，并将newline character转换为0x00保存在input stream中，但是返回的字符是包括0x00这个字符的。我们使用cin.gcount()函数可以看出从input stream中读取了多少个字符，。将上面的程序稍微修改一下：
+            </p>
+<pre class="sourceCode">#include &lt;iostream&gt;
+#include &lt;iomanip&gt;
+using namespace std;
+
+int main()
+{
+    char strBuf[11];
+    // Read up to 10 characters
+    cin.getline(strBuf, 11);
+    cout &lt;&lt; strBuf &lt;&lt; endl;
+    cout &lt;&lt; cin.gcount() &lt;&lt; " characters were read" &lt;&lt; endl;
+
+    // Read up to 10 more characters
+    cin.getline(strBuf, 11);
+    cout &lt;&lt; strBuf &lt;&lt; endl;
+    cout &lt;&lt; cin.gcount() &lt;&lt; " characters were read" &lt;&lt; endl;
+
+    return 0;
+}</pre>
+            <p>
+                运行结果如下：
+            </p>
+            <pre class="terminal"><code>[jicanmeng@andy tmp]$ <span class="cmd">./a.out</span>
+                hello
+                hello
+                6 characters were read
+                dodo
+                dodo
+                5 characters were read
+                请按任意键继续. . .
+            [jicanmeng@andy tmp]$</code></pre>
+
+            <p>
+                但是上面的程序仍然是有问题的。如果我们输入"hello"字符串，是没有问题的。但是我们输入"helloworldmeng"就会直接退出了。为什么呢？我们把程序扩充一下看一看就知道了：
+            </p>
+<pre class="sourceCode">#include &lt;iostream&gt;
+#include &lt;iomanip&gt;
+using namespace std;
+
+int main()
+{
+    char strBuf[11];
+
+    cout &lt;&lt; "At first: " &lt;&lt; cin.rdstate() &lt;&lt; endl;
+    cout &lt;&lt; ios_base::goodbit &lt;&lt; endl;
+    cout &lt;&lt; ios_base::eofbit &lt;&lt; endl;
+    cout &lt;&lt; ios_base::failbit &lt;&lt; endl;
+    cout &lt;&lt; ios_base::badbit &lt;&lt; endl;
+
+    // Read up to 10 characters
+    cin.getline(strBuf, 11);
+    cout &lt;&lt; strBuf &lt;&lt; endl;
+    cout &lt;&lt; cin.gcount() &lt;&lt; " characters were read" &lt;&lt; endl;
+    printf("count is %d\n", number);
+    for (int i = 0; i &lt; number; i++) {
+        printf("%x ", strBuf[i]);
+    }
+    printf("\n");
+
+    cout &lt;&lt; "At half: " &lt;&lt; cin.rdstate() &lt;&lt; endl;
+
+    // Read up to 10 more characters
+    cin.getline(strBuf, 11);
+    cout &lt;&lt; strBuf &lt;&lt; endl;
+    number = cin.gcount();
+    printf("count is %d\n", number);
+    for (int i = 0; i &lt; number; i++) {
+        printf("%x ", strBuf[i]);
+    }
+    printf("\n");
+
+    return 0;
+}</pre>
+            <p>
+                运行结果如下：
+            </p>
+            <pre class="terminal"><code>[jicanmeng@andy tmp]$ <span class="cmd">./a.out</span>
+                At first: 0
+                0
+                1
+                2
+                4
+                helloworldmeng
+                helloworld
+                count is 10
+                68 65 6c 6c 6f 77 6f 72 6c 64
+                At half: 2
+
+                count is 0
+
+                请按任意键继续. . .
+            [jicanmeng@andy tmp]$</code></pre>
+            <p>
+                可以看出，在25行打印stream的状态时出现了错误，错误为failbit。在stream的状态错误时调用getline()，就直接退出了(这是为什么，我也不知道)。我们可以通过<code>cin.clear()</code>将stream的状态重置为正常，通过<code>cin.sync()</code>来清除stream中的数据。这样，在25行添加两行代码，这个问题就解决了。
+            </p>
+
+			<h2>参考资料</h2>
+				<ol>
+					<li>
+						&lt;&lt;C++实用教程&gt;&gt; 电子工业出版社 郑阿奇 主编 丁有和 编著
+					</li>
+					<li>
+						The C++ Tutorial:<br />
+						<a href="http://www.cnblogs.com/tonglingliangyong/p/3908463.html" target="_blank">http://www.cnblogs.com/tonglingliangyong/p/3908463.html</a>
+					</li>
+				</ol>
+		</div>
+
+		<div id="footer">
+			<p>jicanmeng@126.com 2013</p>
+			<p>本站文章可随意转载，但请注明转载的本站文章地址，谢谢！</p>
+		</div>
+	</body>
+</html>

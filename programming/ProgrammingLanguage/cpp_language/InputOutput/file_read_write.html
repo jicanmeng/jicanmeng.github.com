@@ -1,0 +1,358 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<title>file read and write in C++</title>
+		<meta http-equiv="content-type" content="text/html; charset=UTF-8">
+		<link rel="stylesheet" type="text/css" href="../../../../style.css" />
+	</head>
+	<body>
+
+		<script type="text/javascript" src="../../../../style.js"></script>
+
+		<div id="header">
+			<h1>每天进步一点点</h1>
+		</div>
+
+		<div id="navigation">
+			<ul class="navigation">
+				<li><a class="navigation" href="../../../../index.html">Home Page</a></li>
+				<li><a class="navigation" href="../../../../life/index.html">Life</a></li>
+				<li><a class="navigation" href="../../../index.html">Programmig</a></li>
+				<li><a class="navigation" href="../../../../projects/index.html">Projects</a></li>
+				<li><a class="navigation" href="../../../../aboutme/index.html">About me</a></li>
+			</ul>
+		</div>
+
+		<div id="Article">
+			<h1>文件读写操作</h1>
+			<p>作者：jicanmeng</p>
+			<p>时间：2017年06月07日</p>
+			<hr />
+
+            <ol>
+                <li>
+                    <a href="#file_write">文件写入</a>
+                </li>
+                <li>
+                    <a href="#file_read">文件读取</a>
+                </li>
+                <li>
+                    <a href="#file_mode">文件操作模式: 只读，只写，可读可写</a>
+                </li>
+                <li>
+                    <a href="#file_pointer">文件指针</a>
+                </li>
+            </ol>
+
+			<p>
+				c语言中，对文件的读写操作使用fopen(), fread(), fwrite(), fclose()等函数。c++中，在兼容这种方式的同时，提供了另外的方式进行文件的读写操作：
+				<ul>
+					<li>ofstream: 创建一个文件用于写入</li>
+					<li>ifstream: 创建一个文件用于读取</li>
+					<li>fstream: &nbsp;创建一个文件用于写入和读取</li>
+				</ul>
+			</p>
+
+            <h2 id="file_write">1. 文件写入</h2>
+			<p>
+				先看一个程序：
+			</p>
+
+<pre class="sourceCode">#include &lt;iostream&gt;
+#include &lt;fstream&gt;
+#include &lt;string&gt;
+#include &lt;cstdlib&gt; // for exit()
+using namespace std;
+
+int main()
+{
+    string file_name = "sample.dat";
+
+    // ofstream is used for writing files
+    // We'll make a file called sample.dat
+    ofstream outf(file_name);
+
+    // If we couldn't open the output file stream for writing
+    if (!outf) {
+        cerr &lt;&lt; "error: " &lt;&lt; file_name &lt;&lt;
+         " could not be opened for writing!" &lt;&lt; endl;
+        exit(1);
+    }
+
+    outf &lt;&lt; "This is line 1" &lt;&lt; endl;
+    outf &lt;&lt; "This is line 2" &lt;&lt; endl;
+
+    return 0;
+
+    // When outf goes out of scope, the ofstream
+    // destructor will close the file
+}</pre>
+
+            <p>
+                上面的程序会创建一个名称为sample.dat的文件。learncpp.com上对文件的操作的描述是：
+                <blockquote>
+                    To open a file for reading and/or writing, simply instantiate an object of the appropriate file I/O class, with the name of the file as a parameter. Then use the insertion (<<) or extraction (>>) operator to read/write to the file. Once you are done, <b>there are several ways to close a file: explicitly call the close() function, or just let the file I/O variable go out of scope (the file I/O class destructor will close the file for you).</b>
+                </blockquote>
+            </p>
+
+            <p>
+                可以在创建了文件后，调用了close()方法后，再调用open()方法打开。learncpp.com上面的描述如下：
+                <blockquote>
+                    Just like it is possible to explicitly close a file stream using close(), it’s also possible to explicitly open a file stream using open(). open() works just like the file stream constructors -- it takes a file name and an optional file mode.
+                </blockquote>
+            </p>
+<pre class="sourceCode">#include &lt;iostream&gt;
+#include &lt;fstream&gt;
+#include &lt;string&gt;
+#include &lt;cstdlib&gt; // for exit()
+using namespace std;
+
+int main()
+{
+    ofstream outf("sample.dat");
+    outf &lt;&lt; "This is line 1" &lt;&lt; endl;
+    outf &lt;&lt; "This is line 2" &lt;&lt; endl;
+    outf.close(); // explicitly close the file
+
+    // Oops, we forgot something
+    outf.open("Sample.dat", ios::app);
+    outf &lt;&lt; "This is line 3" &lt;&lt; endl;
+    outf.close();
+
+    return 0;
+}</pre>
+            <p>
+                打开sample.dat文件后，发现文件中有三行，就是我们刚才写入的三行。
+            </p>
+
+            <h2 id="file_read">2. 文件读取</h2>
+            <p>
+                下面的程序则会从sample.dat文件中读取数据：
+            </p>
+<pre class="sourceCode">#include &lt;iostream&gt;
+#include &lt;fstream&gt;
+#include &lt;string&gt;
+#include &lt;cstdlib&gt; // for exit()
+using namespace std;
+
+int main()
+{
+    string file_name = "sample.dat";
+
+    // ifstream is used for reading files
+    // We'll read from a file called Sample.dat
+    ifstream inf(file_name);
+
+    // If we couldn't open the output file stream for reading
+    if (!inf) {
+        cerr &lt;&lt; "error: " &lt;&lt; file_name &lt;&lt;
+         " could not be opened for reading!" &lt;&lt; endl;
+        exit(1);
+    }
+
+    // While there's still stuff left to read
+    while (inf) {
+        std::string strInput;
+        //inf &gt;&gt; strInput;
+        getline(inf, strInput);
+        cout &lt;&lt; strInput &lt;&lt; endl;
+    }
+
+    return 0;
+
+    // When inf goes out of scope, the ifstream
+    // destructor will close the file
+}</pre>
+
+			<p>
+				以下是运行结果：
+			</p>
+			<pre class="terminal"><code>[jicanmeng@andy tmp]$ <span class="cmd">./a.out</span>
+				This is line 1
+                This is line 2
+			[jicanmeng@andy tmp]$</code></pre>
+
+            <p>
+                注意上面的第26行代码，如果我们注释掉这一行，打开25行，那么运行结果如下：
+            </p>
+            <pre class="terminal"><code>[jicanmeng@andy tmp]$ <span class="cmd">./a.out</span>
+                This
+                is
+                line
+                1
+                This
+                is
+                line
+                2
+            [jicanmeng@andy tmp]$</code></pre>
+
+            <h2 id="file_mode">3. 文件操作模式: 只读，只写，可读可写</h2>
+            <p>
+                fstream创建的文件，可以读取，也可以写入。
+            </p>
+
+            <p>
+                在使用c语言打开文件的时候，可以指定模式，比如"r", "w", "w+", "a+"等。在c++中，同样可以指定。下表是可以指定的标志位(from learncpp.com)：
+            </p>
+
+            <table cellpadding=3 border=1>
+            <tr>
+            <th>Ios file mode</th>
+            <th>Meaning</th>
+            </tr>
+            <tr>
+            <td>app</td>
+            <td>Opens the file in append mode</td>
+            </tr>
+            <tr>
+            <td>ate</td>
+            <td>Seeks to the end of the file before reading/writing</td>
+            </tr>
+            <tr>
+            <td>binary</td>
+            <td>Opens the file in binary mode (instead of text mode)</td>
+            </tr>
+            <tr>
+            <td>in</td>
+            <td>Opens the file in read mode (default for ifstream)</td>
+            </tr>
+            <tr>
+            <td>out</td>
+            <td>Opens the file in write mode (default for ofstream)</td>
+            </tr>
+            <tr>
+            <td>trunc</td>
+            <td>Erases the file if it already exists</td>
+            </tr>
+            </table>
+            <p>
+                <blockquote>
+                    It is possible to specify multiple flags by bitwise ORing them together (using the | operator). <b>Note that ios::in and ios::out are already defaults for the ifstream and ofstream classes respectively.</b> If you opt to use fstream (which can do both input and output), you explicitly have to pass in ios::in and/or ios::out depending on which mode you’d like to use.
+                </blockquote>
+                默认情况下，ios::app会设置，即创建一个文件时，如果这个文件存在，那么会清空这个文件，从头开始写入。
+            </p>
+
+            <p>
+                下面的例子，会打开sample.dat文件，然后在文件后面添加两行：
+            </p>
+<pre class="sourceCode">#include &lt;iostream&gt;
+#include &lt;fstream&gt;
+#include &lt;string&gt;
+#include &lt;cstdlib&gt; // for exit()
+using namespace std;
+
+int main()
+{
+    string file_name = "sample.dat";
+
+    // We'll make a file called sample.dat.
+    // But if file exists, only append data.
+    ofstream outf(file_name, ios::app);
+
+    // If we couldn't open the output file stream for writing
+    if (!outf) {
+        cerr &lt;&lt; "error: " &lt;&lt; file_name &lt;&lt;
+         " could not be opened for writing!" &lt;&lt; endl;
+        exit(1);
+    }
+
+    outf &lt;&lt; "This is line 3" &lt;&lt; endl;
+    outf &lt;&lt; "This is line 4" &lt;&lt; endl;
+
+    return 0;
+
+    // When outf goes out of scope, the ofstream
+    // destructor will close the file
+}</pre>
+
+            <h2 id="file_pointer">4. 文件指针</h2>
+            <p>
+                learncpp.com上面的描述：
+                <blockquote>
+                    Each file stream class contains a file pointer that is used to keep track of the current read/write position within the file. When something is read from or written to a file, the reading/writing happens at the file pointer’s current location. By default, when opening a file for reading or writing, the file pointer is set to the beginning of the file. However, if a file is opened in append mode, the file pointer is moved to the end of the file, so that writing does not overwrite any of the current contents of the file.
+                </blockquote>
+            </p>
+            <p>
+                打开一个文件用于读取时，可以使用<code>seekg</code>函数来移动文件指针；打开一个文件用于写入时，可以使用<code>seekp</code>函数来移动文件指针。调用函数时需要指定两个参数，第一个是移动几个字节，第二个是从哪里开始移动。第二个参数有三个选项：文件开始位置(ios::beg), 当前的指针位置(ios::cur), 文件的结束位置(ios::end)。举例说明：
+            </p>
+<pre class="sourceCode">#include &lt;iostream&gt;
+#include &lt;fstream&gt;
+#include &lt;string&gt;
+#include &lt;cstdlib&gt; // for exit()
+using namespace std;
+
+int main()
+{
+    // Note we have to specify both in and out because we're using fstream
+    fstream iofile("sample.dat", ios::in | ios::out);
+
+    // If we couldn't open iofile, print an error
+    if (!iofile) {
+        // Print an error and exit
+        cerr << "Uh oh, sample.dat could not be opened!" << endl;
+        exit(1);
+    }
+
+    char chChar; // we're going to do this character by character
+
+    // While there's still data to process
+    while (iofile.get(chChar)) {
+        switch (chChar) {
+            // If we find a vowel
+            case 'a':
+            case 'e':
+            case 'i':
+            case 'o':
+            case 'u':
+            case 'A':
+            case 'E':
+            case 'I':
+            case 'O':
+            case 'U':
+
+                // Back up one character
+                iofile.seekg(-1, ios::cur);
+
+                // Because we did a seek, we can now safely do a write, so
+                // let's write a # over the vowel
+                iofile << '#';
+
+                // Now we want to go back to read mode so the next call
+                // to get() will perform correctly.  We'll seekg() to the current
+                // location because we don't want to move the file pointer.
+                iofile.seekg(iofile.tellg(), ios::beg);
+
+                break;
+        }
+    }
+
+    return 0;
+}</pre>
+
+            <p>
+                假设我们有一个文件，里面内容为abcd，执行完上面的程序后，文件的内容就会变为#bcd。注意，我们并没有调用seekp函数，那么为什么执行文件写入操作会覆盖a呢？
+            </p>
+
+            <p>
+                答案是：seekp()函数的作用是设置输出文件流的文件流指针位置，seekg()函数的作用是设置输入文件流的文件流指针位置。fstream创建的这个文件既是输出文件流，也是输入文件流，所以seekg和seekp都会改变文件流指针的位置。不像c语言，分为读指针和写指针。
+            </p>
+			<h2>参考资料</h2>
+				<ol>
+					<li>
+						&lt;&lt;C++实用教程&gt;&gt; 电子工业出版社 郑阿奇 主编 丁有和 编著
+					</li>
+					<li>
+						The C++ Tutorial:<br />
+						<a href="http://www.learncpp.com/cpp-tutorial/186-basic-file-io/" target="_blank">http://www.learncpp.com/cpp-tutorial/186-basic-file-io/</a><br />
+
+						<a href="http://www.cnblogs.com/onlyan/archive/2012/08/02/2620726.html" target="_blank">http://www.cnblogs.com/onlyan/archive/2012/08/02/2620726.html</a>
+					</li>
+				</ol>
+		</div>
+
+		<div id="footer">
+			<p>jicanmeng@126.com 2013</p>
+			<p>本站文章可随意转载，但请注明转载的本站文章地址，谢谢！</p>
+		</div>
+	</body>
+</html>

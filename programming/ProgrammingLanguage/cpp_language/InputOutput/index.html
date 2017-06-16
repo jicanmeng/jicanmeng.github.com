@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<title>input and output in C++</title>
+		<meta http-equiv="content-type" content="text/html; charset=UTF-8">
+		<link rel="stylesheet" type="text/css" href="../../../../style.css" />
+	</head>
+	<body>
+
+		<script type="text/javascript" src="../../../../style.js"></script>
+
+		<div id="header">
+			<h1>每天进步一点点</h1>
+		</div>
+
+		<div id="navigation">
+			<ul class="navigation">
+				<li><a class="navigation" href="../../../../index.html">Home Page</a></li>
+				<li><a class="navigation" href="../../../../life/index.html">Life</a></li>
+				<li><a class="navigation" href="../../../index.html">Programmig</a></li>
+				<li><a class="navigation" href="../../../../projects/index.html">Projects</a></li>
+				<li><a class="navigation" href="../../../../aboutme/index.html">About me</a></li>
+			</ul>
+		</div>
+
+		<div id="Article">
+			<h1>输入和输出(input and output)</h1>
+			<p>作者：jicanmeng</p>
+			<p>时间：2017年06月07日</p>
+			<hr />
+
+            <p>
+                c++中，I/O是通过stream来实现的。learncpp.com上面的描述是：
+                <blockquote>
+                    I/O in C++ is implemented with streams. Abstractly, a stream is just a sequence of characters that can be accessed sequentially. Over time, a stream may produce or consume potentially unlimited amounts of data.
+                </blockquote>
+            </p>
+            <p>
+                c++中提供两种类型的stream：Input streams和Output streams。
+                <blockquote>
+                    Typically we deal with two different types of streams. Input streams are used to hold input from a data producer, such as a keyboard, a file, or a network. For example, the user may press a key on the keyboard while the program is currently not expecting any input. <b><font color="red">Rather than ignore the users keypress, the data is put into an input stream, where it will wait until the program is ready for it.</font></b>
+                </blockquote>
+                <blockquote>
+                    Conversely, output streams are used to hold output for a particular data consumer, such as a monitor, a file, or a printer. When writing data to an output device, the device may not be ready to accept that data yet -- for example, the printer may still be warming up when the program writes data to its output stream. <b><font color="red">The data will sit in the output stream until the printer begins consuming it.</font></b>
+                </blockquote>
+            </p>
+            <p>
+                c++程序启动的时候，就已经创建了四个标准的stream对象：cin，cout，cerr和clog, 用于和终端进行交互。cin和keyboard关联起来，cout、cerr和clog都和monitor联系起来。我们最常用的是cin和cout。
+            </p>
+            <p>
+                有两个特殊的操作符用于和stream交互，extraction operator<code>&lt;&lt;</code> 和 insertion operator<code>&gt;&gt;</code>。例如:
+                <ul>
+                    <li><code>cin &gt;&gt; a;</code>用于从cin这个stream中传递数据到变量a中</li>
+                    <li><code>cout &lt;&lt; a;</code>用于将变量a中的数传递到cout这个stream中</li>
+                </ul>
+                可以形象地认为，箭头的指向就是数据流的流向。
+            </p>
+
+            <p>
+                输入和输出最常用的地方有：
+                <ul>
+                    <li>从终端读取数据和写入数据</li>
+                    <li>从文件读取数据和写入数据</li>
+                </ul>
+            </p>
+
+            <h2>
+                1. 从终端读取数据和写入数据
+            </h2>
+            <p>
+                c语言中，向monitor写数据使用printf()函数，从keyboard读取数据使用scanf()函数。
+            </p>
+            <p>
+                c++中，cout代表monitor，cin代表keyboard。向monitor写数据使用<code>cout &lt;&lt;</code>这种方式。从keyboard读取数据使用<code>cin >> </code>这种方式。注意，cout和cin不是函数，而是对象。
+            </p>
+
+            <h2>
+                2. 从文件读取数据和写入数据
+            </h2>
+			<p>
+				c语言中，对文件的读写操作使用fopen(), fread(), fwrite(), fclose()等函数。
+            </p>
+            <p>
+                c++中，在兼容上面的这种方式的同时，提供了另外的方式进行文件的读写操作。ofstream是output stream类型的stream，ifstream是input stream类型的stream。c++程序启动的时候，只是创建了四个标准的stream对象，对应于monitor和keyboard。但是并没有创建和文件联系起来的stream对象，所以我们需要手动创建ofstream或者ifstream类型的对象，然后利用<code>&lt;&lt;</code>或<code>&gt;&gt;</code>操作符和stream对象进行交互。
+			</p>
+            <p>
+                假设我们创建了一个ofstream类型的对象of，创建了一个ifstream类型的对象if。那么
+                <ul>
+                    <li><code>of &lt;&lt; a</code>用于将变量a中的数据传递到of这个stream对象中</li>
+                    <li><code>if &gt;&gt; a</code>用于将if这个stream对象中的数据传递到变量a中</li>
+                </ul>
+            </p>
+
+            <p>
+                后面的两篇文章用于描述终端读写和文件读写的基本操作：
+            </p>
+            <ol>
+                <li><a href="terminal_read_write.html">终端读写操作</a></li>
+                <li><a href="file_read_write.html">文件读写操作</a></li>
+            </ol>
+
+
+			<h2>参考资料</h2>
+				<ol>
+					<li>
+						&lt;&lt;C++实用教程&gt;&gt; 电子工业出版社 郑阿奇 主编 丁有和 编著
+					</li>
+					<li>
+						The C++ Tutorial:<br />
+						<a href="http://www.learncpp.com/cpp-tutorial/186-basic-file-io/" target="_blank">http://www.learncpp.com/cpp-tutorial/186-basic-file-io/</a><br />
+
+						<a href="http://www.cnblogs.com/onlyan/archive/2012/08/02/2620726.html" target="_blank">http://www.cnblogs.com/onlyan/archive/2012/08/02/2620726.html</a>
+					</li>
+				</ol>
+		</div>
+
+		<div id="footer">
+			<p>jicanmeng@126.com 2013</p>
+			<p>本站文章可随意转载，但请注明转载的本站文章地址，谢谢！</p>
+		</div>
+	</body>
+</html>
