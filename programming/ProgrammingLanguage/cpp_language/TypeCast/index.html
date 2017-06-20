@@ -1,0 +1,277 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<title>type casts in C++</title>
+		<meta http-equiv="content-type" content="text/html; charset=UTF-8">
+		<link rel="stylesheet" type="text/css" href="../../../../style.css" />
+	</head>
+	<body>
+
+		<script type="text/javascript" src="../../../../style.js"></script>
+
+		<div id="header">
+			<h1>每天进步一点点</h1>
+		</div>
+
+		<div id="navigation">
+			<ul class="navigation">
+				<li><a class="navigation" href="../../../../index.html">Home Page</a></li>
+				<li><a class="navigation" href="../../../../life/index.html">Life</a></li>
+				<li><a class="navigation" href="../../../index.html">Programmig</a></li>
+				<li><a class="navigation" href="../../../../projects/index.html">Projects</a></li>
+				<li><a class="navigation" href="../../../../aboutme/index.html">About me</a></li>
+			</ul>
+		</div>
+
+		<div id="Article">
+			<h1>c++中的类型转换</h1>
+			<p>作者：jicanmeng</p>
+			<p>时间：2017年06月20日</p>
+			<hr />
+
+			<p>
+				In C++, there are 5 different types of casts: C-style casts, static casts, const casts, dynamic casts, and reinterpret casts.
+			</p>
+			<p>
+				Const casts and reinterpret casts should generally be avoided because they are only useful in rare cases and can be harmful if used incorrectly. 本文不会讨论这两种转换。
+			</p>
+
+			<p>
+				传统的C-style类型转换的缺点如下：
+				<blockquote>
+					Because C-style casts are not checked by the compiler at compile time, C-style casts can be inherently misused, because they will let you do things that may not make sense, such as getting rid of a const or changing a data type without changing the underlying representation (leading to garbage results).
+
+					Consequently, C-style casts should generally be avoided.
+				</blockquote>
+			</p>
+			<p>
+				不过在我看来，C-style和static_cast也没啥区别啊，都是告诉编译器进行显式的类型转换。如下面的例子：
+			</p>
+
+
+<pre class="sourceCode">#include &lt;iostream&gt;
+
+int main()
+{
+    float a = 3.2f;
+//    int b = (int)a;
+    int b = static_cast&lt;int&gt;(a);
+
+    std::cout &lt;&lt; b &lt;&lt; std::endl;
+    return 0;
+}</pre>
+			<p>
+				第6行和第7行都可以。如果不加类型转换，会有警告：<code>warning C4244: “初始化”: 从“float”转换到“int”，可能丢失数据</code>。
+			</p>
+
+			<p>
+				dynamic_cast最常见的用法是将指向父类的指针进行转换，然后赋值给指向子类的指针。
+			</p>
+
+<pre class="sourceCode">#include &lt;iostream&gt;
+#include &lt;string&gt;
+
+class Base
+{
+protected:
+    int m_value;
+
+public:
+    Base(int value)
+        : m_value(value)
+    {
+    }
+    virtual ~Base() {}
+};
+
+class Derived : public Base
+{
+protected:
+    std::string m_name;
+
+public:
+    Derived(int value, std::string name)
+        : Base(value), m_name(name)
+    {
+    }
+
+    const std::string&amp; getName() { return m_name; }
+};
+
+Base* getObject(bool bReturnDerived)
+{
+    if (bReturnDerived)
+        return new Derived(1, "Apple");
+    else
+        return new Base(2);
+}
+
+int main()
+{
+    Base *b = getObject(true);
+
+    Derived *d = dynamic_cast<Derived*>(b); // use dynamic cast to convert Base pointer into Derived pointer
+
+    if (d) {
+        std::cout &lt;&lt; "The name of the Derived is: " &lt;&lt; d->getName() &lt;&lt; '\n';
+    }
+
+    delete b;
+
+    return 0;
+}</pre>
+			<p>
+				以下是运行结果：
+			</p>
+			<pre class="terminal"><code>[jicanmeng@andy tmp]$ <span class="cmd">./a.out</span>
+				The name of the Derived is: Apple
+			[jicanmeng@andy tmp]$</code></pre>
+
+			<p>
+				dynamic_cast也可以用于引用。将上面的程序稍微修改一下：
+			</p>
+<pre class="sourceCode">#include &lt;iostream&gt;
+#include &lt;string&gt;
+
+class Base
+{
+protected:
+    int m_value;
+
+public:
+    Base(int value)
+        : m_value(value)
+    {
+    }
+    virtual ~Base() {}
+};
+
+class Derived : public Base
+{
+protected:
+    std::string m_name;
+
+public:
+    Derived(int value, std::string name)
+        : Base(value), m_name(name)
+    {
+    }
+
+    const std::string&amp; getName() { return m_name; }
+};
+
+Base* getObject(bool bReturnDerived)
+{
+    if (bReturnDerived)
+        return new Derived(1, "Apple");
+    else
+        return new Base(2);
+}
+
+int main()
+{
+    Base *b = getObject(true);
+
+    Derived &amp;d = dynamic_cast&lt;Derived&gt;(*b); // use dynamic cast to convert Base reference into Derived reference
+
+    std::cout &lt;&lt; "The name of the Derived is: " &lt;&lt; d.getName() &lt;&lt; '\n';
+
+    delete b;
+
+    return 0;
+}</pre>
+
+			<p>learncpp.com上面是这样说的：
+				<blockquote>
+					Because C++ does not have a “null reference”, dynamic_cast can’t return a null reference upon failure. Instead, if the dynamic_cast of a reference fails, an exception of type std::bad_cast is thrown.
+				</blockquote>
+			</p>
+            <p>
+                所以，对于上面的这个程序，如果在调用getObject()函数时传递的是false，那么程序就会运行终止并退出。可以使用前面文章中提到的<a href="../ExceptionHandling/index.html">"exception handling"</a>来进行处理。比如修改为如下的形式：
+            </p>
+<pre class="sourceCode">#include &lt;iostream&gt;
+#include &lt;string&gt;
+
+class Base
+{
+protected:
+    int m_value;
+
+public:
+    Base(int value)
+        : m_value(value)
+    {
+    }
+    virtual ~Base() {}
+};
+
+class Derived : public Base
+{
+protected:
+    std::string m_name;
+
+public:
+    Derived(int value, std::string name)
+        : Base(value), m_name(name)
+    {
+    }
+
+    const std::string&amp; getName() { return m_name; }
+};
+
+Base* getObject(bool bReturnDerived)
+{
+    if (bReturnDerived)
+        return new Derived(1, "Apple");
+    else
+        return new Base(2);
+}
+
+int main()
+{
+    Base *b = getObject(false);
+
+    try {
+        Derived &amp;d = dynamic_cast&lt;Derived&gt;(*b); // use dynamic cast to convert Base reference into Derived reference
+        std::cout &lt;&lt; "The name of the Derived is: " &lt;&lt; d.getName() &lt;&lt; '\n';
+    }
+    catch (std::bad_cast) {
+        std::cout &lt;&lt; "bad cast from Base to Derived" &lt;&lt; std::endl;
+    }
+
+    delete b;
+
+    return 0;
+}</pre>
+			<p>
+				以下是运行结果：
+			</p>
+			<pre class="terminal"><code>[jicanmeng@andy tmp]$ <span class="cmd">./a.out</span>
+				bad cast from Base to Derived
+				请按任意键继续. . .
+			[jicanmeng@andy tmp]$</code></pre>
+
+			<h2>参考资料</h2>
+				<ol>
+					<li>
+						&lt;&lt;C++实用教程&gt;&gt; 电子工业出版社 郑阿奇 主编 丁有和 编著
+					</li>
+					<li>
+						The C++ Tutorial:<br />
+						<a href="http://www.learncpp.com/cpp-tutorial/4-4a-explicit-type-conversion-casting/" target="_blank">http://www.learncpp.com/cpp-tutorial/4-4a-explicit-type-conversion-casting/</a><br />
+						<a href="http://www.learncpp.com/cpp-tutorial/12-9-dynamic-casting/" target="_blank">http://www.learncpp.com/cpp-tutorial/12-9-dynamic-casting/</a>
+					</li>
+					<li>
+						misc:<br />
+						<a href="http://www.cnblogs.com/QG-whz/p/4509710.html" target="_blank">http://www.cnblogs.com/QG-whz/p/4509710.html</a><br />
+						<a href="http://www.cnblogs.com/ider/archive/2011/07/30/cpp_cast_operator_part3.html" target="_blank">http://www.cnblogs.com/ider/archive/2011/07/30/cpp_cast_operator_part3.html</a>
+					</li>
+				</ol>
+		</div>
+
+		<div id="footer">
+			<p>jicanmeng@126.com 2013</p>
+			<p>本站文章可随意转载，但请注明转载的本站文章地址，谢谢！</p>
+		</div>
+	</body>
+</html>
