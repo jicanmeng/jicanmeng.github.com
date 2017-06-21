@@ -1,0 +1,112 @@
+﻿<!DOCTYPE html>
+<html>
+	<head>
+		<title>c++: standard template library(STL): containers</title>
+		<meta http-equiv="content-type" content="text/html; charset=UTF-8">
+		<link rel="stylesheet" type="text/css" href="../../../../style.css" />
+	</head>
+	<body>
+
+		<script type="text/javascript" src="../../../../style.js"></script>
+
+		<div id="header">
+			<h1>每天进步一点点</h1>
+		</div>
+
+		<div id="navigation">
+			<ul class="navigation">
+				<li><a class="navigation" href="../../../../index.html">Home Page</a></li>
+				<li><a class="navigation" href="../../../../life/index.html">Life</a></li>
+				<li><a class="navigation" href="../../../index.html">Programmig</a></li>
+				<li><a class="navigation" href="../../../../projects/index.html">Projects</a></li>
+				<li><a class="navigation" href="../../../../aboutme/index.html">About me</a></li>
+			</ul>
+		</div>
+
+		<div id="Article">
+			<h1>STL container</h1>
+			<p>作者：jicanmeng</p>
+			<p>时间：2017年06月21日</p>
+			<hr />
+
+			<p>
+				Sequence Containers的两个例子：
+			</p>
+
+			<p>
+				vector的用法：
+			</p>
+<pre class="sourceCode">#include &lt;iostream&gt;
+#include &lt;vector&gt;
+
+int main()
+{
+    using namespace std;
+
+    vector&lt;int> vect;
+    for (int nCount=0; nCount &lt; 6; nCount++)
+        vect.push_back(10 - nCount); // insert at end of array
+
+    for (int nIndex=0; nIndex &lt; vect.size(); nIndex++)
+        cout &lt;&lt; vect[nIndex] &lt;&lt; " ";
+
+    cout &lt;&lt; endl;
+}</pre>
+			<p>
+				以下是运行结果：
+			</p>
+			<pre class="terminal"><code>[jicanmeng@andy tmp]$ <span class="cmd">./a.out</span>
+                10 9 8 7 6 5
+			[jicanmeng@andy tmp]$</code></pre>
+
+			<p>
+				deque的用法：
+			</p>
+<pre class="sourceCode">#include &lt;iostream&gt;
+#include &lt;deque&gt;
+
+int main()
+{
+    using namespace std;
+
+    deque&lt;int> deq;
+    for (int nCount=0; nCount &lt; 3; nCount++) {
+        deq.push_back(nCount); // insert at end of array
+        deq.push_front(10 - nCount); // insert at front of array
+    }
+
+    for (int nIndex=0; nIndex &lt; deq.size(); nIndex++)
+        cout &lt;&lt; deq[nIndex] &lt;&lt; " ";
+
+    cout &lt;&lt; endl;
+}</pre>
+			<p>
+				以下是运行结果：
+			</p>
+			<pre class="terminal"><code>[jicanmeng@andy tmp]$ <span class="cmd">./a.out</span>
+                8 9 10 0 1 2
+			[jicanmeng@andy tmp]$</code></pre>
+
+
+			<h2>参考资料</h2>
+				<ol>
+					<li>
+						&lt;&lt;C++实用教程&gt;&gt; 电子工业出版社 郑阿奇 主编 丁有和 编著 P280
+					</li>
+					<li>
+						The C++ Tutorial:<br />
+						<a href="http://www.learncpp.com/cpp-tutorial/16-1-the-standard-template-library-stl/" target="_blank">http://www.learncpp.com/cpp-tutorial/16-1-the-standard-template-library-stl/</a><br />
+					</li>
+					<li>
+						misc:<br />
+						<a href="http://www.cnblogs.com/shiyangxt/archive/2008/09/11/1289493.html" target="_blank">http://www.cnblogs.com/shiyangxt/archive/2008/09/11/1289493.html</a>
+					</li>
+				</ol>
+		</div>
+
+		<div id="footer">
+			<p>jicanmeng@126.com 2013</p>
+			<p>本站文章可随意转载，但请注明转载的本站文章地址，谢谢！</p>
+		</div>
+	</body>
+</html>

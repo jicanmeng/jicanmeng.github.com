@@ -1,0 +1,139 @@
+﻿<!DOCTYPE html>
+<html>
+	<head>
+		<title>c++: standard template library(STL)</title>
+		<meta http-equiv="content-type" content="text/html; charset=UTF-8">
+		<link rel="stylesheet" type="text/css" href="../../../../style.css" />
+		<style type="text/css">
+			.C_cpp11{
+				display:inline-block;
+				margin:0;
+				padding:0;
+				width:20px;
+				height:11px;
+				background-image:url("bg.png");
+				background-repeat:no-repeat;
+				background-position:-32px -112px
+			}
+		</style>
+	</head>
+	<body>
+
+		<script type="text/javascript" src="../../../../style.js"></script>
+
+		<div id="header">
+			<h1>每天进步一点点</h1>
+		</div>
+
+		<div id="navigation">
+			<ul class="navigation">
+				<li><a class="navigation" href="../../../../index.html">Home Page</a></li>
+				<li><a class="navigation" href="../../../../life/index.html">Life</a></li>
+				<li><a class="navigation" href="../../../index.html">Programmig</a></li>
+				<li><a class="navigation" href="../../../../projects/index.html">Projects</a></li>
+				<li><a class="navigation" href="../../../../aboutme/index.html">About me</a></li>
+			</ul>
+		</div>
+
+		<div id="Article">
+			<h1>标准模板库(Standard Template Library)</h1>
+			<p>作者：jicanmeng</p>
+			<p>时间：2017年06月20日</p>
+			<hr />
+
+			<p>
+				STL是一些模板类(class template)和模板函数(function template)的集合。learncpp.com上面的描述如下：
+				<blockquote>
+					The Standard Template Library is a collection of classes that provide templated containers, algorithms, and iterators.
+				</blockquote>
+			</p>
+
+			<p>
+				STL的代码从广义上讲分为三类：algorithm（算法）、container（容器）和iterator（迭代器），几乎所有的代码都采用了模板类和模版函数的方式，这相比于传统的由函数和类组成的库来说提供了更好的代码重用机会。在C++标准中，STL被组织为下面的13个头文件：&lt;algorithm&gt;、&lt;deque>、&lt;functional&gt;、&lt;iterator&gt;、&lt;vector&gt;、&lt;list&gt;、&lt;map&gt;、&lt;memory&gt;、&lt;numeric&gt;、&lt;queue&gt;、&lt;set&gt;、&lt;stack&gt;和&lt;utility&gt;。
+			</p>
+			<p>
+				container（容器）共包括四类：Sequence containers, Associative Containers, Containers Adapters和Unordered associative containers. 每种类型中都有几个class template。
+				<ul>
+					<li>
+						Sequence containers
+						<ul>
+							<li>array(since c++11)</li>
+							<li>vector</li>
+							<li>deque</li>
+							<li>forward_list(since c++11)</li>
+							<li>list</li>
+						</ul>
+					</li>
+					<li>
+						Associative Containers
+						<ul>
+							<li>set</li>
+							<li>multiset</li>
+							<li>map</li>
+							<li>multimap</li>
+						</ul>
+					</li>
+					<li>
+						Container Adapters
+						<ul>
+							<li>stack</li>
+							<li>queue</li>
+							<li>priority_queue</li>
+						</ul>
+					</li>
+					<li>
+						Unordered associative containers
+						<ul>
+							<li>unordered_set(since c++11)</li>
+							<li>unordered_multiset(since c++11)</li>
+							<li>unordered_map(since c++11)</li>
+							<li>unordered_multimap(since c++11)</li>
+						</ul>
+					</li>
+				</ul>
+			</p>
+
+			<p>
+				iterators包括很多function templates和class templates，使用的时候需要包括iterator头文件：<code>include &lgt;iterator&gt;</code>。
+			</p>
+
+			<p>
+				algorithms包括很多function templates，使用的时候需要包括algorithm头文件：<code>include &lgt;algorithm&gt;</code>。
+			</p>
+
+			<p>
+				后面的几篇文章举几个简单的例子，来自于learncpp.com.
+				<ol>
+					<li><a href="container.html">STL container</a></li>
+					<li><a href="iterator.html">STL iterator</a></li>
+					<li><a href="algorithm.html">STL algorithm</a></li>
+				</ol>
+			</p>
+
+
+			<h2>参考资料</h2>
+				<ol>
+					<li>
+						&lt;&lt;C++实用教程&gt;&gt; 电子工业出版社 郑阿奇 主编 丁有和 编著 P280
+					</li>
+					<li>
+						The C++ Tutorial:<br />
+						<a href="http://www.learncpp.com/cpp-tutorial/16-1-the-standard-template-library-stl/" target="_blank">http://www.learncpp.com/cpp-tutorial/16-1-the-standard-template-library-stl/</a>
+					</li>
+					<li>
+						misc:<br />
+						<a href="http://www.cnblogs.com/shiyangxt/archive/2008/09/11/1289493.html" target="_blank">http://www.cnblogs.com/shiyangxt/archive/2008/09/11/1289493.html</a><br />
+						<a href="http://www.cplusplus.com/reference/stl/" target="_blank">http://www.cplusplus.com/reference/stl/</a><br />
+						<a href="http://blog.csdn.net/elloop/article/details/50340623" target="_blank">【C++ STL应用与实现】0: 感恩STL——STL, ACM和年轻的我们</a><br />
+						<a href="http://www.cnblogs.com/jchm/p/5443757.html" target="_blank">C++ STL编程轻松入门【转载】</a><br />
+						<a href="http://blog.chinaunix.net/uid-24219701-id-2181266.html" target="_blank">C++语言学习之STL 的组成</a><br />
+					</li>
+				</ol>
+		</div>
+
+		<div id="footer">
+			<p>jicanmeng@126.com 2013</p>
+			<p>本站文章可随意转载，但请注明转载的本站文章地址，谢谢！</p>
+		</div>
+	</body>
+</html>

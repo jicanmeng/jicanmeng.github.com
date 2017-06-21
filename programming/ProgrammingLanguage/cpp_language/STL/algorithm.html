@@ -1,0 +1,126 @@
+﻿<!DOCTYPE html>
+<html>
+	<head>
+		<title>c++: standard template library(STL): algorithms</title>
+		<meta http-equiv="content-type" content="text/html; charset=UTF-8">
+		<link rel="stylesheet" type="text/css" href="../../../../style.css" />
+	</head>
+	<body>
+
+		<script type="text/javascript" src="../../../../style.js"></script>
+
+		<div id="header">
+			<h1>每天进步一点点</h1>
+		</div>
+
+		<div id="navigation">
+			<ul class="navigation">
+				<li><a class="navigation" href="../../../../index.html">Home Page</a></li>
+				<li><a class="navigation" href="../../../../life/index.html">Life</a></li>
+				<li><a class="navigation" href="../../../index.html">Programmig</a></li>
+				<li><a class="navigation" href="../../../../projects/index.html">Projects</a></li>
+				<li><a class="navigation" href="../../../../aboutme/index.html">About me</a></li>
+			</ul>
+		</div>
+
+		<div id="Article">
+			<h1>STL algorithm</h1>
+			<p>作者：jicanmeng</p>
+			<p>时间：2017年06月21日</p>
+			<hr />
+
+			<p>
+				To use any of the STL algorithms, simply include the algorithm header file. 算法当然有很多，STL中提供了很多算法。例如：
+				<ul>
+					<li>The min_element and max_element algorithms find the min and max element in a container class.</li>
+					<li>find() algorithm is used to find a value in the container class.</li>
+					<li>list::insert() function to add a new value into the list.</li>
+				</ul>
+			</p>
+
+			<p>
+				寻找最大值和寻找最小值：
+			</p>
+<pre class="sourceCode">#include &lt;iostream&gt;
+#include &lt;list>
+#include &lt;algorithm>
+
+int main()
+{
+    using namespace std;
+
+    list&lt;int&gt; li;
+    for (int nCount = 0; nCount &lt; 6; nCount++)
+        li.push_back(nCount);
+
+    list&lt;int&gt;::const_iterator it; // declare an iterator
+    it = min_element(li.begin(), li.end());
+    cout &lt;&lt; *it &lt;&lt; " ";
+    it = max_element(li.begin(), li.end());
+    cout &lt;&lt; *it &lt;&lt; " ";
+
+    cout &lt;&lt; endl;
+}</pre>
+			<p>
+				运行结果如下：
+			</p>
+			<pre class="terminal"><code>[jicanmeng@andy tmp]$ <span class="cmd">./a.out</span>
+                0 5
+			[jicanmeng@andy tmp]$</code></pre>
+
+			<p>
+				找到对应的元素并插入一个新元素：
+			</p>
+<pre class="sourceCode">#include &lt;iostream&gt;
+#include &lt;iostream&gt;
+#include &lt;list&gt;
+#include &lt;algorithm&gt;
+
+int main()
+{
+    using namespace std;
+
+    list&lt;int&gt; li;
+    for (int nCount = 0; nCount &lt; 6; nCount++)
+        li.push_back(nCount);
+
+    list&lt;int&gt;::iterator it; // declare an iterator
+    it = find(li.begin(), li.end(), 3); // find the value 3 in the list
+    li.insert(it, 8); // use list::insert to insert the value 8 before it
+
+    for (it = li.begin(); it != li.end(); it++) // for loop with iterators
+        cout &lt;&lt; *it &lt;&lt; " ";
+
+    cout &lt;&lt; endl;
+}</pre>
+			<p>
+				以下是运行结果：
+			</p>
+			<pre class="terminal"><code>[jicanmeng@andy tmp]$ <span class="cmd">./a.out</span>
+                0 1 2 8 3 4 5
+			[jicanmeng@andy tmp]$</code></pre>
+
+
+			<h2>参考资料</h2>
+				<ol>
+					<li>
+						&lt;&lt;C++实用教程&gt;&gt; 电子工业出版社 郑阿奇 主编 丁有和 编著 P280
+					</li>
+					<li>
+						The C++ Tutorial:<br />
+						<a href="http://www.learncpp.com/cpp-tutorial/16-1-the-standard-template-library-stl/" target="_blank">http://www.learncpp.com/cpp-tutorial/16-1-the-standard-template-library-stl/</a><br />
+					</li>
+					<li>
+						misc:<br />
+						<a href="http://www.cnblogs.com/shiyangxt/archive/2008/09/11/1289493.html" target="_blank">http://www.cnblogs.com/shiyangxt/archive/2008/09/11/1289493.html</a>
+						<a href="http://blog.csdn.net/jerryjbiao/article/details/6832334" target="_blank">简单的程序诠释C++ STL算法系列之二：find</a>
+					</li>
+				</ol>
+		</div>
+
+		<div id="footer">
+			<p>jicanmeng@126.com 2013</p>
+			<p>本站文章可随意转载，但请注明转载的本站文章地址，谢谢！</p>
+		</div>
+	</body>
+</html>
