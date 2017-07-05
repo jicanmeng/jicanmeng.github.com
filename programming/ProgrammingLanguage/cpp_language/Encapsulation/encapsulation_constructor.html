@@ -116,7 +116,7 @@ int main()
 			[jicanmeng@andy tmp]$</code></pre>
 
 			<p>
-				从编译的输出来看，在第32行定义ptB对象的时候，调用了一个C2DPoint::C2DPoint()函数，但是这个函数根本就不存在。有两个候选的可供调用的函数，第11行的C2DPoint::C2DPoint(int,int)构造函数；还有一个C2DPoint::C2DPoint(const C2DPoint&amp;)，这个函数叫做拷贝构造函数，后续再进行讲解，这里只需要知道有这回事儿就行了。
+				从编译的输出来看，在第32行定义ptB对象的时候，调用了一个C2DPoint::C2DPoint()函数，但是这个函数根本就不存在。有两个候选的可供调用的函数，第11行的C2DPoint::C2DPoint(int,int)构造函数；还有一个C2DPoint::C2DPoint(const C2DPoint&amp;)，这个函数叫做<a href="../OperatorOverloading/memberFunction/Assignment_OperatorOverloading_And_CopyConstructor.html">拷贝构造函数(copy constructor)</a>，后续讲到运算符重载的时候再进行详细讲解，现在只需要知道有这个概念就行了。
 			</p>
 
 			<p>
