@@ -55,99 +55,119 @@
 <pre class="sourceCode">#include &lt;iostream&gt;
 using namespace std;
 
-class CA
+class C2DPoint
 {
+private:
+    int m_xPos;
+    int m_yPos;
 public:
-    CA( int x, int y ){
-        a = x;
-        b = y;
+    C2DPoint(int x, int y) {
+        m_xPos = x;
+        m_yPos = y;
         cout &lt;&lt; "constructor function called" &lt;&lt; endl;
     }
-    int getA(){
-        return a;
+    void setAxis(int x, int y) {
+        m_xPos = x;
+        m_yPos = y;
     }
-    int getB(){
-        return b;
+    int getXAxis() {
+        return m_xPos;
     }
-private:
-    int a, b;
+    int getYAxis() {
+        return m_yPos;
+    }
 };
 
 int main()
 {
-    CA object(3,4);
-    cout &lt;&lt; "object.getA() is " &lt;&lt; object.getA() &lt;&lt; endl;
-    cout &lt;&lt; "object.getB() is " &lt;&lt; object.getB() &lt;&lt; endl;
+    C2DPoint ptA(5, 6);
+    cout &lt;&lt; "point axis is (" &lt;&lt; ptA.getXAxis() &lt;&lt;
+        ", " &lt;&lt; ptA.getYAxis() &lt;&lt; ")" &lt;&lt; endl;
 
     return 0;
 }</pre>
 
 			<p>编译此文件并运行，看一看运行结果:</p>
 
-			<pre class="terminal"><code>[jicanmeng@andy tmp]$ <span class="cmd">g++ a.cpp</span>
+			<pre class="terminal"><code>[jicanmeng@andy tmp]$ <span class="cmd">g++ test.cpp</span>
 			[jicanmeng@andy tmp]$ <span class="cmd">./a.out</span>
 			constructor function called
-			object.getA() is 3
-			object.getB() is 4
+			point axis is (5, 6)
 			[jicanmeng@andy tmp]$</code></pre>
 
 			<p>
-				我们在定义一个变量的时候，例如一个int类型的变量，可以进行赋值，也可以不赋值。<code>int a = 3</code>和<code>int a;</code>这两种形式都是有效的。那对于类的对象是不是也是这样呢？我们可以在代码的第27行添加一行:<code>CA object2;</code>。然后进行编译：
+				我们在定义一个变量的时候，例如一个int类型的变量，可以进行赋值，也可以不赋值。<code>int a = 3</code>和<code>int a;</code>这两种形式都是有效的。那对于类的对象是不是也是这样呢？我们可以在代码的第32行添加一行:<code>C2DPoint ptB;</code>。然后进行编译：
 			</p>
 
 			<pre class="terminal"><code>[jicanmeng@andy tmp]$ <span class="cmd">g++ a.cpp</span>
-			a.cpp: In function ‘int main()’:
-			a.cpp:27: error: no matching function for call to ‘CA::CA()’
-			a.cpp:7: note: candidates are: CA::CA(int, int)
-			a.cpp:5: note:                 CA::CA(const CA&)
+                test.cpp: In function ‘int main()’:
+                test.cpp:32:14: error: no matching function for call to ‘C2DPoint::C2DPoint()’
+                &nbsp; &nbsp; &nbsp;C2DPoint ptB;
+                &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; ^
+                test.cpp:32:14: note: candidates are:
+                test.cpp:11:5: note: C2DPoint::C2DPoint(int, int)
+                &nbsp; &nbsp; &nbsp;C2DPoint(int x, int y) {
+                &nbsp; &nbsp; &nbsp;^
+                test.cpp:11:5: note:   candidate expects 2 arguments, 0 provided
+                test.cpp:5:7: note: C2DPoint::C2DPoint(const C2DPoint&amp;)
+                &nbsp;class C2DPoint
+                &nbsp; &nbsp; &nbsp; &nbsp;^
+                test.cpp:5:7: note:   candidate expects 1 argument, 0 provided
 			[jicanmeng@andy tmp]$</code></pre>
 
 			<p>
-				从编译的输出来看，在第27行定义objectTwo对象的时候，调用了一个CA::CA()函数，但是这个函数根本就不存在。有两个候选的可供调用的函数，第7行的CA::CA(int,int)构造函数；还有一个CA::CA(const CA&)，这个函数叫做拷贝构造函数，后续再进行讲解，这里只需要知道有这回事儿就行了。
+				从编译的输出来看，在第32行定义ptB对象的时候，调用了一个C2DPoint::C2DPoint()函数，但是这个函数根本就不存在。有两个候选的可供调用的函数，第11行的C2DPoint::C2DPoint(int,int)构造函数；还有一个C2DPoint::C2DPoint(const C2DPoint&amp;)，这个函数叫做拷贝构造函数，后续再进行讲解，这里只需要知道有这回事儿就行了。
 			</p>
 
 			<p>
-				既然CA::CA()函数不存在，那么我们就定义一个这样的函数，看看结果如何。代码如下：
+				既然C2DPoint::C2DPoint()函数不存在，那么我们就定义一个这样的函数，看看结果如何。代码如下：
 			</p>
 
 <pre class="sourceCode">#include &lt;iostream&gt;
 using namespace std;
 
-class CA
+class C2DPoint
 {
+private:
+    int m_xPos;
+    int m_yPos;
 public:
-    CA( int x, int y ){
-        a = x;
-        b = y;
+    C2DPoint(int x, int y) {
+        m_xPos = x;
+        m_yPos = y;
         cout &lt;&lt; "constructor function called" &lt;&lt; endl;
     }
-    CA(){
-        a = 5;
-        b = 5;
+    C2DPoint() {
+        m_xPos = 0;
+        m_yPos = 0;
     }
-    int getA(){
-        return a;
+    void setAxis(int x, int y) {
+        m_xPos = x;
+        m_yPos = y;
     }
-    int getB(){
-        return b;
+    int getXAxis() {
+        return m_xPos;
     }
-private:
-    int a, b;
+    int getYAxis() {
+        return m_yPos;
+    }
 };
 
 int main()
 {
-    CA objectOne(3,4);
-    cout &lt;&lt; "objectOne.getA() is " &lt;&lt; objectOne.getA() &lt;&lt; endl;
-    cout &lt;&lt; "objectOne.getB() is " &lt;&lt; objectOne.getB() &lt;&lt; endl;
-    CA objectTwo;
-    cout &lt;&lt; "objectTwo.getA() is " &lt;&lt; objectTwo.getA() &lt;&lt; endl;
-    cout &lt;&lt; "objectTwo.getB() is " &lt;&lt; objectTwo.getB() &lt;&lt; endl;
+    C2DPoint ptA(5, 6);
+    cout &lt;&lt; "point axis is (" &lt;&lt; ptA.getXAxis() &lt;&lt;
+        ", " &lt;&lt; ptA.getYAxis() &lt;&lt; ")" &lt;&lt; endl;
+
+    C2DPoint ptB();
+    cout &lt;&lt; "point axis is (" &lt;&lt; ptB.getXAxis() &lt;&lt;
+        ", " &lt;&lt; ptB.getYAxis() &lt;&lt; ")" &lt;&lt; endl;
+
     return 0;
 }</pre>
 
 			<p>
-				再次进行编译，这次没有错误了，说明我们添加的函数起作用了。由此可以得出，我们定义一个类的对象时，如果不赋初值，c++编译器就会去寻找一个构造函数，这个构造函数不带任何参数，在上面的代码中就是<code>CA::CA()</code>，称为<b>默认构造函数</b>。而那个带参数的构造函数<code>CA::CA(int,int)</code>则称为<b>重载构造函数</b>。
+				再次进行编译，这次没有错误了，说明我们添加的函数起作用了。由此可以得出，我们定义一个类的对象时，如果不赋初值，c++编译器就会去寻找一个构造函数，这个构造函数不带任何参数，在上面的代码中就是<code>C2DPoint::C2DPoint()</code>，称为<b>默认构造函数</b>。而那个带参数的构造函数<code>C2DPoint::C2DPoint(int,int)</code>则称为<b>重载构造函数</b>。
 			</p>
 
 
@@ -157,32 +177,39 @@ int main()
 <pre class="sourceCode">#include &lt;iostream&gt;
 using namespace std;
 
-class CA
+class C2DPoint
 {
+private:
+    int m_xPos;
+    int m_yPos;
 public:
-    CA( int x = 5, int y = 5 ){
-        a = x;
-        b = y;
+    C2DPoint(int x = 0, int y = 0) {
+        m_xPos = x;
+        m_yPos = y;
         cout &lt;&lt; "constructor function called" &lt;&lt; endl;
     }
-    int getA(){
-        return a;
+    void setAxis(int x, int y) {
+        m_xPos = x;
+        m_yPos = y;
     }
-    int getB(){
-        return b;
+    int getXAxis() {
+        return m_xPos;
     }
-private:
-    int a, b;
+    int getYAxis() {
+        return m_yPos;
+    }
 };
 
 int main()
 {
-    CA objectOne(3,4);
-    cout &lt;&lt; "objectOne.getA() is " &lt;&lt; objectOne.getA() &lt;&lt; endl;
-    cout &lt;&lt; "objectOne.getB() is " &lt;&lt; objectOne.getB() &lt;&lt; endl;
-    CA objectTwo;
-    cout &lt;&lt; "objectTwo.getA() is " &lt;&lt; objectTwo.getA() &lt;&lt; endl;
-    cout &lt;&lt; "objectTwo.getB() is " &lt;&lt; objectTwo.getB() &lt;&lt; endl;
+    C2DPoint ptA(5, 6);
+    cout &lt;&lt; "point axis is (" &lt;&lt; ptA.getXAxis() &lt;&lt;
+        ", " &lt;&lt; ptA.getYAxis() &lt;&lt; ")" &lt;&lt; endl;
+
+    C2DPoint ptB();
+    cout &lt;&lt; "point axis is (" &lt;&lt; ptB.getXAxis() &lt;&lt;
+        ", " &lt;&lt; ptB.getYAxis() &lt;&lt; ")" &lt;&lt; endl;
+
     return 0;
 }</pre>
 
@@ -209,11 +236,23 @@ int main()
 			</p>
 
 			<p>
-				现在可以回答最开始的三个问题了：1.隐式的构造函数是当定义一个类时，如果我们没有实现任何和类名相同的构造函数，那么系统自动生成的一个构造函数。2.显式的构造函数是我们在类的定义中实现的一个构造函数，不带任何参数。3.重载构造函数是我们在类的定义中实现的带参数的构造函数。
+				现在可以回答最开始的三个问题了：1.隐式的默认构造函数是当定义一个类时，如果我们没有实现任何和类名相同的构造函数，那么系统自动生成的一个构造函数。2.显式的默认构造函数是我们在类的定义中实现的一个构造函数，不带任何参数。3.重载构造函数是我们在类的定义中实现的带参数的构造函数。
 			</p>
 
+            <hr />
 			<p>
-				最后有一点需要注意：构造函数是类的成员函数，可以声明为public类型的，也可以声明为private类型的。如果声明为private类型，那么我们就不能创建一个这样的对象。一般来讲，如果一个类的构造函数为private类型的，那么这个类只作为一个基类，供别的类继承使用?????（待确认）。
+                前面提到，有三个关键字：public，private和protected，用于声明类中的成员和类外代码的关系。对于public类型的成员来说，可以在类外访问，当然也可以在类内访问。对于private成员来说，不能在类外访问，数据成员只能由类中的函数使用，函数成员只允许在类中调用。对于protected成员来说，不能在类外访问，只能在类中或子类中访问。构造函数作为类的函数成员，自然也会通过这三个关键字来修饰。
+            </p>
+            <p>
+                一般情况下，我们都会将构造函数声明为public类型的，这样可以在类外构造一个这样类型的对象。当然构造函数也可以声明为protected或者private类型的，常见于下列情况：
+                <ul>
+                    <li>
+                        如果我们不希望外部代码直接构造一个类的对象，但是可以构造这个类的子类的对象时，我们常常将这个类的构造函数声明为protected类型。此时，在构造子类的构造函数时，就会调用到子类的父类的构造函数。
+                    </li>
+                    <li>
+                        如果我们希望外部代码在程序的整个运行周期只能构建一个类的对象，我们常常将这个类的构造函数声明为private类型的。
+                    </li>
+                </ul>
 			</p>
 			<h2>参考资料</h2>
 				<ol>
@@ -224,6 +263,10 @@ int main()
 						The C++ Tutorial:<br />
 						<a href="http://www.learncpp.com/cpp-tutorial/85-constructors/" target="_blank">http://www.learncpp.com/cpp-tutorial/85-constructors/</a>
 					</li>
+                    <li>
+                        构造函数定义为private，protected:<br />
+                        <a href="http://www.cnblogs.com/this-543273659/archive/2011/08/02/2125487.html" target="_blank">http://www.cnblogs.com/this-543273659/archive/2011/08/02/2125487.html</a>
+                    </li>
 				</ol>
 
             <div class="navfooter">

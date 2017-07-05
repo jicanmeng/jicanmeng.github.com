@@ -36,31 +36,41 @@
 <pre class="sourceCode">#include &lt;iostream&gt;
 using namespace std;
 
-class Point
+class C2DPoint
 {
 private:
-    int x;
-    int y;
+    int m_xPos;
+    int m_yPos;
 public:
-    void setAxis(int a, int b){
-        x = a;
-        y = b;
+    void setAxis(int x, int y) {
+        m_xPos = x;
+        m_yPos = y;
     }
-    void getAxis(){
-        cout &lt;&lt; "value of x is " &lt;&lt; x &lt;&lt; endl;
-        cout &lt;&lt; "value of y is " &lt;&lt; y &lt;&lt; endl;
+    int getXAxis() {
+        return m_xPos;
+    }
+    int getYAxis() {
+        return m_yPos;
     }
 };
 
 int main()
 {
-    Point var;
+    C2DPoint ptA;
 
-    var.setAxis(5,6);
-    var.getAxis();
+    ptA.setAxis(5, 6);
+    cout &lt;&lt; "point axis is (" &lt;&lt; ptA.getXAxis() &lt;&lt;
+        ", " &lt;&lt; ptA.getYAxis() &lt;&lt; ")" &lt;&lt; endl;
+
     return 0;
 }</pre>
 
+            <p>编译此文件并运行，看一看运行结果:</p>
+
+            <pre class="terminal"><code>[jicanmeng@andy tmp]$ <span class="cmd">g++ test.cpp</span>
+            [jicanmeng@andy tmp]$ <span class="cmd">./a.out</span>
+            point axis is (5, 6)
+            [jicanmeng@andy tmp]$</code></pre>
 			<p>
 				封装是通过类(class)来实现的。一个类中包含了数据和操作这些数据的函数。所谓的封装，就是将数据和操作数据的函数封装在一起。我们先看一个使用类的c++程序。
 			</p>
@@ -80,21 +90,21 @@ protected:
 <各个成员函数的实现> //实现部分</pre>
 
 			<p>
-				其中，class是类声明的关键字，class后面是要声明的类名。类中的数据和函数都是类的成员，分别称为类的数据成员(member variable)和成员函数(member function)。其中数据成员又称为类的属性，成员函数又称为类的方法。<b>在定义一个类时，要注意类体中最后一个花括号后面的分号";"不能省略。</b>
+				其中，class是类声明的关键字，class后面是要声明的类名。类中的数据和函数都是类的成员，分别称为类的数据成员(variable member)和函数成员(function member)。对于函数成员，有的书或教程也称其为成员函数(member function)。但是我觉得，无论是变量还是函数，都是类的成员。为了保持一致，后面统一称为变量成员和函数成员。其中数据成员又称为类的属性，函数成员又称为类的方法。<b>在定义一个类时，要注意类体中最后一个花括号后面的分号";"不能省略。</b>
 			</p>
 			<p>
-				在c++语言中，常常将类定义的变量称为一个对象，对象的数据成员称为这个对象的属性，对象的成员函数称为这个对象的方法。
-			</p>
-
-			<p>
-				类体中的关键字public，private和protected声明了类中的成员和类外代码的关系，称为访问权限(access specifiers)。对于public类型的成员来说，可以在类外访问，当然也可以在类内访问。对于private成员来说，不能在类外访问，数据成员只能由类中的函数使用，成员函数只允许在类中调用。对于protected成员来说，不能在类外访问，只能在类中或子类中访问。
+				在c++语言中，常常将类定义的变量称为一个对象，对象的数据成员称为这个对象的属性，对象的函数成员称为这个对象的方法。
 			</p>
 
 			<p>
-				从类的声明格式可以看出，类的声明分为声明部分和定义部分。通常情况下，我们会将类的声明部分放到一个头文件中，实现部分放到一个cpp文件中。一般情况下，各个成员函数的实现都是放在cpp文件中的。不过，我们也可以将成员函数的实现直接放到类体中，比如上面的示例程序。
+				类体中的关键字public，private和protected声明了类中的成员和类外代码的关系，称为访问权限(access specifiers)。对于public类型的成员来说，可以在类外访问，当然也可以在类内访问。对于private成员来说，不能在类外访问，数据成员只能由类中的函数使用，函数成员只允许在类中调用。对于protected成员来说，不能在类外访问，只能在类中或子类中访问。
+			</p>
+
+			<p>
+				从类的声明格式可以看出，类的声明分为声明部分和定义部分。通常情况下，我们会将类的声明部分放到一个头文件中，实现部分放到一个cpp文件中。一般情况下，各个函数成员的实现都是放在cpp文件中的。不过，我们也可以将函数成员的实现直接放到类体中，比如上面的示例程序。
 			</p>
 			<p>
-				如果成员函数的实现是在类体外部完成，那么必须使用作用域运算符"::"来告知编译系统改函数所属的类。此时，成员函数的定义格式如下：
+				如果函数成员的实现是在类体外部完成，那么必须使用作用域运算符"::"来告知编译系统该函数所属的类。此时，函数成员的定义格式如下：
 			</p>
 
 <pre class="sourceCode">&lt;函数类型&gt; &lt;类名&gt;::&lt;函数名&gt;(&lt;形参表&gt;)
@@ -108,31 +118,38 @@ protected:
 <pre class="sourceCode">#include &lt;iostream&gt;
 using namespace std;
 
-class Point
+class C2DPoint
 {
 private:
-    int x;
-    int y;
+    int m_xPos;
+    int m_yPos;
 public:
-    void setAxis(int a, int b){
-        x = a;
-        y = b;
+    void setAxis(int x, int y) {
+        m_xPos = x;
+        m_yPos = y;
     }
-    void getAxis();
+    int getXAxis();
+    int getYAxis();
 };
 
-void Point::getAxis()
+void C2DPoint::getXAxis()
 {
-    cout &lt;&lt; "value of x is " &lt;&lt; x &lt;&lt; endl;
-    cout &lt;&lt; "value of y is " &lt;&lt; y &lt;&lt; endl;
+    return m_xPos;
+}
+
+void C2DPoint::getYAxis()
+{
+    return m_yPos;
 }
 
 int main()
 {
-    Point var;
+    C2DPoint ptA;
 
-    var.setAxis(5,6);
-    var.getAxis();
+    ptA.setAxis(5, 6);
+    cout &lt;&lt; "point axis is (" &lt;&lt; ptA.getXAxis() &lt;&lt;
+        ", " &lt;&lt; ptA.getYAxis() &lt;&lt; ")" &lt;&lt; endl;
+
     return 0;
 }</pre>
 
@@ -150,7 +167,7 @@ int main()
 				<li>	访问权限关键字public，private和protected在类中使用时先后次序无关紧要，而且可以使用多次。每个访问权限关键字为类成员确定的访问权限是从该关键字开始到下一个关键字为止。另外要注意的是，这三个关键字表示的是类的成员与类外的关系，类内部成员之间互相访问不受这三个关键字的限制。
 				</li>
 				<li>类体内如果没有指定成员的访问权限，则默认为private的。</li>
-				<li>在类外，对某个对象的数据成员的访问方式为："对象名.数据成员名称"；对某个对象的成员函数的访问方式为："对象名.成员函数名称(形参表)"。</li>
+				<li>在类外，对某个对象的数据成员的访问方式为："对象名.数据成员名称"；对某个对象的函数成员的访问方式为："对象名.函数成员名称(形参表)"。</li>
 				<li>
 					在类中使用成员时，成员声明的前后不会影响该成员在类中的使用。
 				</li>
@@ -160,8 +177,12 @@ int main()
 				</li>
 
 				<li>
-					类的成员函数和数据成员加上"m_"前缀比较好，表示member of class的意思。这样容易和类外部定义的变量和函数区分。
+					类的数据成员和函数成员在命名时，加上"m_"前缀比较好，表示member of class的意思。这样容易和类外部定义的变量和函数区分。
 				</li>
+
+                <li>
+                    在实际编程时，我们往往将类的声明放在一个.h头文件中，将类的具体实现放在.cpp文件中。
+                </li>
 			</ol>
 
 			<h2>参考资料</h2>
