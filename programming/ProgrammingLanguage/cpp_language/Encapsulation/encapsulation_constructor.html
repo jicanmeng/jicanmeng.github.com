@@ -99,7 +99,7 @@ int main()
 				我们在定义一个变量的时候，例如一个int类型的变量，可以进行赋值，也可以不赋值。<code>int a = 3</code>和<code>int a;</code>这两种形式都是有效的。那对于类的对象是不是也是这样呢？我们可以在代码的第32行添加一行:<code>C2DPoint ptB;</code>。然后进行编译：
 			</p>
 
-			<pre class="terminal"><code>[jicanmeng@andy tmp]$ <span class="cmd">g++ a.cpp</span>
+			<pre class="terminal"><code>[jicanmeng@andy tmp]$ <span class="cmd">g++ test.cpp</span>
                 test.cpp: In function ‘int main()’:
                 test.cpp:32:14: error: no matching function for call to ‘C2DPoint::C2DPoint()’
                 &nbsp; &nbsp; &nbsp;C2DPoint ptB;
@@ -159,7 +159,7 @@ int main()
     cout &lt;&lt; "point axis is (" &lt;&lt; ptA.getXAxis() &lt;&lt;
         ", " &lt;&lt; ptA.getYAxis() &lt;&lt; ")" &lt;&lt; endl;
 
-    C2DPoint ptB();
+    C2DPoint ptB;
     cout &lt;&lt; "point axis is (" &lt;&lt; ptB.getXAxis() &lt;&lt;
         ", " &lt;&lt; ptB.getYAxis() &lt;&lt; ")" &lt;&lt; endl;
 
@@ -254,6 +254,229 @@ int main()
                     </li>
                 </ul>
 			</p>
+
+
+            <hr />
+            <p>
+                知道了这三个基本概念。我们来看一个非常重要的知识点：当类中包含有指针类型的变量成员时，应该如何写我们的构造函数？我们将C2DPoint这个类扩充一下，添加一个<code>char *m_pName;</code>变量成员来看一看。看下面的例子：
+            </p>
+<pre class="sourceCode">#include &lt;iostream&gt;
+using namespace std;
+
+class C2DPoint
+{
+private:
+    int m_xPos;
+    int m_yPos;
+    char *m_pName;
+public:
+    C2DPoint(int x, int y, char *pName) {
+        m_xPos = x;
+        m_yPos = y;
+        m_pName = pName;
+        cout &lt;&lt; "overload constructor function called" &lt;&lt; endl;
+    }
+    C2DPoint() {
+        m_xPos = 0;
+        m_yPos = 0;
+        m_pName = NULL;
+        cout &lt;&lt; "default constructor function called" &lt;&lt; endl;
+    }
+    void setAxis(int x, int y) {
+        m_xPos = x;
+        m_yPos = y;
+    }
+    int getXAxis() {
+        return m_xPos;
+    }
+    int getYAxis() {
+        return m_yPos;
+    }
+    char *getName() {
+        return m_pName;
+    }
+};
+
+int main()
+{
+    C2DPoint ptA(-2, 2, "left top point");
+    cout &lt;&lt; "pointA axis is (" &lt;&lt; ptA.getXAxis() &lt;&lt;
+        ", " &lt;&lt; ptA.getYAxis() &lt;&lt; ")" &lt;&lt; ", name is " &lt;&lt;
+        ptA.getName() &lt;&lt; endl;
+
+    C2DPoint ptB;
+    cout &lt;&lt; "point axis is (" &lt;&lt; ptB.getXAxis() &lt;&lt;
+        ", " &lt;&lt; ptB.getYAxis() &lt;&lt; ")" &lt;&lt; endl;
+
+    return 0;
+}</pre>
+            <p>
+                程序运行结果如下：
+            </p>
+            <pre class="terminal"><code>[jicanmeng@andy tmp]$ <span class="cmd">./a.out</span>
+                overload constructor function called
+                pointA axis is (-2, 2), name is left top point
+                default constructor function called
+                pointB axis is (0, 0)
+            [jicanmeng@andy tmp]$</code></pre>
+            <p>
+                程序运行正常，好像也没有什么问题。但是我们在main()函数的第48行再添加几行代码，看看运行情况。代码如下：
+            </p>
+<pre class="sourceCode">#include &lt;iostream&gt;
+using namespace std;
+
+class C2DPoint
+{
+private:
+    int m_xPos;
+    int m_yPos;
+    char *m_pName;
+public:
+    C2DPoint(int x, int y, char *pName) {
+        m_xPos = x;
+        m_yPos = y;
+        m_pName = pName;
+        cout &lt;&lt; "overload constructor function called" &lt;&lt; endl;
+    }
+    C2DPoint() {
+        m_xPos = 0;
+        m_yPos = 0;
+        m_pName = NULL;
+        cout &lt;&lt; "default constructor function called" &lt;&lt; endl;
+    }
+    void setAxis(int x, int y) {
+        m_xPos = x;
+        m_yPos = y;
+    }
+    int getXAxis() {
+        return m_xPos;
+    }
+    int getYAxis() {
+        return m_yPos;
+    }
+    char *getName() {
+        return m_pName;
+    }
+};
+
+int main()
+{
+    C2DPoint ptA(-2, 2, "left top point");
+    cout &lt;&lt; "pointA axis is (" &lt;&lt; ptA.getXAxis() &lt;&lt;
+        ", " &lt;&lt; ptA.getYAxis() &lt;&lt; ")" &lt;&lt; ", name is " &lt;&lt;
+        ptA.getName() &lt;&lt; endl;
+
+    C2DPoint ptB;
+    cout &lt;&lt; "point axis is (" &lt;&lt; ptB.getXAxis() &lt;&lt;
+        ", " &lt;&lt; ptB.getYAxis() &lt;&lt; ")" &lt;&lt; endl;
+
+    char *pString = new char[6];
+    strncpy(pString, "hello", 5);
+    pString[5] = '\0';
+    C2DPoint ptC(2, -2, pString);
+    delete pString;
+    cout &lt;&lt; "pointC axis is (" &lt;&lt; ptC.getXAxis() &lt;&lt;
+        ", " &lt;&lt; ptC.getYAxis() &lt;&lt; ")" &lt;&lt; ", name is " &lt;&lt;
+        ptC.getName() &lt;&lt; endl;
+
+    return 0;
+}</pre>
+            <p>
+                程序运行结果如下：
+            </p>
+            <pre class="terminal"><code>[jicanmeng@andy tmp]$ <span class="cmd">./a.out</span>
+                overload constructor function called
+                pointA axis is (-2, 2), name is left top point
+                default constructor function called
+                pointB axis is (0, 0)
+                overload constructor function called
+                pointC axis is (2, -2), name is ▒▒▒
+            [jicanmeng@andy tmp]$</code></pre>
+            <p>
+                这次运行出错了。可以看到，ptC这个对象返回了乱码。为什么呢？聪明的你应该能够猜到，ptC中的m_pName变量成员指向的内存已经被delete给释放了，所以我们返回了一堆乱码。
+            </p>
+            <p>
+                那么我们应该解决这个问题呢？方法就是：我们需要给指针类型的变量成员赋值时，同时也分配好这个指针指向的内存。不多说，上代码：
+            </p>
+<pre class="sourceCode">#include &lt;iostream&gt;
+using namespace std;
+
+class C2DPoint
+{
+private:
+    int m_xPos;
+    int m_yPos;
+    char *m_pName;
+public:
+    C2DPoint(int x, int y, char *pName) {
+        m_xPos = x;
+        m_yPos = y;
+
+        int length = strlen(pName) + 1;
+        m_pName = new char[length];
+        strncpy(m_pName, pName, length);
+        m_pName[length - 1] = '\0';
+
+        cout &lt;&lt; "overload constructor function called" &lt;&lt; endl;
+    }
+    C2DPoint() {
+        m_xPos = 0;
+        m_yPos = 0;
+        m_pName = NULL;
+        cout &lt;&lt; "default constructor function called" &lt;&lt; endl;
+    }
+    void setAxis(int x, int y) {
+        m_xPos = x;
+        m_yPos = y;
+    }
+    int getXAxis() {
+        return m_xPos;
+    }
+    int getYAxis() {
+        return m_yPos;
+    }
+    char *getName() {
+        return m_pName;
+    }
+};
+
+int main()
+{
+    C2DPoint ptA(-2, 2, "left top point");
+    cout &lt;&lt; "pointA axis is (" &lt;&lt; ptA.getXAxis() &lt;&lt;
+        ", " &lt;&lt; ptA.getYAxis() &lt;&lt; ")" &lt;&lt; ", name is " &lt;&lt;
+        ptA.getName() &lt;&lt; endl;
+
+    C2DPoint ptB;
+    cout &lt;&lt; "point axis is (" &lt;&lt; ptB.getXAxis() &lt;&lt;
+        ", " &lt;&lt; ptB.getYAxis() &lt;&lt; ")" &lt;&lt; endl;
+
+    char *pString = new char[6];
+    strncpy(pString, "hello", 5);
+    pString[5] = '\0';
+    C2DPoint ptC(2, -2, pString);
+    delete pString;
+    cout &lt;&lt; "pointC axis is (" &lt;&lt; ptC.getXAxis() &lt;&lt;
+        ", " &lt;&lt; ptC.getYAxis() &lt;&lt; ")" &lt;&lt; ", name is " &lt;&lt;
+        ptC.getName() &lt;&lt; endl;
+
+    return 0;
+}</pre>
+            <p>
+                程序运行结果如下：
+            </p>
+            <pre class="terminal"><code>[jicanmeng@andy tmp]$ <span class="cmd">./a.out</span>
+                overload constructor function called
+                pointA axis is (-2, 2), name is left top point
+                default constructor function called
+                pointB axis is (0, 0)
+                overload constructor function called
+                pointC axis is (2, -2), name is hello
+            [jicanmeng@andy tmp]$</code></pre>
+            <p>
+                可以看到，我们在重载构造函数中分配了内存，解决了这个问题。但是另外一个问题同时也浮出了水面，我们每次构造一个C2DPoint对象，都会分配一块内存。那么这些内存在什么地方进行释放呢？这就是下一节要讲的内容了：析构函数(destructor)。
+            </p>
+
 			<h2>参考资料</h2>
 				<ol>
 					<li>
