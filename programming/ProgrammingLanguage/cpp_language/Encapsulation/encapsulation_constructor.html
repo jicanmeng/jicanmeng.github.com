@@ -206,7 +206,7 @@ int main()
     cout &lt;&lt; "point axis is (" &lt;&lt; ptA.getXAxis() &lt;&lt;
         ", " &lt;&lt; ptA.getYAxis() &lt;&lt; ")" &lt;&lt; endl;
 
-    C2DPoint ptB();
+    C2DPoint ptB;
     cout &lt;&lt; "point axis is (" &lt;&lt; ptB.getXAxis() &lt;&lt;
         ", " &lt;&lt; ptB.getYAxis() &lt;&lt; ")" &lt;&lt; endl;
 
@@ -258,7 +258,7 @@ int main()
 
             <hr />
             <p>
-                知道了这三个基本概念。我们来看一个非常重要的知识点：当类中包含有指针类型的变量成员时，应该如何写我们的构造函数？我们将C2DPoint这个类扩充一下，添加一个<code>char *m_pName;</code>变量成员来看一看。看下面的例子：
+                知道了这三个基本概念后，我们来看一个非常重要的知识点：当类中包含有指针类型的变量成员时，应该如何写我们的构造函数？我们将C2DPoint这个类扩充一下，添加一个<code>char *m_pName;</code>变量成员来看一看。看下面的例子：
             </p>
 <pre class="sourceCode">#include &lt;iostream&gt;
 using namespace std;
