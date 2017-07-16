@@ -167,9 +167,9 @@ int main(void){
     float *pF = (float *)&amp;a;
     printf("%.60f\n", *pF);
 
-    printf("%.50f\n", FLT_MIN);
+    printf("%.60f\n", FLT_MIN);
     a = 0x00800000;
-    printf("%.50f\n", *pF);
+    printf("%.60f\n", *pF);
 
     printf("%.10f\n", FLT_MAX);
     a = 0x7f7fffff;
@@ -184,14 +184,14 @@ int main(void){
             <p>
                 如果使用windows平台上面的mingw编译，程序输出如下：
             </p>
-            <pre class="terminal"><code>[jicanmeng@andy tmp]$ <span class="cmd">./a.exe</span>
+            <pre class="terminal"><code>D:\softwares\Qt\Qt5.8.0\Tools\mingw530_32\bin><span class="cmd">a.exe</span>
 				0.000000000000000000000000000000000000000000001401298464324817
 				0.000000000000000000000000000000000000011754943508222875000000
 				0.000000000000000000000000000000000000011754943508222875000000
 				340282346638528860000000000000000000000.0000000000
 				340282346638528860000000000000000000000.0000000000
 				0.00000011920928955078125000000000000000000000000000
-                [jicanmeng@andy tmp]$</code></pre>
+                D:\softwares\Qt\Qt5.8.0\Tools\mingw530_32\bin></code></pre>
             <p>
             <p>
                 如果使用linux平台上面的gcc编译，程序输出如下：
