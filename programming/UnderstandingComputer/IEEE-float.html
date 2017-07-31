@@ -69,13 +69,15 @@
 <pre class="sourceCode">#include &lt;stdio.h&gt;
 
 int main(void){
-    int num=9;
-    float* pFloat=&amp;num;
+    int num = 9;
+    float* pFloat=(float *)&amp;num;
+
     printf("sizeof(int) is %d, sizeof(float) is %d\n",
         sizeof(int), sizeof(float));
     printf("value of num is %d\n",num);
     printf("value of *pFloat is %f\n",*pFloat);
-    *pFloat=9.0;
+
+    *pFloat = 9.0f;
     printf("value of num is %d\n",num);
     printf("value of *pFloat is %f\n",*pFloat);
     return 0;
@@ -297,8 +299,8 @@ int main(void){
 #include &lt;float.h&gt;
 
 int main(void){
-    float a = 999999.9999;
-    float b = 8388608.6;
+    float a = 999999.9999f;
+    float b = 8388608.6f;
     printf("%f %f\n", a, b);
 
     return 0;
@@ -343,7 +345,7 @@ int main(void){
                 在上面这个例子中，第6个有效数字中，从2到3到4到5都能表示出来，但是如果你将0.000976563赋值给一个浮点数变量再打印一下，那么它会打印出来0.0009765629656612873077392578125f。此时表示的完全准确的有效数字就只有5位了。
             </p>
             <p>
-                另外要特别注意，由于浮点数的间隔特性，如果你将一个浮点数赋值给一个浮点型变量，编译器首先检查这个这个浮点数是否在两个浮点数之间，离哪个浮点数接近，离哪个近，这个变量中就保存哪个值。例如将0.000989f赋值给一个浮点型变量，那么再打印出来，打印结果就是0.00098899996373802423f，只有两个有效数字是准确的。所以浮点数的四舍五入也是你需要考虑的问题。
+                另外要特别注意，由于浮点数的间隔特性，如果你将一个数赋值给一个浮点型变量，编译器首先检查这个这个数是否在两个浮点数之间，离哪个浮点数接近，离哪个近，这个变量中就保存哪个值。例如将0.000989f赋值给一个浮点型变量，那么再打印出来，打印结果就是0.00098899996373802423f，只有两个有效数字是准确的。所以浮点数的四舍五入也是你需要考虑的问题。
             </p>
             <p>
                 现在回过头来再看看网友提到的这个例子：

@@ -48,7 +48,195 @@
                     Note that &lt;&lt;&lt; is not an operator, because it would be redundant. <font color="red">Also note that C and C++ do not distingiush between the right shift operators. <b>They provide only the &gt;&gt; operator</b>, and the shifting behavior is implementation defined</font>.
                 </blockquote>
             </p>
+            <hr />
+            2017.07.31补充
+            <hr />
+            <p>示例程序如下:</p>
+<pre class="sourceCode">#include &lt;stdio.h&gt;
 
+typedef unsigned char *byte_pointer;
+
+void show_bytes(byte_pointer start, int len)
+{
+    for (int i = 0; i &lt; len; i++) {
+        printf("%.2x ", start[i]);
+    }
+    printf("\n");
+}
+
+int main(void){
+    /* 1. left shift */
+    char ch_a = 0x35;
+    char ch_b = ch_a &lt;&lt; 2;
+
+    show_bytes((byte_pointer)&amp;ch_b, 1);
+
+    /* 2. right shift */
+    char ch_c = 0xf3;
+    unsigned char ch_d = 0xf3;
+
+    char ch_e = ch_c &gt;&gt; 2;
+    unsigned char ch_f = ch_d &gt;&gt; 2;
+
+    show_bytes((byte_pointer)&amp;ch_e, 1);
+    show_bytes((byte_pointer)&amp;ch_f, 1);
+
+    return 0;
+}</pre>
+            <p>运行结果如下:</p>
+            <pre class="terminal"><code>[jicanmeng@andy tmp]$ <span class="cmd">./a.out</span>
+                d4
+                fc
+                3c
+                [jicanmeng@andy tmp]$ </code></pre>
+            <p>
+            <p>
+                有符号char型变量ch_c和无符号char型变量ch_d都左移2位，为什么结果不一样呢？很显然，ch_c使用了算术右移，ch_d使用了逻辑右移。
+            </p>
+            <p>
+                其实，上面这个简单的程序，涉及到了另外三个重要的知识点：
+                <ol>
+                    <li><b><font color="red">零扩展和符号扩展</font></b></li>
+                    <li><b><font color="red">类型转换</font></b></li>
+                    <li><b><font color="red">赋值运算</font></b></li>
+                </ol>
+            </p>
+            <p>
+                首先看第一个知识点：零扩展和符号扩展。将一个占字节较少的数据类型的变量转换为一个占字节较多的数据类型时，就会发生扩展。如果变量是无符号数，就会发生零扩展。如果变量是有符号数，就会发生符号扩展。
+            </p>
+            <p>
+                看下面的例子：
+            </p>
+<pre class="sourceCode">#include &lt;stdio.h&gt;
+
+int main(void){
+	/* 1. char ->int, unsigned char->unsigned int */
+	char ch_a = 0x80;
+	unsigned char ch_b = 0x80;
+	int i_a = ch_a;
+	unsigned int ui_b = ch_b;
+	printf("i_a is 0x%x, i_b is 0x%x\n", i_a, ui_b);
+
+	/* 2. char->unsigned int */
+	ui_b = ch_a;
+	printf("i_b is 0x%x\n", ui_b);
+
+	return 0;
+}</pre>
+            <p>运行结果如下:</p>
+            <pre class="terminal"><code>[jicanmeng@andy tmp]$ <span class="cmd">./a.out</span>
+                i_a is 0xffffff80, i_b is 0x80
+                i_b is 0xffffff80
+                [jicanmeng@andy tmp]$ </code></pre>
+            <p>
+                这个程序比较有意思的是最后一个结果。将char型变量ch_a转换为unsigned int类型的变量，顺序是怎么样的呢？<b><font color="red">实际上，(unsigned int)ch_a等价于(unsigned int)(int)ch_a, </font></b>而不是(unsigned int)(unsigned char)ch_a。在《深入理解计算机系统》第2章也提到这样的例子，里面提到，这个规则是C语言标准要求的。
+            </p>
+            <p>
+                再看第二个知识点：类型转换。其实上面提到的零扩展和符号扩展就是一种特殊的类型变换。c语言中二元操作符执行运算时，都会进行隐式的类型转换，例如加、减、乘、除、移位等运算。规则如下：
+                <ol>
+                    <li>If an operand is an integer that is narrower than an int, it undergoes integral promotion to int.</li>
+                    <li>If the operands still do not match, then the compiler finds the highest priority operand and implicitly converts the other operand to match.</li>
+                </ol>
+                <ul>
+                    优先级如下：
+                    <li>long double (highest)</li>
+                    <li>double</li>
+                    <li>float</li>
+                    <li>unsigned long long</li>
+                    <li>long long</li>
+                    <li>unsigned long</li>
+                    <li>long</li>
+                    <li>unsigned int</li>
+                    <li>int (lowest)</li>
+                </ul>
+            </p>
+            <p>
+                举例说明如下：
+            </p>
+<pre class="sourceCode">#include &lt;stdio.h&gt;
+#include &lt;typeinfo&gt;
+#include &lt;iostream&gt;
+
+int main(void){
+    /* 1. 加、减、乘、除、移位等运算时，进行隐式的类型转换， 左右两边转换为相同的类型  */
+    short a(4);
+    short b(5);
+    std::cout &lt;&lt; typeid(a + b).name() &lt;&lt; " " &lt;&lt; a + b &lt;&lt; std::endl;
+
+    float d(4.0);
+    short s(2);
+    std::cout &lt;&lt; typeid(d + s).name() &lt;&lt; " " &lt;&lt; d + s &lt;&lt; std::endl;
+
+    std::cout &lt;&lt; 5u - 10 &lt;&lt; std::endl;
+
+    char z_high = 0xff;
+    printf("typeid of z_high is %s\n", typeid(z_high).name());
+    printf("typeid of z_high &lt;&lt; 8 is %s\n", typeid(z_high &lt;&lt; 8).name());
+
+    unsigned char z_high2 = 0xff;
+    printf("typeid of z_high is %s\n", typeid(z_high2).name());
+    printf("typeid of z_high &lt;&lt; 8 is %s\n\n", typeid(z_high2 &lt;&lt; 8).name());
+
+    /* 2. 赋值时，进行隐式的类型转换，参数列表中的数据转换为要求的类型 */
+    unsigned int vcc = 0xf2;
+    printf("cc is 0x%x\n", vcc);
+    char vdd = 0xf2;
+    vcc = vdd;
+    printf("cc is 0x%x\n", vcc);
+
+    return 0;
+}</pre>
+            <p>运行结果如下:</p>
+            <pre class="terminal"><code>[jicanmeng@andy tmp]$ <span class="cmd">./a.out</span>
+                int 9
+                float 6
+                4294967291
+                typeid of z_high is char
+                typeid of z_high << 8 is int
+                typeid of z_high is unsigned char
+                typeid of z_high << 8 is int
+
+                cc is 0xf2
+                cc is 0xfffffff2
+                [jicanmeng@andy tmp]$ </code></pre>
+            <p>
+            <p>
+                最后看第三个知识点：赋值运算。对于整数之间的运算，其实就是内存拷贝。将浮点数(单双精度)转换为整数时，将舍弃浮点数的小数部分，只保留整数部分。将整型值赋给浮点型变量，会检查这个整数位于哪两个浮点数之间，离哪个浮点数近，那么浮点型变量就保存哪个浮点型变量的值(浮点数在<a href="IEEE-float.html">浮点数的表示方法</a>一文中有详细讲解)。
+            </p>
+            <p>
+                举例说明如下：
+            </p>
+<pre class="sourceCode">#include &lt;stdio.h&gt;
+#include &lt;limits.h&gt;
+
+int main(void){
+    /* 1. 整型和整型赋值 */
+    unsigned int ui_a = UINT_MAX;
+    int i_a = ui_a;
+    printf("i_a is %d\n", i_a);
+
+    /* 2. 整型和浮点型赋值 */
+    int i_b = 8388608.754;
+    printf("i_b is %d\n", i_b);
+
+    float f_a = 8388608.7;
+    printf("f_a is %f\n", f_a);
+
+    return 0;
+}</pre>
+            <p>运行结果如下:</p>
+            <pre class="terminal"><code>[jicanmeng@andy tmp]$ <span class="cmd">./a.out</span>
+                    i_a is -1
+                    i_b is 8388608
+                    f_a is 8388609.000000
+                [jicanmeng@andy tmp]$ </code></pre>
+
+            <p>
+                这三个知识点都明白后，那么最开始的例子的运行结果肯定也能理解了。<code>char ch_e = ch_c &gt;&gt; 2;</code>这一行代码中，&gt;&gt;是一个二元操作符，所以首先将ch_c进行符号扩展，成为int类型，成为0xfffffff3, 这是一个有符号数，右移两位后成为0xfffffffc，然后赋值给左侧的char类型的变量ch_e，直接进行内存截取，所以ch_e的值为0xfc。
+            </p>
+            <p>
+                类似地，<code>char ch_f = ch_d &gt;&gt; 2;</code>这一行代码中，&gt;&gt;是一个二元操作符，所以首先将ch_d进行零扩展，成为int类型，成为0x000000f3, 这是一个有符号数，右移两位后成为0x0000003c，然后赋值给左侧的unsigned char类型的变量ch_f，直接进行内存截取，所以ch_f的值为0x3c。
+            </p>
 			<h2>参考资料</h2>
 				<ol>
 					<li>
