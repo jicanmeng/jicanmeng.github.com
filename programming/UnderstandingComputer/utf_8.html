@@ -36,12 +36,51 @@
                 Unicode is charset。<br />
                 UTF-8 is encoding。
             </p>
+            <hr />
+            2017.08.27补充
+            <hr />
+            <p>
+                一段时间前，看到阮一峰老师写的《ASCII，utf-8字符编码笔记》，对于字符编码有了一些兴趣。就又找了其它的资料看了看，如下是实际操作过程和相关笔记。
+            </p>
+            <p>
+                要搞明白ascii，unicode，utf-8等概念，需要了解一点历史。下面的参考链接中都描述的很详细了，这里就不再说了。
+            </p>
+            <p><strong>
+                简单来说，ASCII字符集使用ASCII编码，Unicode字符集使用三种编码：utf-32编码，utf-16编码，utf-8编码。</strong>
+            </p>
+			<p>
+				打开记事本，输入如下内容：
+				<blockquote>
+					我爱linux。<br />
+					我也爱c语言。
+				</blockquote>
+				分别保存为如下格式：ANSI，Unicode，Unicode big endian，UTF-8。四个文件的名字分别为test_ascii.txt，test_unicode.txt，test_unicode_big_endian.txt，test_utf8.txt。然后使用二进制工具查看各个文件的内容：
+			</p>
+			<p>test_ascii.txt文件的二进制内容如下：<br /><img src="images/test_ascii.PNG" />
+            </p>
+			<p>test_unicode.txt文件的二进制内容如下：<br /><img src="images/test_unicode.PNG" />
+			</p>
+			<p>test_unicode_big_endian.txt文件的二进制内容如下：<br /><img src="images/test_unicode_big_endian.PNG" />
+			</p>
+			<p>test_utf8.txt文件的二进制内容如下：<br /><img src="images/test_utf8.PNG" />
+			</p>
+
+			<p>使用file命令又可以看到如下的输出。<br />
+				<img src="images/file_encoding.PNG" />
+			</p>
+
+
 
 			<h2>参考资料</h2>
 				<ol>
 					<li>
 						字符编码笔记：ASCII，Unicode和UTF-8<br />
 						<a href="http://www.ruanyifeng.com/blog/2007/10/ascii_unicode_and_utf-8.html" target="_blank">http://www.ruanyifeng.com/blog/2007/10/ascii_unicode_and_utf-8.html</a>
+					</li>
+
+					<li>
+						Unicode与JavaScript详解<br />
+						<a href="http://www.ruanyifeng.com/blog/2014/12/unicode.html" target="_blank">http://www.ruanyifeng.com/blog/2014/12/unicode.html</a>
 					</li>
 
 					<li>
@@ -54,6 +93,45 @@
 					<a href="http://my.oschina.net/goldenshaw/blog?catalog=536953" target="_blank">http://my.oschina.net/goldenshaw/blog?catalog=536953</a>
 					</li>
 
+					<li>
+						刨根究底字符编码之五——简体汉字编码方案(GB2312、GBK、GB18030、GB13000)以及全角、半角、CJK<br />
+					<a href="http://www.cnblogs.com/benbenalin/category/1005679.html" target="_blank">http://www.cnblogs.com/benbenalin/category/1005679.html</a>
+					</li>
+
+					<li>
+						unicode 编码在线转换工具--javascript<br />
+					<a href="http://www.cnblogs.com/mq0036/p/4007452.html" target="_blank">http://www.cnblogs.com/mq0036/p/4007452.html</a>
+					</li>
+
+					<li>
+						中华人民共和国国家标准 信息交换用汉字编码字符集基本集 GB 2312-80<br />
+					<a href="http://www.qqxiuzi.cn/zh/hanzi-gb2312-bianma.php" target="_blank">http://www.qqxiuzi.cn/zh/hanzi-gb2312-bianma.php</a>
+					</li>
+
+					<li>
+						unicode 编码在线转换工具--javascript<br />
+					<a href="http://www.cnblogs.com/mq0036/p/4007452.html" target="_blank">http://www.cnblogs.com/mq0036/p/4007452.html</a>
+					</li>
+
+                    <li>
+                        gb2312到底是什么?<br />
+                    <a href="http://blog.csdn.net/hitexam/article/details/5996607" target="_blank">http://blog.csdn.net/hitexam/article/details/5996607</a>
+                    </li>
+
+                    <li>
+                        关于字符编码，你所需要知道的<br />
+                    <a href="http://www.cnblogs.com/KevinYang/archive/2010/06/18/1760597.html" target="_blank">http://www.cnblogs.com/KevinYang/archive/2010/06/18/1760597.html</a>
+                    </li>
+
+                    <li>
+                        浅谈文字编码和Unicode（上）<br />
+                    <a href="http://www.fmddlmyy.cn/text16.html" target="_blank">http://www.fmddlmyy.cn/text16.html</a>
+                    </li>
+
+                    <li>
+                        各种编码UNICODE、UTF-8、ANSI、ASCII、GB2312、GBK详解<br />
+                        <a href="http://blog.csdn.net/lvxiangan/article/details/8151670" target="_blank">http://blog.csdn.net/lvxiangan/article/details/8151670</a>
+                    </li>
 				</ol>
 		</div>
 
